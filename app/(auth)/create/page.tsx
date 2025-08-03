@@ -10,7 +10,7 @@ export default function Create() {
         e.preventDefault();
         // 여기서 이메일/비번 검증 & 로그인 요청 수행
         // 성공했다고 가정하고 이동:
-        router.push("/main"); 
+        router.push("/greet"); 
       }
   return (
     <main className="min-h-screen grid place-items-center p-6">

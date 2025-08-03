@@ -1,7 +1,3 @@
-'use client';
-
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 const items = [
@@ -10,23 +6,6 @@ const items = [
 ];
 
 export default function Main() {
-  const router = useRouter();
-  const params = useSearchParams();
-  const [open, setOpen] = useState(false);
-  const [level, setLevel] = useState<string>("");
-
-  useEffect(() => {
-    const needSetup = params.get("level") === "setup";
-    const saved = typeof window !== "undefined" ? localStorage.getItem("userLevel") : null;
-    if (needSetup || !saved) setOpen(true);
-  }, [params]);
-
-  function saveLevel() {
-    if (!level) return;
-    localStorage.setItem("userLevel", level);
-    setOpen(false);
-    router.replace("/main");
-  }
 
   return (
     <main className="min-h-screen p-6">
@@ -48,41 +27,6 @@ export default function Main() {
           ))}
         </div>
       </section>
-
-      {open && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl bg-white dark:bg-neutral-900 shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">레벨 설정</h2>
-            <div className="flex flex-col gap-3">
-              <select
-                className="h-11 rounded-md border px-3 outline-none"
-                value={level}
-                onChange={(e) => setLevel(e.target.value)}
-              >
-                <option value="">레벨을 선택하세요</option>
-                <option value="beginner">초급</option>
-                <option value="intermediate">중급</option>
-                <option value="advanced">고급</option>
-              </select>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  onClick={() => router.replace("/")}
-                  className="h-10 px-4 rounded-md border"
-                >
-                  취소
-                </button>
-                <button
-                  onClick={saveLevel}
-                  className="h-10 px-4 rounded-md bg-emerald-600 text-white"
-                >
-                  저장
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </main>
   );
 }

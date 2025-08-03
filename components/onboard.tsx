@@ -28,9 +28,22 @@ export default function Onboard() {
                 </div>
                 <h2 className="text-2xl font-bold mt-2">{slide.title}</h2>
                 <p className="text-gray-600 mt-1">{slide.desc}</p>
-                <Link href="/first" className="btn pageTitle">
-                    <span className="text-sm text-white">{slide.start}</span>
-                </Link>
+                {slide.isFinal&&(
+                     <div className="flex flex-col w-full gap-3">
+          <Link
+            href="/create"
+            className="inline-flex h-11 items-center justify-center rounded-lg bg-emerald-600 text-white shadow hover:bg-emerald-700 transition"
+          >
+            회원가입
+          </Link>
+          <Link
+            href="/login"
+            className="inline-flex h-11 items-center justify-center rounded-lg border shadow hover:shadow-md transition"
+          >
+            로그인
+          </Link>
+        </div>
+                )}
               </div>
             </div>
           ))}
