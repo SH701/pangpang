@@ -3,10 +3,9 @@ import Link from "next/link";
 
 export default function Profile() {
   return (
-    <>
-    <main className="min-h-[calc(100vh-80px)] ml-20 flex justify-center mt-20 max-w-[640px] w-full">
-      <section className="w-full max-w-[640px] mx-auto">
-        <div className=" rounded-2xl bg-white dark:bg-neutral-900 border shadow-md p-5">
+    <main className="min-h-[calc(100vh-80px)] flex justify-center pt-20 px-4 bg-white dark:bg-[#0a0a0a]">
+      <section className="w-full max-w-[640px]">
+        <div className="rounded-2xl bg-white dark:bg-neutral-900 border shadow-md p-5">
           <div className="flex items-center gap-4">
             <div className="shrink-0 grid place-items-center size-16 rounded-full ring-4 ring-white dark:ring-neutral-900 bg-neutral-100 dark:bg-neutral-800">
               <UserIcon className="size-8 text-neutral-500" />
@@ -25,8 +24,10 @@ export default function Profile() {
               <Arrow className="size-5" />
             </Link>
           </div>
+
           <div className="my-5 h-px bg-neutral-200 dark:bg-neutral-800" />
-          <div className="flex items-center gap-2 text-sm">
+
+          <div className="flex flex-wrap gap-2 text-sm">
             <span className="px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
               레벨: 초급
             </span>
@@ -35,34 +36,40 @@ export default function Profile() {
             </span>
           </div>
         </div>
+
         <div className="mt-6 space-y-3">
           <form>
-            <button type="submit" className="h-11 rounded-md bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition w-full">
+            <button
+              type="submit"
+              className="h-11 w-full rounded-md bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition"
+            >
               로그아웃
             </button>
           </form>
 
           <button
             type="button"
-            className="h-11 w-full rounded-md bg-red-500 hover:bg-red-400 text-white font-medium border-transparent"
+            className="h-11 w-full rounded-md bg-red-500 hover:bg-red-400 text-white font-medium"
           >
             회원탈퇴
           </button>
         </div>
+
         <div className="mt-6 grid gap-3">
           <Link
             href="/history"
+            className="block text-emerald-600 hover:underline"
           >
             대화 히스토리 보기
           </Link>
           <Link
             href="/settings"
+            className="block text-emerald-600 hover:underline"
           >
             설정
           </Link>
         </div>
       </section>
     </main>
-    </>
   );
 }
