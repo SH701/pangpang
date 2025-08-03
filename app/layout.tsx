@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import ClientLoader from "@/components/load/loader";
 
 
 export const metadata: Metadata = {
@@ -24,11 +25,13 @@ export default function RootLayout({
           h-full
         `}
       >
+        <ClientLoader>
           <div className="flex flex-col min-h-screen">
             <main className="flex-grow w-full max-w-[640px] mx-auto px-4 sm:px-6">
               {children}
             </main>
           </div>
+          </ClientLoader>
       </body>
     </html>
   );
