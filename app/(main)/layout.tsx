@@ -1,16 +1,20 @@
-import Header from "@/components/header";
+import TabBar from "@/components/tab-bar";
 
 export const dynamic = "force-dynamic";
 
-export default function TabsLayout({
+export default function MainsLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="pt-5 flex flex-col min-h-screen">
-      <Header />
-      {children}
+    <div className="w-lg min-h-screen flex flex-col">
+      <div className="flex-1 flex items-center justify-center">
+        {children}
+      </div>
+      <div>
+        <TabBar />
+      </div>
     </div>
   );
 }

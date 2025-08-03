@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { setlevel } from "@/lib/setlevel";
+import Link from "next/link";
 
 export default function Level() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -41,6 +42,7 @@ export default function Level() {
             </p>
           </div>
         )}
+        <Link href="/main">메인 페이지로 이동</Link>
       </div>
     </div>
   );

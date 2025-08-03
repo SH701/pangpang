@@ -4,14 +4,13 @@ import Link from "next/link";
 export default function Profile() {
   return (
     <>
-    <main className="min-h-[calc(100vh-80px)] flex items-start justify-center px-4 py-8 mt-20">
-      <section className="w-full max-w-md">
-        <div className="-mt-10 rounded-2xl bg-white dark:bg-neutral-900 border shadow-md p-5">
+    <main className="min-h-[calc(100vh-80px)] ml-20 flex justify-center mt-20 max-w-[640px] w-full">
+      <section className="w-full max-w-[640px] mx-auto">
+        <div className=" rounded-2xl bg-white dark:bg-neutral-900 border shadow-md p-5">
           <div className="flex items-center gap-4">
             <div className="shrink-0 grid place-items-center size-16 rounded-full ring-4 ring-white dark:ring-neutral-900 bg-neutral-100 dark:bg-neutral-800">
               <UserIcon className="size-8 text-neutral-500" />
             </div>
-
             <div className="min-w-0">
               <p className="text-lg font-semibold truncate">닉네임</p>
               <p className="text-sm text-neutral-500 truncate">이메일</p>
