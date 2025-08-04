@@ -21,7 +21,6 @@ export default function RootLayout({
           className={`
             antialiased
             bg-white text-gray-900
-            dark:bg-[#1C1917] dark:text-white
             h-full
           `}
         >

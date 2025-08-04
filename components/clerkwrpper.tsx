@@ -6,7 +6,7 @@ import { ReactNode } from "react";
 
 export default function ClerkWrapper({ children }: { children: ReactNode }) {
   return (
-    <ClerkProvider appearance={{ baseTheme: dark }}>
+    <ClerkProvider appearance={{ baseTheme: dark }} publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
       {children}
     </ClerkProvider>
   );
