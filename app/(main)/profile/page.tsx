@@ -1,75 +1,57 @@
-import UserIcon, { Arrow } from "@/components/icons";
+"use client";
+
+import Logout from "@/components/logout";
+import { useUser } from "@clerk/nextjs";
+import { Cog6ToothIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 
+function formatDate(iso?: string | Date | null) {
+  if (!iso) return "";
+  const d = typeof iso === "string" ? new Date(iso) : iso;
+  const opts: Intl.DateTimeFormatOptions = {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  };
+  return d.toLocaleString("en-US", opts);
+}
+
 export default function Profile() {
+  const { isLoaded, isSignedIn, user } = useUser();
+  if (!isLoaded) return <div>로딩중....</div>;
+  if (!isSignedIn || !user) return <div>로그인 필요</div>;
+
+  const name = `${user.lastName || ""}${user.firstName || ""}`.trim() || "익명";
+  const joined = formatDate(user.createdAt);
+
   return (
-    <main className="min-h-[calc(100vh-80px)] flex justify-center pt-20 px-4 bg-white dark:bg-[#0a0a0a]">
-      <section className="w-full max-w-[640px]">
-        <div className="rounded-2xl bg-white dark:bg-neutral-900 border shadow-md p-5">
-          <div className="flex items-center gap-4">
-            <div className="shrink-0 grid place-items-center size-16 rounded-full ring-4 ring-white dark:ring-neutral-900 bg-neutral-100 dark:bg-neutral-800">
-              <UserIcon className="size-8 text-neutral-500" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-lg font-semibold truncate">닉네임</p>
-              <p className="text-sm text-neutral-500 truncate">이메일</p>
-            </div>
-
-            <Link
-              href="/profile/edit"
-              className="ml-auto inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-700 transition"
-              aria-label="프로필 수정"
-            >
-              <span className="text-sm font-medium">편집</span>
-              <Arrow className="size-5" />
-            </Link>
-          </div>
-
-          <div className="my-5 h-px bg-neutral-200 dark:bg-neutral-800" />
-
-          <div className="flex flex-wrap gap-2 text-sm">
-            <span className="px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
-              레벨: 초급
-            </span>
-            <span className="px-2 py-1 rounded-full bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
-              알림: ON
-            </span>
-          </div>
-        </div>
-
-        <div className="mt-6 space-y-3">
-          <form>
-            <button
-              type="submit"
-              className="h-11 w-full rounded-md bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition"
-            >
-              로그아웃
-            </button>
-          </form>
-
-          <button
-            type="button"
-            className="h-11 w-full rounded-md bg-red-500 hover:bg-red-400 text-white font-medium"
-          >
-            회원탈퇴
-          </button>
-        </div>
-
-        <div className="mt-6 grid gap-3">
-          <Link
-            href="/history"
-            className="block text-emerald-600 hover:underline"
-          >
-            대화 히스토리 보기
+    <div className="relative flex flex-col items-center gap-4 px-6 py-8">
+      <Link href="/profile/setting" aria-label="설정">
+            <Cog6ToothIcon
+              className="
+                w-6 h-6 text-gray-400 
+                absolute -top-1 -right-10 
+                cursor-pointer 
+                transition-transform duration-500 
+                hover:rotate-180 hover:text-gray-200
+              "
+            />
           </Link>
-          <Link
-            href="/settings"
-            className="block text-emerald-600 hover:underline"
-          >
-            설정
-          </Link>
+      <div className="relative flex flex-col items-center">
+        <div className="relative inline-block">
+          <h1 className="text-3xl font-bold text-center">{name}</h1>
+         
         </div>
-      </section>
-    </main>
+        <div className="text-xs text-gray-400 mt-1">Joined {joined}</div>
+        <Logout/>
+      </div>
+
+      <div className="flex flex-col items-center justify-center">
+        <span className="text-sm text-gray-400">Your Lifetime Highlights</span>
+        <div className="border rounded-2xl p-10 mt-2 w-full">아래 내용들</div>
+        <div className="border rounded-2xl p-10 w-full mt-4">아래 내용들</div>
+        <div className="border rounded-2xl p-10 w-full mt-4">아래 내용들</div>
+      </div>
+    </div>
   );
 }

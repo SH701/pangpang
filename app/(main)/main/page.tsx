@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect } from "react";
 import Link from "next/link";
 
 const items = [
@@ -6,12 +9,32 @@ const items = [
 ];
 
 export default function Main() {
-  return (
-    <main className="min-h-screen p-6 flex justify-center bg-white dark:bg-[#0a0a0a]">
-      <div className="w-full max-w-lg">
-        <h1 className="text-2xl font-semibold mb-10 text-center">메인페이지</h1>
+  useEffect(() => {
+    const setVh = () => {
+      document.documentElement.style.setProperty(
+        "--vh",
+        `${window.innerHeight * 0.01}px`
+      );
+    };
+    setVh();
+    window.addEventListener("resize", setVh);
+    return () => window.removeEventListener("resize", setVh);
+  }, []);
 
-        <section className="px-0 pb-8">
+  return (
+    <main
+      className="flex flex-col justify-start p-6 w-full mt-10"
+      style={{
+        height: "calc(var(--vh, 1vh) * 100)",
+        paddingTop: "env(safe-area-inset-top)",
+        paddingBottom: "env(safe-area-inset-bottom)",
+      }}
+    >
+      <div className="w-full">
+        <h1 className="text-2xl font-semibold mb-10 text-center">
+          메인페이지
+        </h1>
+        <section className="flex-1 px-0 pb-8">
           <div className="flex flex-col gap-4">
             {items.map((it) => (
               <Link
