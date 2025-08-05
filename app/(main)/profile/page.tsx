@@ -24,14 +24,14 @@ export default function Profile() {
   if (!isLoaded) return <div>로딩중....</div>;
   if (!isSignedIn || !user) return <div>로그인 필요</div>;
 
-  const name = `${user.lastName || ""}${user.firstName || ""}`.trim() || "익명";
+  const name = `${user.unsafeMetadata.nickname}`.trim() || "익명";
   const joined = formatDate(user.createdAt);
 
   return (
    <>
     <span className="absolute top-12 left-4 text-2xl font-bold z-10">My Page</span>
     <div className="flex flex-col">
-    <div className="relative flex flex-col items-center gap-4 px-6 py-8 bg-white mb-15">
+    <div className="relative flex flex-col items-center gap-4 px-6 py-8 bg-white">
       <div className="relative flex flex-col items-center gap-2">
         <Image src={user?.imageUrl} alt="Profile" width={100} height={100} className="rounded-full"/>
         <h1 className="text-xl font-semibold text-center">{name}</h1>
@@ -52,11 +52,11 @@ export default function Profile() {
         </div>
       </div>
     </div>
-   <div className="bg-white px-3 pt-4 mb-15">
+   <div className="bg-white px-3 pt-4">
       <div className="pl-6 mb-2">
         <span className="text-lg font-semibold">설정</span>
       </div>
-      <div className="w-fit mx-auto overflow-hidden bg-gray-200 mb-4 border-b-1">
+      <div className="w-fit mx-auto overflow-hidden bg-gray-200 mb-4 border-b-1 rounded-2xl">
         <SettingItem
           icon={<span className="font-bold">Lv</span>}
           title="난이도"

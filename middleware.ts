@@ -2,6 +2,7 @@ import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { users } from "@clerk/clerk-sdk-node";
 
+
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await  auth();
   if (!userId) return NextResponse.next();
@@ -16,6 +17,9 @@ export default clerkMiddleware(async (auth, req) => {
   }
   if (isSetupDone && pathname === "/after") {
     return NextResponse.redirect(new URL("/main", req.url));
+  }
+  if (["/","login"].includes(pathname)){
+    return NextResponse.redirect(new URL("/main",req.url))
   }
   return NextResponse.next();
 });

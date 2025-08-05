@@ -6,7 +6,7 @@ import Slider from "react-slick";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import type { Settings } from "react-slick";
-import Image from "next/image";
+import ProfileChange from "./profilechange";
 
 const DEFAULT_INTERESTS = ["Daily Chat"];
 
@@ -113,31 +113,8 @@ export default function AfterLogin() {
 
         {/* 프로필 선택 */}
         <div className="space-y-4 text-center">
-          <h2 className="text-xl font-semibold">Please select a profile</h2>
-          {user?.imageUrl && (
-              <div className="flex justify-center mb-10">
-                <label className="cursor-pointer relative group">
-                <Image
-                  src={user.imageUrl}
-                  alt="Profile"
-                  width={120}
-                  height={120}
-                  className="rounded-full"
-                />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                    if (!file || !user) return;
-                    await user.setProfileImage({ file });
-                    await user.reload();
-                 }}
-                className="hidden"
-                  />
-                </label>
-              </div>
-            )}
+          <h2 className="text-xl font-semibold mb-10">Please select a profile</h2>
+          <ProfileChange user={user} />
           <input
             type="text"
             placeholder="Enter your nickname"

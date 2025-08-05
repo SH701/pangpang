@@ -64,10 +64,10 @@ export default function Onboard() {
         ))}
       </Slider>
 
-      <div className="flex justify-center items-center mt-4">
+      <div className="flex justify-center items-center mt-4 ">
         <button
           onClick={handleNext}
-          className="bg-black px-30 py-2 rounded-lg"
+          className="bg-black px-30 py-2 rounded-lg cursor-pointer"
         >
           <span className="font-semibold text-white">
             {currentSlide === 4 ? "Continue" : "Next"}
