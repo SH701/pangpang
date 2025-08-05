@@ -10,8 +10,8 @@ import { usePathname } from "next/navigation";
 
 export default function Main() {
   const { user } = useUser();
-  const nickname = user?.unsafeMetadata?.nickname ?? "Guest";  
-  const level = user?.unsafeMetadata?.level ?? 1;             
+  const nickname = user?.unsafeMetadata?.nickname  as string 
+  const level = user?.unsafeMetadata?.level as string             
   const pathname = usePathname();
   const paddingClass = pathname === "/login" ? "pl-1.5 py-9" : "";
 
