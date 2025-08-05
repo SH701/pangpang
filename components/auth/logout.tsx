@@ -16,7 +16,7 @@ export default function Logout() {
   return (
     <button
       onClick={handleSignOut}
-      className=" mt-2 cursor-pointer"
+      className=" mt-2 cursor-pointer border px-10"
     >
       <span className=" font-medium">Logout</span>
     </button>

@@ -1,67 +1,62 @@
 'use client';
 
+import { motion } from "framer-motion";
 import { roleplaySituations } from "@/lib/roleplay";
-import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
+import Link from "next/link";
 
-const variants = {
-  enter: (direction: number) => ({
-    x: direction > 0 ? 300 : -300,
-    opacity: 0,
-  }),
-  center: {
-    x: 0,
-    opacity: 1,
-  },
-  exit: (direction: number) => ({
-    x: direction > 0 ? -300 : 300,
-    opacity: 0,
-  }),
-};
+export default function RoleplayCarousel() {
+  const [page, setPage] = useState(0);
+  const visibleCount = 2;
+  const gap = 20;        
+  const cardWidth = 160; 
 
-export default function RoleplaySlider() {
-  const [[page, direction], setPage] = useState([0, 0]);
-  const paginate = (newDirection: number) => {
-    setPage(([prevPage]) => {
-      const next = (prevPage + newDirection + roleplaySituations.length) % roleplaySituations.length;
-      return [next, newDirection];
+  const total = roleplaySituations.length;
+  const maxPage = Math.ceil(total / visibleCount) - 1;
+
+  const handlePaginate = (dir: number) => {
+    setPage((prev) => {
+      const next = prev + dir;
+      if (next < 0) return maxPage;
+      if (next > maxPage) return 0;
+      return next;
     });
   };
 
-  const current = roleplaySituations[page];
-
   return (
-      <>
-      <div className="mb-3">
-      <span>Roleplay situation recommendations</span>
+    <div className="mb-3">
+      <div className="flex flex-col">
+      <span className="text-sm">Roleplay situation recommendations</span>
+      <span className="font-semibold text-lg mb-2">Why not talk about this?</span>
       </div>
-    <div className="w-[335px] max-w-md overflow-hidden relative h-[140px] bg-white rounded-xl shadow mb-4">
-      <AnimatePresence custom={direction}>
-        <motion.a
-          href="/main/role"
-          key={current.id}
-          custom={direction}
-          variants={variants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={{ duration: 0.4 }}
-          className="absolute w-full h-full flex items-center justify-center bg-gray-200 rounded-xl"
+      <div className="w-[335px] h-35 overflow-hidden relative mb-4">
+        <motion.div
+          className="flex gap-[20px]"  
+          animate={{ x: -(cardWidth + gap) * page }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
         >
-          
-          <span className="text-center text-base font-semibold px-4">{current.title}</span>
-        </motion.a>
-      </AnimatePresence>
+          {roleplaySituations.map((item) => (
+            <Link
+              key={item.id}
+              href="/main/role"
+              className="flex-shrink-0 w-[160px] h-[140px] bg-gray-200 rounded-xl shadow flex items-center justify-center"
+            >
+              <span className="text-center text-base font-semibold px-2">
+                {item.title}
+              </span>
+            </Link>
+          ))}
+        </motion.div>
 
-      <div className="absolute bottom-3 w-full flex justify-between px-5">
-        <button onClick={() => paginate(-1)} className="text-sm font-medium">
-           Prev
-        </button>
-        <button onClick={() => paginate(1)} className="text-sm font-medium">
-          Next 
-        </button>
+        <div className="absolute bottom-3 w-full flex justify-between px-2">
+          <button onClick={() => handlePaginate(-1)} className="text-sm font-medium">
+            Prev
+          </button>
+          <button onClick={() => handlePaginate(1)} className="text-sm font-medium">
+            Next
+          </button>
+        </div>
       </div>
     </div>
-    </>
   );
 }

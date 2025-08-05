@@ -14,28 +14,28 @@ interface HistoryItem {
 
 const dummyData: HistoryItem[] = [
   {
-    name: "친한 친구와 카페에서 대화",
-    summary: "최근에 유행하는 드라마에 대해 이야기",
-    role: "친구",
+    name: "Chatting with a friend at a café",
+    summary: "Talking about a recently popular TV drama",
+    role: "Friend",
   },
   {
     name: "Conversation with your boss",
-    summary: "Apology for being late",
+    summary: "One Americano, please.",
     role: "Boss",
   },
   {
-    name: "카페 직원과 커피 주문",
-    summary: "아메리카노 한 잔 주세요",
+    name: "Ordering coffee",
+    summary: "One Americano, please.",
     role: "Cafe worker",
   },
    {
-    name: "카페 직원과 커피 주문",
-    summary: "아메리카노 한 잔 주세요",
+    name: "Ordering coffee",
+    summary: "One Americano, please.",
     role: "Cafe worker",
   },
    {
-    name: "카페 직원과 커피 주문",
-    summary: "아메리카노 한 잔 주세요",
+    name: "Ordering coffee",
+    summary: "One Americano, please.",
     role: "Cafe worker",
   },
 ];
@@ -70,7 +70,7 @@ export default function ChatbotHistory() {
     <>   
       <div className="p-4 pt-16 space-y-4 relative">
         <h1 className="absolute top-4 left-4 text-2xl font-bold z-10">
-        Custom Chatbot History
+        Chat History
       </h1>
          <CharacterSlider/>
         <div className="flex justify-end items-center space-x-2 relative z-10">
@@ -108,15 +108,15 @@ export default function ChatbotHistory() {
                     <div className="w-12 h-12 rounded-full bg-gray-300" />
                     <p className="text-xs text-gray-500">{item.role}</p>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold">{item.name}</p>
-                    <p className="text-sm text-gray-500">{item.summary}</p>
+                  <div className="flex flex-col gap-2">
+                    <p className="text-xs font-semibold">{item.name}</p>
+                    <p className="text-[10px] text-gray-500">{item.summary}</p>
                   </div>
-                  <button onClick={() => toggleDetail(idx)}>
+                  <button onClick={() => toggleDetail(idx)}  className="ml-auto"  > 
                     {openIndexes.includes(idx) ? (
                       <ChevronDownIcon className="w-6 h-6" />
                     ) : (
-                      <ChevronRightIcon className="w-6 h-6" />
+                      <ChevronRightIcon className="w-6 h-6 " />
                     )}
                   </button>
                 </div>
@@ -130,9 +130,9 @@ export default function ChatbotHistory() {
                       transition={{ duration: 0.25 }}
                       className="px-4 py-6 bg-gray-200 text-center space-y-4 text-sm"
                     >
-                      <p className="font-semibold">Learning Report (Feedback)</p>
-                      <p>가장 많이 틀린 표현</p>
-                      <p>수치(점수)</p>
+                      <p className="font-semibold">Learning Report</p>
+                      <p>the most commonly mistaken expression</p>
+                      <p>Score</p>
                       <p className="underline">View entire conversation</p>
                     </motion.div>
                   )}

@@ -28,7 +28,7 @@ export default function Edit() {
   return (
     <div className="min-h-screen w-full max-w-md  px-6 py-8">
       <div className="relative w-full flex items-center justify-center h-12 mb-2">
-        <Link href="/profile" className="absolute -left-5 top-1/2 -translate-y-1/2 px-3">
+        <Link href="/profile" className="absolute -left-8 top-1/2 -translate-y-1/2 px-3">
          <ChevronLeftIcon className="size-8"/>
         </Link>
         <span className="font-bold text-lg">Profile Edit</span>
@@ -47,7 +47,7 @@ export default function Edit() {
         onClick={change}
         className="text-gray-600 bg-gray-100 px-4 py-1 rounded hover:bg-gray-200 cursor-pointer"
       >
-        변경
+        Change
       </button>
     </div>
       </div>
@@ -55,33 +55,29 @@ export default function Edit() {
       <div className="w-full h-px bg-gray-200 my-2" />
       {/* 기본정보 */}
       <div className="w-full px-2">
-        <div className="text-base font-semibold mb-3 mt-1">기본정보</div>
+        <div className="text-base font-semibold mb-3 mt-6">Information</div>
         <div className="flex items-center justify-between py-2">
           <div>
-            <div className="text-xs text-gray-400">생년월일</div>
-            <div className="text-sm font-medium">{birth}</div>
+            <div className="text-sm text-gray-400">Birth</div>
+            <div className=" font-medium">{birth}</div>
           </div>
-          <button className="bg-gray-200 rounded-full px-3 py-1 text-xs text-gray-600 font-medium">수정</button>
+          <button className="bg-gray-200 rounded-full px-3 py-1 text-xs text-gray-600 font-medium">Edit</button>
         </div>
         <div className="flex items-center justify-between py-2">
           <div>
-            <div className="text-xs text-gray-400">닉네임</div>
-            <div className="text-sm font-medium">{nickname}</div>
+            <div className="text-sm text-gray-400">Nickname</div>
+            <div className=" font-medium">{nickname}</div>
           </div>
         </div>
         <div className="flex items-center justify-between py-2">
           <div>
-            <div className="text-xs text-gray-400">이메일</div>
-            <div className="text-sm font-medium">{email}</div>
+            <div className="text-sm text-gray-400">E-mail</div>
+            <div className=" font-medium">{email}</div>
           </div>
-          {/* 이메일은 수정 버튼 없음 */}
-          <div className="w-12" />
         </div>
       </div>
-      {/* 아래 여백 */}
       <div className="flex-1" />
-      {/* 로그아웃/탈퇴 */}
-      <div className="flex flex-col items-center gap-1 mt-10 w-full">
+      <div className="flex justify-center px-10 items-center gap-2 mt-10 w-full">
         <Logout/>
         <Secession/>
       </div>

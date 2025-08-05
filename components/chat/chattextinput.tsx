@@ -16,7 +16,7 @@ export default function ChatTextInput() {
     <input
       type="text"
       className="flex-1 px-4 py-2 border rounded-full outline-none placeholder:text-sm"
-      placeholder="존댓말을 알려드릴게요! 질문해 주세요."
+      placeholder="I’ll teach you polite speech ask away!"
       value={text}
       onChange={(e) => setText(e.target.value)}
       onKeyDown={handleKeyDown}

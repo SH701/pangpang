@@ -1,15 +1,18 @@
-import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
+module.exports = {
+  content: [
+    "./app/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+  ],
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "img.clerk.com",
-        pathname: "/**",
-      },
-    ],
+    domains: ["img.clerk.com"],
   },
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ["Pretendard", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
+    },
+  },
+  plugins: [],
 };
-
-export default nextConfig;

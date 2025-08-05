@@ -12,6 +12,7 @@ const DEFAULT_INTERESTS = ["Daily Chat"];
 
 export default function AfterLogin() {
   const { user, isLoaded } = useUser();
+  const [w, setW] = useState<number | "100%">("100%");
   const router = useRouter();
   const sliderRef = useRef<Slider>(null);
   const [step, setStep] = useState(0);
@@ -22,9 +23,22 @@ export default function AfterLogin() {
 
   useEffect(() => {
   if (!isLoaded || !user) return;
-  const meta = user.unsafeMetadata;
-  const savedLevel =
-    typeof meta.level === "string" ? meta.level : "";
+  const meta = user.unsafeMetadata  as Record<string, unknown>;;
+  const mapLevel: Record<string, string> = {
+    beginner: "1",
+    intermediate: "2",
+    advanced: "3",
+    expert: "4",
+  };
+ const rawLevel = meta.level;
+   let savedLevel = "";
+  if (typeof rawLevel === "string") {
+    savedLevel =
+      ["1", "2", "3", "4"].includes(rawLevel)
+        ? rawLevel
+        : mapLevel[rawLevel] ?? "";
+  }
+  setLevel(savedLevel);
   const savedNickname =
     typeof meta.nickname === "string"
       ? meta.nickname
@@ -43,7 +57,10 @@ export default function AfterLogin() {
   setAvatar(savedAvatar);
   setInterests(savedInterests);
 }, [isLoaded, user]);
-
+  useEffect(()=>{
+    const ww = window.innerWidth;
+    setW( ww + (ww % 2) ); 
+  }, []);
   const saveMeta = async (data: Record<string, any>) => {
     if (!user) return;
     await user.update({
@@ -73,7 +90,7 @@ export default function AfterLogin() {
 
   const handleSkip = async () => {
     await saveMeta({
-      level: "Beginner",       
+      level: "1",       
       interests: DEFAULT_INTERESTS,
     });
     router.push("/main")
@@ -93,12 +110,12 @@ export default function AfterLogin() {
     afterChange: (i) => setStep(i),
   };
   return (
-    <div className="w-full max-w-md mx-auto p-4">
+    <div className="w-full max-w-md mx-auto p-4" style={{ width: typeof w === "number" ? `${w}px` : w }}>
       <Slider ref={sliderRef} {...settings}>
         {/*  레벨 선택 */}
         <div className="space-y-4 text-center">
           <h2 className="text-xl font-semibold">Please select your Korean level</h2>
-          {['Beginner', 'Intermediate', 'Advanced'].map((lvl) => (
+          {['1', '2', '3','4'].map((lvl) => (
             <button
               key={lvl}
               onClick={() => setLevel(lvl)}
@@ -121,6 +138,7 @@ export default function AfterLogin() {
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
             className="w-3/4 p-2 border rounded"
+            required
           />
           <h2 className="text-gray-600">Or set your character</h2>
             <div className="flex gap-4 justify-center"> 

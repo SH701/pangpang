@@ -40,7 +40,7 @@ export default function TabBar() {
         href="/chatbothistory"
         className="flex-1 flex flex-col items-center justify-center py-2"
       >
-        {pathname === "/history" ? (
+        {pathname === "/chatbothistory" ? (
           <SolidClockIcon className="w-6 h-6 text-white" />
         ) : (
           <OutlineClockIcon className="w-6 h-6 text-white" />

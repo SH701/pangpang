@@ -42,35 +42,35 @@ export default function Profile() {
       </div>
       <div className="w-[335px] h-25 bg-gray-300 rounded-2xl flex justify-between items-center px-10">
         <div className="flex flex-col gap-2 items-center">
-          <span>공부한 문장</span>
+          <span className="font-semibold text-sm">Studied sentence </span>
           <span className="text-xl">{count}</span>
         </div>
         <div className="border-r-1 h-18 w-1"></div>
          <div className="flex flex-col gap-2 items-center">
-          <span>한국화 레벨</span>
+          <span className="font-semibold text-sm">Korean level</span>
           <span className="text-xl">LV.{level}</span>
         </div>
       </div>
     </div>
    <div className="bg-white px-3 pt-4">
       <div className="pl-6 mb-2">
-        <span className="text-lg font-semibold">설정</span>
+        <span className="text-lg font-semibold">Setting</span>
       </div>
-      <div className="w-fit mx-auto overflow-hidden bg-gray-200 mb-4 border-b-1 rounded-2xl">
+      <div className="w-[335px] mx-auto overflow-hidden bg-gray-200 mb-4 border-b-1 rounded-2xl">
         <SettingItem
           icon={<span className="font-bold">Lv</span>}
-          title="챗봇 난이도 설정"
-          description = {`Current difficulty :${user?.unsafeMetadata.level}`}
+          title="Difficulty Settings"
+          description = {`Current : Lv ${user?.unsafeMetadata.level}`}
         />
         <SettingItem
           icon={<div className="w-8 h-8 bg-gray-400 rounded-full" />}
-          title="알림"
-          description="알림설정하기"
+          title="What?"
+          description="What?"
         />
         <SettingItem
           icon={<span className="text-xl">📄</span>}
-          title="개인정보 처리방침 및 이용약관"
-          description="챗봇 난이도 설정"
+          title="What?"
+          description="What?"
         />
       </div>
     </div>
