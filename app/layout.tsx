@@ -1,3 +1,4 @@
+// app/layout.tsx (혹은 pages/_app.tsx)
 import "./globals.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -15,22 +16,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko" className="h-full">
-     <ClerkWrapper>
-        <body
-          className={`
-            antialiased
-            bg-white text-gray-900
-            h-full
-          `}
-        >
-            <div className="flex flex-col min-h-screen">
-              <main className="flex-grow w-full max-w-[640px] mx-auto px-4 sm:px-6">
-                {children}
-              </main>
-            </div>
-        </body>
-</ClerkWrapper>
+    <html lang="ko" className="h-[812px] overflow-hidden">
+      <body className="h-full antialiased overflow-y-scroll">
+        <ClerkWrapper>
+          <div className="flex flex-col h-full">
+            <main className="flex-grow w-full max-w-[440px] mx-auto px-4">
+              {children}
+            </main>
+          </div>
+        </ClerkWrapper>
+      </body>
     </html>
   );
 }

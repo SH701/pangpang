@@ -1,58 +1,51 @@
 "use client";
 
-import { useEffect } from "react";
-import Link from "next/link";
-
-const items = [
-  { href: "/custom", title: "커스텀 챗봇 설정", desc: "나이/성별/MBTI/주제" },
-  { href: "/roleplay", title: "롤플레잉 설정", desc: "캐릭터/시나리오" },
-];
+import RoleplaySlider from "@/components/main/Roleplay";
+import Slider from "@/components/main/slider";
+import { useUser } from "@clerk/nextjs";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 export default function Main() {
-  useEffect(() => {
-    const setVh = () => {
-      document.documentElement.style.setProperty(
-        "--vh",
-        `${window.innerHeight * 0.01}px`
-      );
-    };
-    setVh();
-    window.addEventListener("resize", setVh);
-    return () => window.removeEventListener("resize", setVh);
-  }, []);
+  const { user } = useUser();
+  const pathname = usePathname();
+  const paddingClass = pathname === "/login" ? "pl-1.5  py-9" : "p-4";
 
   return (
-    <main
-      className="flex flex-col justify-start p-6 w-full mt-10"
-      style={{
-        height: "calc(var(--vh, 1vh) * 100)",
-        paddingTop: "env(safe-area-inset-top)",
-        paddingBottom: "env(safe-area-inset-bottom)",
-      }}
-    >
-      <div className="w-full">
-        <h1 className="text-2xl font-semibold mb-10 text-center">
-          메인페이지
-        </h1>
-        <section className="flex-1 px-0 pb-8">
-          <div className="flex flex-col gap-4">
-            {items.map((it) => (
-              <Link
-                key={it.href}
-                href={it.href}
-                className="group relative rounded-2xl border bg-white/80 dark:bg-neutral-900/70 shadow hover:shadow-lg transition
-                           p-5 h-28 flex flex-col justify-center focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full"
-              >
-                <div className="text-lg font-semibold">{it.title}</div>
-                <div className="text-sm text-neutral-500">{it.desc}</div>
-                <span className="absolute right-4 bottom-4 opacity-60 group-hover:opacity-100">
-                  ➜
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
+    <div className={`${paddingClass} mb-10`}>
+      {/* 유저 프로필 & 인사말 */}
+      <div className="flex items-center gap-1 mb-4">
+        <div className="w-8 h-8 rounded-full bg-gray-500" />
+        <span className="text-base">
+          {user?.username ? `Hello ${user.username}!` : "Please login"}
+        </span>
       </div>
-    </main>
+
+      {/* 캐릭터 박스 */}
+      <div className="bg-gray-400 rounded-2xl p-6 flex flex-col items-center gap-6 w-[335px] h-60 mb-5 shadow-lg">
+        {user?.imageUrl ? (
+          <Image
+            src={user.imageUrl}
+            alt="User"
+            width={100}
+            height={100}
+            className="rounded-full"
+          />
+        ) : (
+          <div className="w-24 h-24 rounded-full bg-black flex items-center justify-center">
+            <span className="text-white text-lg">Character</span>
+          </div>
+        )}
+        <button className="w-50 h-10 rounded-2xl bg-black">
+          <span className="text-white text-lg">Start Conversation</span>
+        </button>
+      </div>
+
+      {/* 존댓말 박스 */}
+      <Slider />
+
+      {/* 추천 상황 */}
+      <RoleplaySlider />
+    </div>
   );
 }

@@ -1,8 +1,8 @@
-import Onboard from "@/components/onboard";
+import Onboard from "@/components/onboard/onboard";
 
 export default function Home() {
   return (
-    <main className="min-h-screen flex items-center justify-center p-6">
+    <main className="h-full flex items-center justify-center p-6">
       <Onboard />
     </main>
   );
