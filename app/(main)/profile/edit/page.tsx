@@ -3,9 +3,10 @@
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { ChevronLeftIcon } from "@heroicons/react/24/solid";
-import Logout from "@/components/logout";
+import Logout from "@/components/auth/logout";
 import ProfileChange from "@/components/afterlogin/profilechange";
 import { useState } from "react";
+import Secession from "@/components/auth/secession";
 
 
 export default function Edit() {
@@ -82,7 +83,7 @@ export default function Edit() {
       {/* 로그아웃/탈퇴 */}
       <div className="flex flex-col items-center gap-1 mt-10 w-full">
         <Logout/>
-        <button className="text-black text-base font-medium py-2 w-full">회원탈퇴</button>
+        <Secession/>
       </div>
     </div>
   );

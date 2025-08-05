@@ -37,7 +37,7 @@ export default function TabBar() {
         <span className="text-xs text-white mt-1">Home</span>
       </Link>
  <Link
-        href="/history"
+        href="/chatbothistory"
         className="flex-1 flex flex-col items-center justify-center py-2"
       >
         {pathname === "/history" ? (

@@ -12,6 +12,7 @@ export default function MainsLayout({
       <div className="flex-1 flex items-center justify-center">
         {children}
       </div>
+      <div className="h-15"/>
       <div className="sticky bottom-0 w-full">
         <TabBar />
       </div>

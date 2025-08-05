@@ -18,7 +18,7 @@ export default function Logout() {
       onClick={handleSignOut}
       className=" mt-2 cursor-pointer"
     >
-      <span className=" font-medium">로그아웃</span>
+      <span className=" font-medium">Logout</span>
     </button>
   );
 }
