@@ -59,8 +59,8 @@ export default function Profile() {
       <div className="w-fit mx-auto overflow-hidden bg-gray-200 mb-4 border-b-1 rounded-2xl">
         <SettingItem
           icon={<span className="font-bold">Lv</span>}
-          title="난이도"
-          description="챗봇 난이도 설정"
+          title="챗봇 난이도 설정"
+          description = {`Current difficulty :${user?.unsafeMetadata.level}`}
         />
         <SettingItem
           icon={<div className="w-8 h-8 bg-gray-400 rounded-full" />}
