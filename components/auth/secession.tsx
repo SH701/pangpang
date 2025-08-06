@@ -19,7 +19,7 @@ export default function Secession() {
     <>
       <button
         onClick={() => setIsDelete(true)}
-        className="mt-2 cursor-pointer border px-10"
+        className="mt-2 cursor-pointer border px-10 btn"
       >
         <span className="font-medium">Secession</span>
       </button>
@@ -33,7 +33,7 @@ export default function Secession() {
             <div className="flex gap-2 w-full justify-center">
               <button
                 onClick={() => setIsDelete(false)}
-                className="px-4 py-2 bg-gray-300 rounded"
+                className="px-4 py-2 bg-gray-300 rounded "
               >
                 Cancel
               </button>

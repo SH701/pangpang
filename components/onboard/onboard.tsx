@@ -4,10 +4,8 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider, { Settings } from "react-slick";
 import { slides } from "@/lib/setting";
-import "@/style/onboard.css";
-import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import {  useRef, useState } from "react";
 
 export const settings: Settings = {
   dots: true,
@@ -26,20 +24,10 @@ export const settings: Settings = {
 };
 
 export default function Onboard() {
-  const { isLoaded, isSignedIn, user } = useUser();
   const router = useRouter();
   const sliderRef = useRef<Slider>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  useEffect(() => {
-    if (!isLoaded) return;
-    if (isSignedIn && user) {
-      const levelSet = (user.unsafeMetadata)?.levelSet as boolean;
-      if (levelSet) router.replace("/main");
-    }
-  }, [isLoaded, isSignedIn, user, router]);
-
-  if (isLoaded && isSignedIn) return null;
 
   const handleNext = () => {
     if (currentSlide === 4) {
@@ -51,20 +39,22 @@ export default function Onboard() {
 
   return (
     <div className="w-full max-w-md">
+      <div className="relative">
       <Slider
         ref={sliderRef}
-        {...{ ...settings, dots: false }}
+        {...settings}
         afterChange={(i) => setCurrentSlide(i)}
       >
         {slides.map((slide) => (
-          <div key={slide.id} className="flex flex-col items-center justify-center text-center p-6">
-            <h2 className="text-2xl font-bold mt-2">{slide.title}</h2>
-            <p className="text-gray-600 mt-1">{slide.desc}</p>
+          <div key={slide.id} className="flex flex-col text-left p-6">
+            <h2 className="text-xl font-bold mt-2">{slide.title}</h2>
+            <p className="text-gray-600 mt-1 text-sm">{slide.desc}</p>
           </div>
         ))}
       </Slider>
+      </div>
 
-      <div className="flex justify-center items-center mt-4 ">
+      <div className="flex justify-center items-center mt-10 ">
         <button
           onClick={handleNext}
           className="bg-black px-30 py-2 rounded-lg cursor-pointer"

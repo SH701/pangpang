@@ -45,7 +45,7 @@ export default function Edit() {
       />
       <button
         onClick={change}
-        className="text-gray-600 bg-gray-100 px-4 py-1 rounded hover:bg-gray-200 cursor-pointer"
+        className="btn"
       >
         Change
       </button>
@@ -61,7 +61,7 @@ export default function Edit() {
             <div className="text-sm text-gray-400">Birth</div>
             <div className=" font-medium">{birth}</div>
           </div>
-          <button className="bg-gray-200 rounded-full px-3 py-1 text-xs text-gray-600 font-medium">Edit</button>
+          <button className="btn">Edit</button>
         </div>
         <div className="flex items-center justify-between py-2">
           <div>

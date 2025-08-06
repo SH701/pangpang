@@ -1,23 +1,23 @@
 export const slides = [
   {
     id: 1,
-    title: "Is Korean honorifics difficult?",
-    desc: "K-Etiquette helps you learn Korean honorifics easily and fun.",
+    title: "Worried about sounding rude in Korean?",
+    desc: "Noonchi helps you speak naturally and respectfully without second guessing.",
   },
   {
     id: 2,
-    title: "Real-time Feedback",
-    desc: "Check your honorifics level in real-time during conversations and get improvement suggestions.",
+    title: "Make Your Korean, rewritten politely",
+    desc: "With Noonchi Coach, get 3 better ways to say it from casual to super formal.",
   },
   {
     id: 3,
-    title: "Personalized Learning",
-    desc: "Get customized honorifics suggestions based on age, situation, and relationship.",
+    title: "Try adjusting your tone with the Noonchi Switch!",
+    desc: "Slide to shift your tone and see your message transform.",
   },
   {
     id: 4,
-    title: "K-AI",
-    desc: "Using Korean-specialized AI, our custom chatbot has excellent cultural understanding and context reasoning abilities.",
+    title: "Powerd by K-AI trained for Korean culture",
+    desc: "Noonchi is built with K-culture AI, fine-tuned on thousands of real Korean conversations.",
   },
   {
     id: 5,

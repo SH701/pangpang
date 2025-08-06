@@ -12,12 +12,12 @@ export default function AuthPageOverlay() {
         <SignedOut>
           <div className="flex flex-col gap-3">
             <SignUpButton forceRedirectUrl="/loading">
-              <button className="h-11 w-full rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition">
+              <button className="h-11 w-full  font-semibold  btn">
                 회원가입
               </button>
             </SignUpButton>
             <SignInButton forceRedirectUrl="/loading">
-              <button className="h-11 w-full rounded-lg border border-gray-300 text-gray-800 font-semibold hover:bg-gray-100 transition">
+              <button className="h-11 w-full   font-semibold transition btn">
                 로그인
               </button>
             </SignInButton>

@@ -35,8 +35,8 @@ export default function Profile() {
       <div className="relative flex flex-col items-center gap-2">
         <Image src={user?.imageUrl} alt="Profile" width={100} height={100} className="rounded-full"/>
         <h1 className="text-xl font-semibold text-center">{name}</h1>
-        <Link href="/profile/edit" aria-label="설정" className="border rounded-2xl px-2 py-1/2 bg-gray-300">
-          <span className="text-xs">Edit profile</span>
+        <Link href="/profile/edit" aria-label="설정" className="btn">
+          <span className="text-sm">Edit profile</span>
         </Link>
         <div className="text-xs text-gray-400 mt-1">Joined {joined}</div>
       </div>

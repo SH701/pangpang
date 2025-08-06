@@ -1,4 +1,3 @@
-// app/layout.tsx (혹은 pages/_app.tsx)
 import "./globals.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -20,7 +19,7 @@ export default function RootLayout({
       <body className="h-full antialiased overflow-y-scroll">
         <ClerkWrapper>
           <div className="flex flex-col h-full">
-            <main className="flex-grow w-full max-w-[440px] mx-auto px-4">
+            <main className="flex-grow w-full mx-auto px-4">
               {children}
             </main>
           </div>

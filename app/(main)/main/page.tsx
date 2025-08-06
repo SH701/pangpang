@@ -10,8 +10,8 @@ import { usePathname } from "next/navigation";
 
 export default function Main() {
   const { user } = useUser();
-  const nickname = user?.unsafeMetadata?.nickname  as string 
-  const level = user?.unsafeMetadata?.level as string             
+  const nickname = user?.unsafeMetadata?.nickname as string 
+  const level = user?.unsafeMetadata?.level as string 
   const pathname = usePathname();
   const paddingClass = pathname === "/login" ? "pl-1.5 py-9" : "";
 
@@ -19,7 +19,7 @@ export default function Main() {
     <div className={`${paddingClass} mb-10 flex flex-col items-center`}>
       <div className="w-screen bg-gray-200 p-6 mb-5 ">
         <div className="flex justify-between items-center mb-4">
-          <Image src="/logo.svg" alt="Logo" width={24} height={24} />
+          <Image src="/logo3.png" alt="Logo" width={160} height={24} />
           <div className="flex items-center gap-1 bg-white px-2 py-1 rounded-full">
             {user?.imageUrl && (
               <Image
