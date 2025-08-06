@@ -17,7 +17,7 @@ export default function Main() {
 
   return (
     <div className={`${paddingClass} mb-10 flex flex-col items-center`}>
-      <div className="w-screen bg-gray-200 p-6 mb-5 ">
+      <div className="w-screen bg-[#F2F7FF] p-6 mb-5 ">
         <div className="flex justify-between items-center mb-4">
           <Image src="/logo3.png" alt="Logo" width={160} height={24} />
           <div className="flex items-center gap-1 bg-white px-2 py-1 rounded-full">
@@ -39,15 +39,15 @@ export default function Main() {
             <p className="text-sm text-gray-700">
               Start a conversation <br />with your partner
             </p>
-            <Link href="/main/chats">
-              <button className="mt-2 px-4 py-2 bg-black text-white rounded-2xl">
+            <Link href="/main/custom">
+              <button className="mt-2 p-2 rounded-lg text-white bg-blue-600">
                 Start Conversation
               </button>
             </Link>
           </div>
 
           {/* 오른쪽 캐릭터 원박스 */}
-          <div className="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center">
+          <div className="w-30 h-30 rounded-full bg-[#3B6BF0] flex items-center justify-center text-white">
             Character
           </div>
         </div>
@@ -55,6 +55,7 @@ export default function Main() {
 
       {/* 슬라이더 섹션 */}
       <Slider />
+
       <RoleplaySlider />
 
       {/* 채팅 입력 섹션 */}

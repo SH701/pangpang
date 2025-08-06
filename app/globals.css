@@ -5,7 +5,7 @@
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
 :root {
-  --background: #ffffff;
+  --background: #FAFCFF;
   --foreground: #0a0a0a;
 }
 
@@ -38,7 +38,7 @@ body {
   min-height: 70vh;
 }
 .btn {
-  @apply bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer;
+  @apply  text-black px-4 py-2 rounded-md text-sm font-medium   cursor-pointer bg-white border border-gray-300;
 }
 
 .btn:hover {
@@ -46,12 +46,9 @@ body {
 }
 
 .btn:focus {
-  @apply outline outline-blue-300 outline-offset-2;
+  @apply  bg-blue-600 text-white ;
 }
 
-.btn:active {
-  @apply bg-blue-800;
-}
 
 .btn:disabled {
   @apply bg-gray-300 text-gray-400 cursor-not-allowed;

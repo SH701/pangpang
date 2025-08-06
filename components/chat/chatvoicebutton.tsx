@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MicIcon } from "lucide-react"; // 아이콘 라이브러리, 설치 필요 시 알려줘
+import { MicIcon } from "lucide-react"; 
 
 export default function ChatVoiceButton() {
   const [isRecording, setIsRecording] = useState(false);
@@ -21,11 +21,11 @@ export default function ChatVoiceButton() {
   return (
     <button
       onClick={handleVoiceInput}
-      className={`p-2 rounded-full border ${
-        isRecording ? "bg-red-500 text-white" : "bg-white text-black"
+      className={`${
+        isRecording ? " text-black" : "bg-white text-black"
       }`}
     >
-      <MicIcon className="w-5 h-5" />
+      <MicIcon className="w-7 h-7" />
     </button>
   );
 }

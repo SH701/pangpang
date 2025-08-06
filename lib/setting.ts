@@ -1,8 +1,10 @@
+import First from "@/components/character/first"
 export const slides = [
   {
     id: 1,
     title: "Worried about sounding rude in Korean?",
     desc: "Noonchi helps you speak naturally and respectfully without second guessing.",
+    icon:First,
   },
   {
     id: 2,

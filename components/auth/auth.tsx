@@ -2,7 +2,7 @@
 
 import Main from "@/app/(main)/main/page"
 import AuthPageOverlay from "./overlay"
-import TabBar from "../tab-bar"
+import TabBar from "../etc/tab-bar"
 
 export default function AuthPage(){
     return (

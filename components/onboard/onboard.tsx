@@ -49,6 +49,7 @@ export default function Onboard() {
           <div key={slide.id} className="flex flex-col text-left p-6">
             <h2 className="text-xl font-bold mt-2">{slide.title}</h2>
             <p className="text-gray-600 mt-1 text-sm">{slide.desc}</p>
+            {slide.icon&& <slide.icon className="w-60 h-50 ml-auto mt-30" />}
           </div>
         ))}
       </Slider>

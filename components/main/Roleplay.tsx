@@ -16,11 +16,11 @@ export default function RoleplayCarousel() {
 
   return (
     <div className="mb-3 select-none">
-      <div className="flex flex-col">
-        <span className="text-sm">Roleplay situation recommendations</span>
-        <span className="font-semibold text-lg mb-2">Why not talk about this?</span>
+      <div className="flex flex-col gap-2">
+        <span className="text-sm text-[#99A6C7]">Roleplay situation</span>
+        <span className="font-semibold text-lg mb-2 text-[#1C2E45]">Noonchi Coach</span>
       </div>
-      <div className="w-[335px] overflow-hidden relative mb-4">
+      <div className="w-[335px] overflow-hidden relative mb-2">
         <motion.div
           className="flex gap-[20px] cursor-grab active:cursor-grabbing"
           drag="x"
@@ -31,7 +31,7 @@ export default function RoleplayCarousel() {
             <Link
               key={item.id}
               href="/main/role"
-              className="flex-shrink-0 w-[160px] h-[140px] bg-gray-200 rounded-xl shadow flex items-center justify-center"
+              className="flex-shrink-0 w-[160px] h-[120px] bg-gray-200 rounded-xl shadow flex items-center justify-center"
             >
               <span className="text-center text-base font-semibold px-2">
                 {item.title}

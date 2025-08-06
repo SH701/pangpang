@@ -4,7 +4,7 @@ import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import Image from "next/image"
 import { useState } from "react";
-import { SettingItem } from "@/components/settingitem";
+import { SettingItem } from "@/components/profile/settingitem";
 
 function formatDate(iso?: string | Date | null) {
   if (!iso) return "";
@@ -32,7 +32,7 @@ export default function Profile() {
     <span className="absolute top-12 left-4 text-2xl font-bold z-10">My Page</span>
     <div className="flex flex-col">
     <div className="relative flex flex-col items-center gap-4 px-6 py-8 bg-white">
-      <div className="relative flex flex-col items-center gap-2">
+      <div className="relative flex flex-col items-center gap-2 mt-20">
         <Image src={user?.imageUrl} alt="Profile" width={100} height={100} className="rounded-full"/>
         <h1 className="text-xl font-semibold text-center">{name}</h1>
         <Link href="/profile/edit" aria-label="설정" className="btn">

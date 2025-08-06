@@ -48,6 +48,7 @@ const dummyData: HistoryItem[] = [
 
 export default function ChatbotHistory() {
   const [keyword, setKeyword] = useState('');
+  const [status, setStatus] = useState<"done" | "progress">("progress");
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const [showSortOptions, setShowSortOptions] = useState(false);
   const [filtered, setFiltered] = useState<HistoryItem[]>(sortItems(dummyData, 'newest'));
@@ -89,13 +90,9 @@ export default function ChatbotHistory() {
   };
 
   return (
-    <div className="p-4 pt-16 space-y-4 relative">
-      <h1 className="absolute top-4 left-4 text-2xl font-bold z-10">Chat History</h1>
-      <CharacterSlider />
-
-      {/* 검색창 + 정렬 컨트롤 */}
-      <div className="relative flex justify-end items-start pr-1">
-        <div className="flex items-center space-x-2 z-20">
+    <div className=" pt-10 space-y-5 relative w-full">
+      <div className="flex justify-between mb-6 mx-4">
+      <h1 className= "text-2xl font-bold z-10">Chat History</h1>
           <AnimatePresence>
             {isSearchOpen && (
               <motion.input
@@ -113,72 +110,83 @@ export default function ChatbotHistory() {
               />
             )}
           </AnimatePresence>
-
           <button onClick={toggleSearch} className="cursor-pointer">
             <MagnifyingGlassIcon className="w-6 h-6 text-gray-700" />
           </button>
         </div>
 
-        {/* 정렬 버튼은 아래에 절대 위치 */}
-        <div className="absolute top-8 right-0 z-10">
-          <button
-            onClick={() => setShowSortOptions(prev => !prev)}
-            className="flex items-center gap-1 border px-2 py-1 rounded text-sm bg-white"
-          >
-            {sortOrder === 'newest' ? 'Newest' : 'Oldest'}
-            <ChevronDownIcon className="w-4 h-4" />
-          </button>
+        {/* 슬라이더 */}
+      <CharacterSlider />
 
-          {showSortOptions && (
-            <div className="mt-1 w-28 bg-white border rounded shadow text-sm z-20">
-              <button
-                onClick={() => handleSortChange('newest')}
-                className="w-full text-left px-3 py-2 hover:bg-gray-100"
-              >
-                Newest
-              </button>
-              <button
-                onClick={() => handleSortChange('oldest')}
-                className="w-full text-left px-3 py-2 hover:bg-gray-100"
-              >
-                Oldest
-              </button>
-            </div>
-          )}
-        </div>
+    
+      {/* 정렬 컨트롤 */}
+     <div className="relative flex justify-between items-start pr-1 mx-4 "> 
+      <div className="flex gap-2 *:text-xs">
+      <button
+        onClick={() => setStatus("done")}
+        className={`px-3 py-1 rounded ${
+          status === "done" ? "bg-black text-white" : "bg-white text-black"
+        }`}
+      >
+        Done
+      </button>
+      <button
+        onClick={() => setStatus("progress")}
+        className={`px-3 py-1 rounded ${
+          status === "progress" ? "bg-black text-white" : "bg-white text-black"
+        }`}
+      >
+        In progress
+      </button>
+    </div>
+  <div className="relative">
+    <button
+      onClick={() => setShowSortOptions(prev => !prev)}
+      className="flex items-center gap-1  rounded text-xs bg-white "
+    >
+      {sortOrder === 'newest' ? 'Newest' : 'Oldest'}
+      <ChevronDownIcon className="w-3 h-3" />
+    </button>
+
+    {showSortOptions && (
+      <div className="absolute mt-1 right-0 w-14  rounded  z-20">
+        <button
+          onClick={() =>
+            handleSortChange(sortOrder === 'newest' ? 'oldest' : 'newest')
+          }
+          className="w-full text-left text-xs  hover:bg-gray-100  "
+        >
+          {sortOrder === 'newest' ? 'Oldest' : 'Newest'}
+        </button>
       </div>
+    )}
+  </div>
+</div>
 
       {/* 히스토리 리스트 */}
-      <div className="space-y-3">
+      <div className=" w-full">
         {filtered.map((item, idx) => (
           <div key={idx}>
             <button
               onClick={() => toggleDetail(idx)}
-              className={`w-full flex items-center justify-between text-left rounded-lg px-3 py-3 gap-3
-                bg-white hover:bg-gray-100 focus:ring-2 ring-blue-300 transition
-                ${openIndexes.includes(idx) ? 'ring-2 ring-blue-500 bg-blue-50' : ''}`}
+              className={`w-full flex items-center justify-between text-left border-b-1 px-3 py-3 
+                 hover:bg-gray-100  bg-gray-100  transition
+                ${openIndexes.includes(idx) ? ' bg-blue-50' : ''}
+                 ${idx === 0 ? 'rounded-t-2xl' : ''}`}
             >
               {/* 왼쪽: 프로필 */}
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-gray-300 shrink-0" />
                 <div className="flex flex-col text-start">
-                  <span className="text-xs text-gray-500">{item.role}</span>
-                  <span className="text-sm font-semibold">{item.name}</span>
-                  <span className="text-[11px] text-gray-400 truncate w-40">
+                  <span className="font-semibold text-black">{item.role}</span>
+                  <span className= "text-sm text-gray-400 truncate w-40">
                     {item.summary}
                   </span>
                 </div>
               </div>
 
-              {/* 오른쪽: 날짜 + 토글 */}
+              {/* 오른쪽: 토글 */}
               <div className="flex flex-col items-end gap-1">
-                <span className="text-[11px] text-gray-400">
-                  {item.created_at.toLocaleDateString('ko-KR', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                  })}
-                </span>
                 {openIndexes.includes(idx) ? (
                   <ChevronDownIcon className="w-4 h-4 text-gray-500" />
                 ) : (
@@ -193,8 +201,8 @@ export default function ChatbotHistory() {
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.25 }}
-                  className="px-4 py-6 bg-gray-100 rounded-b-xl text-sm space-y-4"
+                  transition={{ duration: 0.1 }}
+                  className="px-4 py-6 bg-gray-100  text-sm space-y-4"
                 >
                   <p className="font-semibold">Learning Report</p>
                   <p>the most commonly mistaken expression</p>

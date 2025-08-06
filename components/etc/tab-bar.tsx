@@ -20,8 +20,7 @@ export default function TabBar() {
     <div
       className="
         fixed bottom-0 inset-x-0
-        border-t border-neutral-600
-        bg-neutral-800
+        bg-white
         grid grid-cols-3
       "
     >
@@ -30,33 +29,33 @@ export default function TabBar() {
         className="flex-1 flex flex-col items-center justify-center py-2"
       >
         {pathname === "/main" ? (
-          <SolidHomeIcon className="w-6 h-6 text-white" />
+          <SolidHomeIcon className="w-6 h-6 text-black" />
         ) : (
-          <OutlineHomeIcon className="w-6 h-6 text-white" />
+          <OutlineHomeIcon className="w-6 h-6 text-black" />
         )}
-        <span className="text-xs text-white mt-1">Home</span>
+        <span className="text-xs text-black mt-1">Home</span>
       </Link>
  <Link
         href="/chatbothistory"
         className="flex-1 flex flex-col items-center justify-center py-2"
       >
         {pathname === "/chatbothistory" ? (
-          <SolidClockIcon className="w-6 h-6 text-white" />
+          <SolidClockIcon className="w-6 h-6 text-black" />
         ) : (
-          <OutlineClockIcon className="w-6 h-6 text-white" />
+          <OutlineClockIcon className="w-6 h-6 text-black" />
         )}
-        <span className="text-xs text-white mt-1">History</span>
+        <span className="text-xs text-black mt-1">History</span>
       </Link>
       <Link
         href="/profile"
         className="flex-1 flex flex-col items-center justify-center py-2"
       >
         {pathname === "/profile" ? (
-          <SolidUserIcon className="w-6 h-6 text-white" />
+          <SolidUserIcon className="w-6 h-6 text-black" />
         ) : (
-          <OutlineUserIcon className="w-6 h-6 text-white" />
+          <OutlineUserIcon className="w-6 h-6 text-black" />
         )}
-        <span className="text-xs text-white mt-1">Profile</span>
+        <span className="text-xs text-black mt-1">Profile</span>
       </Link>
     </div>
   );

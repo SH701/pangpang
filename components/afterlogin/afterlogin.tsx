@@ -11,6 +11,7 @@ import Skip from "./skip";
 import ProfileSelector from "./profileselector";
 import NextButton from "./nextbutton";
 import InterestSelector from "./interest";
+import Information from "./information";
 
 const DEFAULT_INTERESTS = ["Daily Chat"];
 
@@ -24,10 +25,16 @@ export default function AfterLogin() {
   const [nickname, setNickname] = useState<string>("");
   const [avatar, setAvatar] = useState<string | null>(null);
   const [interests, setInterests] = useState<string[]>([]);
+  const [info, setInfo] = useState<Record<string, string>>({
+  birth: '1996-01-03',
+  gender: 'female',
+});
 
   useEffect(() => {
   if (!isLoaded || !user) return;
-  const meta = user.unsafeMetadata  as Record<string, unknown>;;
+  const meta = user.unsafeMetadata  as Record<string, unknown>;
+  const savedBirth = typeof meta.birth === 'string' ? meta.birth : '1996-01-03';
+  const savedGender = typeof meta.gender === 'string' ? meta.gender : 'female';
   const mapLevel: Record<string, string> = {
     beginner: "1",
     intermediate: "2",
@@ -41,7 +48,6 @@ export default function AfterLogin() {
         ? rawLevel
         : mapLevel[rawLevel] ?? "";
   }
-  setLevel(savedLevel);
   const savedNickname =
     typeof meta.nickname === "string"
       ? meta.nickname
@@ -59,6 +65,10 @@ export default function AfterLogin() {
   setNickname(savedNickname);
   setAvatar(savedAvatar);
   setInterests(savedInterests);
+  setInfo({
+    birth: savedBirth,
+    gender: savedGender,
+  });
 }, [isLoaded, user]);
   useEffect(()=>{
     const ww = window.innerWidth;
@@ -75,14 +85,21 @@ export default function AfterLogin() {
   };
 
   const handleNext = async () => {
-    if (step === 0 && level) {
+    if (step === 0 && info ){
+      await saveMeta({info})
+      console.log("1")
+    }
+    if (step === 1 && level) {
       await saveMeta({ level });
+      console.log("2")
     }
-    if (step === 1 && (nickname || avatar)) {
+    if (step === 2 && (nickname || avatar)) {
       await saveMeta({ nickname, avatar });
+      console.log("3")
     }
-    if (step === 2 && interests.length > 0) {
+    if (step === 3 && interests.length > -1) {
       await saveMeta({ interests });
+      console.log("해")
       router.push("/main")
       return;
     }
@@ -99,13 +116,17 @@ export default function AfterLogin() {
     slidesToScroll: 1,
     arrows: false,
     adaptiveHeight: false,
+    draggable: false,         
+    swipe: false,             
+    touchMove: false,
     afterChange: (i) => setStep(i),
   };
   return (
     <>
     <div className="w-full max-w-md mx-auto p-4" style={{ width: typeof w === "number" ? `${w}px` : w }}>
       <Skip/>
-      <Slider ref={sliderRef} {...settings}>
+      <Slider ref={sliderRef} {...settings} >
+        <Information info={info} setInfo={setInfo}/>
           <LevelSelector selected={level} onSelect={setLevel}/>
 
        <ProfileSelector
@@ -123,6 +144,7 @@ export default function AfterLogin() {
       </Slider>
 
       <NextButton
+          info={info}
           step={step}
           level={level}
           nickname={nickname}
