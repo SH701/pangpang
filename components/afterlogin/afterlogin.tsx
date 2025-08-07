@@ -1,158 +1,161 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
+'use client';
 
-import { useState, useEffect, useRef } from "react";
-import Slider from "react-slick";
-import { useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
-import type { Settings } from "react-slick";
-import LevelSelector from "./levelselector";
-import Skip from "./skip";
-import ProfileSelector from "./profileselector";
-import NextButton from "./nextbutton";
-import InterestSelector from "./interest";
-import Information from "./information";
+import { useRef, useState, useEffect } from 'react';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+import { useRouter } from 'next/navigation';
+import { useAuth, User } from '@/lib/UserContext';
 
-const DEFAULT_INTERESTS = ["Daily Chat"];
+const LEVELS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'] as const;
+type Level = typeof LEVELS[number];
+
+const INTERESTS = ['DAILY_CONVERSATION','TRAVEL','KDRAMA','BUSINESS'] as const;
+type Interest = typeof INTERESTS[number];
 
 export default function AfterLogin() {
-  const { user, isLoaded } = useUser();
-  const [w, setW] = useState<number | "100%">("100%");
   const router = useRouter();
+  const { user, setUser } = useAuth();  
+  const initialLevel = LEVELS.includes(user?.koreanLevel as Level)
+  ? (user!.koreanLevel as Level)
+  : LEVELS[0];
   const sliderRef = useRef<Slider>(null);
-  const [step, setStep] = useState(0);
-  const [level, setLevel] = useState<string>("");
-  const [nickname, setNickname] = useState<string>("");
-  const [avatar, setAvatar] = useState<string | null>(null);
-  const [interests, setInterests] = useState<string[]>([]);
-  const [info, setInfo] = useState<Record<string, string>>({
-  birth: '1996-01-03',
-  gender: 'female',
-});
 
+  const [level, setLevel] = useState<Level>(initialLevel);
+  const [interests, setInterests] = useState<Interest[]>(user?.interests as Interest[] ?? []);
+  const [profileImageUrl, setProfileImageUrl] = useState<string>(user?.profileImageUrl ?? '');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // user 가 아직 없으면 로그인 페이지로
   useEffect(() => {
-  if (!isLoaded || !user) return;
-  const meta = user.unsafeMetadata  as Record<string, unknown>;
-  const savedBirth = typeof meta.birth === 'string' ? meta.birth : '1996-01-03';
-  const savedGender = typeof meta.gender === 'string' ? meta.gender : 'female';
-  const mapLevel: Record<string, string> = {
-    beginner: "1",
-    intermediate: "2",
-    advanced: "3",
-  };
- const rawLevel = meta.level;
-   let savedLevel = "";
-  if (typeof rawLevel === "string") {
-    savedLevel =
-      ["1", "2", "3"].includes(rawLevel)
-        ? rawLevel
-        : mapLevel[rawLevel] ?? "";
-  }
-  const savedNickname =
-    typeof meta.nickname === "string"
-      ? meta.nickname
-      : user.fullName ?? "";
-  const savedAvatar =
-    typeof meta.avatar === "string"
-      ? meta.avatar
-      : user.imageUrl ?? null;
-  const savedInterests = Array.isArray(meta.interests)?
-      (meta.interests as unknown[])
-        .filter((x): x is string => typeof x === "string")
-    : DEFAULT_INTERESTS;
+    if (!user) {
+      router.replace('/login');
+    }
+  }, [user, router]);
 
-  setLevel(savedLevel);
-  setNickname(savedNickname);
-  setAvatar(savedAvatar);
-  setInterests(savedInterests);
-  setInfo({
-    birth: savedBirth,
-    gender: savedGender,
-  });
-}, [isLoaded, user]);
-  useEffect(()=>{
-    const ww = window.innerWidth;
-    setW( ww + (ww % 2) ); 
-  }, []);
-  const saveMeta = async (data: Record<string, any>) => {
-    if (!user) return;
-    await user.update({
-      unsafeMetadata: {
-        ...user.unsafeMetadata,
-        ...data,
-      },
-    });
+  const next = () => sliderRef.current?.slickNext();
+  const prev = () => sliderRef.current?.slickPrev();
+
+  const toggleInterest = (i: Interest) => {
+    setInterests(prev =>
+      prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]
+    );
   };
 
-  const handleNext = async () => {
-    if (step === 0 && info ){
-      await saveMeta({info})
-      console.log("1")
+  const handleSubmit = async () => {
+    setError(null);
+    setLoading(true);
+
+    try {
+      const payload = {
+        koreanLevel: level,
+        interests,
+        profileImageUrl,
+      };
+
+      const res = await fetch('/api/users/me', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
+      const data: { user?: User; message?: string } = await res.json();
+
+      if (!res.ok || !data.user) {
+        setError(data.message || '프로필 업데이트에 실패했습니다.');
+      } else {
+        // Context 에 업데이트된 user 저장
+        setUser(data.user);
+        router.push('/app');
+      }
+    } catch (err) {
+      console.error(err);
+      setError('알 수 없는 오류 발생');
+    } finally {
+      setLoading(false);
     }
-    if (step === 1 && level) {
-      await saveMeta({ level });
-      console.log("2")
-    }
-    if (step === 2 && (nickname || avatar)) {
-      await saveMeta({ nickname, avatar });
-      console.log("3")
-    }
-    if (step === 3 && interests.length > -1) {
-      await saveMeta({ interests });
-      console.log("해")
-      router.push("/main")
-      return;
-    }
-    sliderRef.current?.slickNext();
   };
 
+  if (!user) return null; // 로그인 전에는 아무것도 렌더링하지 않음
 
-
-  const settings: Settings = {
-    dots: false,
-    infinite: false,
-    speed: 400,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    arrows: false,
-    adaptiveHeight: false,
-    draggable: false,         
-    swipe: false,             
-    touchMove: false,
-    afterChange: (i) => setStep(i),
-  };
   return (
-    <>
-    <div className="w-full max-w-md mx-auto p-4" style={{ width: typeof w === "number" ? `${w}px` : w }}>
-      <Skip/>
-      <Slider ref={sliderRef} {...settings} >
-        <Information info={info} setInfo={setInfo}/>
-          <LevelSelector selected={level} onSelect={setLevel}/>
-
-       <ProfileSelector
-            user={user}
-            nickname={nickname}
-            setNickname={setNickname}
-            avatar={avatar}
-            setAvatar={setAvatar}
+    <div className="max-w-md mx-auto p-4">
+      <Slider
+        ref={sliderRef}
+        dots
+        infinite={false}
+        speed={300}
+        slidesToShow={1}
+        arrows={false}
+      >
+        {/* 1. Level 선택 */}
+        <div className="flex flex-col items-center">
+          <h2 className="text-lg font-semibold mb-4">Select Korean Level</h2>
+          <input
+            type="range"
+            min={0}
+            max={LEVELS.length - 1}
+            step={1}
+            value={LEVELS.indexOf(level)}
+            onChange={e => setLevel(LEVELS[+e.target.value])}
+            className="w-full"
           />
+          <div className="flex justify-between w-full text-sm text-gray-600 mt-2">
+            {LEVELS.map(l => <span key={l}>{l}</span>)}
+          </div>
+          <button onClick={next} className="mt-6 py-2 px-8 bg-blue-600 text-white rounded">
+            Next
+          </button>
+        </div>
 
-        <InterestSelector
-      selected={interests}    
-      onChange={setInterests}
-        />
+        {/* 2. 프로필 사진 URL 입력 */}
+        <div className="flex flex-col items-center">
+          <h2 className="text-lg font-semibold mb-4">Profile Image URL</h2>
+          <input
+            type="text"
+            placeholder="https://..."
+            value={profileImageUrl}
+            onChange={e => setProfileImageUrl(e.target.value)}
+            className="w-full px-4 py-3 bg-gray-50 rounded-xl placeholder-gray-400 focus:outline-none"
+          />
+          <div className="mt-6 flex gap-4">
+            <button onClick={prev} className="py-2 px-4 bg-gray-300 rounded">Back</button>
+            <button onClick={next} className="py-2 px-4 bg-blue-600 text-white rounded">Next</button>
+          </div>
+        </div>
+
+        {/* 3. 관심사 선택 */}
+        <div className="flex flex-col items-center">
+          <h2 className="text-lg font-semibold mb-4">Select Interests</h2>
+          <div className="grid grid-cols-2 gap-4">
+            {INTERESTS.map(i => (
+              <button
+                key={i}
+                onClick={() => toggleInterest(i)}
+                className={`px-4 py-2 border rounded ${
+                  interests.includes(i) ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'
+                }`}
+              >
+                {i.replace('_', ' ')}
+              </button>
+            ))}
+          </div>
+          <div className="mt-6 flex gap-4">
+            <button onClick={prev} className="py-2 px-4 bg-gray-300 rounded">Back</button>
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="py-2 px-4 bg-green-600 text-white rounded disabled:opacity-50"
+            >
+              {loading ? 'Saving...' : 'Finish'}
+            </button>
+          </div>
+          {error && <p className="mt-4 text-red-500 text-sm">{error}</p>}
+        </div>
       </Slider>
-
-      <NextButton
-          info={info}
-          step={step}
-          level={level}
-          nickname={nickname}
-          avatar={avatar}
-          interests={interests}
-          handleNext={handleNext}
-        />
-      </div>          
-      </>
+    </div>
   );
 }

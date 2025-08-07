@@ -3,15 +3,11 @@
 import ChatInputWrapper from "@/components/chat/chatinputwrapper";
 import RoleplaySlider from "@/components/main/Roleplay";
 import Slider from "@/components/main/slider";
-import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export default function Main() {
-  const { user } = useUser();
-  const nickname = user?.unsafeMetadata?.nickname as string 
-  const level = user?.unsafeMetadata?.level as string 
   const pathname = usePathname();
   const paddingClass = pathname === "/login" ? "pl-1.5 py-9" : "";
 

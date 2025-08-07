@@ -1,7 +1,6 @@
 import "./globals.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import ClerkWrapper from "@/components/etc/clerkwrpper";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -15,15 +14,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko" className="overflow-hidden">
+    <html lang="ko" className="overflow-auto">
       <body className="h-full antialiased">
-        <ClerkWrapper>
           <div className="flex flex-col h-full">
             <main className="flex-grow w-full">
               {children}
             </main>
           </div>
-        </ClerkWrapper>
       </body>
     </html>
   );
