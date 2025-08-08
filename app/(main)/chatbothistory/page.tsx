@@ -1,219 +1,133 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { MagnifyingGlassIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
-import { ChevronRightIcon } from "@heroicons/react/24/solid";
-import CharacterSlider from "@/components/bothistory/CharacterSlider";
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { useAuth } from '@/lib/UserContext';
+import CharacterSlider from '@/components/bothistory/CharacterSlider';
 
-interface HistoryItem {
-  name: string;
-  summary: string;
-  role: string;
-  created_at: Date;
-}
+type Conversation = {
+  conversationId: number;
+  personaId: number;
+  personaName: string;
+  gender: string;
+  age: number;
+  relationship: string;
+  description: string;
+  profileImageUrl: string;
+  status: string;
+  situation: string;
+};
 
-const dummyData: HistoryItem[] = [
-  {
-    name: "Chatting with a friend at a café",
-    summary: "Talking about a recently popular TV drama",
-    role: "Friend",
-    created_at: new Date("2025-08-06T10:30:00"),
-  },
-  {
-    name: "Conversation with your boss",
-    summary: "Discussing upcoming project deadlines",
-    role: "Boss",
-    created_at: new Date("2025-08-05T15:20:00"),
-  },
-  {
-    name: "Ordering coffee",
-    summary: "One Americano, please.",
-    role: "Cafe worker",
-    created_at: new Date("2025-08-03T09:10:00"),
-  },
-  {
-    name: "Lunch chat with colleague",
-    summary: "Where to go for lunch today?",
-    role: "Hyunwoo",
-    created_at: new Date("2025-07-30T12:00:00"),
-  },
-  {
-    name: "Conversation with Nana",
-    summary: "Talking about weekend plans",
-    role: "Nana",
-    created_at: new Date("2025-07-28T19:45:00"),
-  },
-];
+export default function ChatHistory() {
+  const { accessToken } = useAuth();
+  const [history, setHistory] = useState<Conversation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState<'done' | 'in-progress'>('done');
 
-export default function ChatbotHistory() {
-  const [keyword, setKeyword] = useState('');
-  const [status, setStatus] = useState<"done" | "progress">("progress");
-  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
-  const [showSortOptions, setShowSortOptions] = useState(false);
-  const [filtered, setFiltered] = useState<HistoryItem[]>(sortItems(dummyData, 'newest'));
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [openIndexes, setOpenIndexes] = useState<number[]>([]);
-
-  function sortItems(data: HistoryItem[], order: 'newest' | 'oldest') {
-    return [...data].sort((a, b) =>
-      order === 'newest'
-        ? b.created_at.getTime() - a.created_at.getTime()
-        : a.created_at.getTime() - b.created_at.getTime()
-    );
-  }
-
-  const handleSearch = () => {
-    const lowerKeyword = keyword.toLowerCase();
-    const result = dummyData.filter(item =>
-      item.name.toLowerCase().includes(lowerKeyword) ||
-      item.summary.toLowerCase().includes(lowerKeyword) ||
-      item.role.toLowerCase().includes(lowerKeyword)
-    );
-    setFiltered(sortItems(result, sortOrder));
+  // 필터값 -> status 파라미터 변환
+  const filterMap: Record<typeof selectedFilter, string> = {
+    'done': 'ENDED',
+    'in-progress': 'ACTIVE',
   };
 
-  const toggleSearch = () => setIsSearchOpen(prev => !prev);
-
-  const toggleDetail = (idx: number) => {
-    setOpenIndexes((prev) =>
-      prev.includes(idx)
-        ? prev.filter((i) => i !== idx)
-        : [...prev, idx]
-    );
-  };
-
-  const handleSortChange = (order: 'newest' | 'oldest') => {
-    setSortOrder(order);
-    setShowSortOptions(false);
-    setFiltered(sortItems(filtered, order));
-  };
+  useEffect(() => {
+    if (!accessToken) return;
+    setLoading(true);
+    setError(null);
+    fetch(
+      `/api/conversations?status=${filterMap[selectedFilter]}&page=1&size=20`,
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      }
+    )
+      .then(res => res.json())
+      .then(data => {
+        setHistory(data.content ?? []);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError('불러오기 실패');
+        setLoading(false);
+        console.error(err)
+      });
+  }, [accessToken, selectedFilter]);
 
   return (
-    <div className=" pt-10 space-y-5 relative w-full">
-      <div className="flex justify-between mb-6 mx-4">
-      <h1 className= "text-2xl font-bold z-10">Chat History</h1>
-          <AnimatePresence>
-            {isSearchOpen && (
-              <motion.input
-                key="search-input"
-                initial={{ width: 0, opacity: 0 }}
-                animate={{ width: 120, opacity: 1 }}
-                exit={{ width: 0, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                className="border p-1 rounded overflow-hidden placeholder:pl-1"
-                placeholder="Search..."
-                style={{ minWidth: 0 }}
-              />
-            )}
-          </AnimatePresence>
-          <button onClick={toggleSearch} className="cursor-pointer">
-            <MagnifyingGlassIcon className="w-6 h-6 text-gray-700" />
-          </button>
-        </div>
+    <div className=" bg-white relative">
+      <CharacterSlider/>
 
-        {/* 슬라이더 */}
-      <CharacterSlider />
-
-    
-      {/* 정렬 컨트롤 */}
-     <div className="relative flex justify-between items-start pr-1 mx-4 "> 
-      <div className="flex gap-2 *:text-xs">
-      <button
-        onClick={() => setStatus("done")}
-        className={`px-3 py-1 rounded ${
-          status === "done" ? "bg-black text-white" : "bg-white text-black"
-        }`}
-      >
-        Done
-      </button>
-      <button
-        onClick={() => setStatus("progress")}
-        className={`px-3 py-1 rounded ${
-          status === "progress" ? "bg-black text-white" : "bg-white text-black"
-        }`}
-      >
-        In progress
-      </button>
-    </div>
-  <div className="relative">
-    <button
-      onClick={() => setShowSortOptions(prev => !prev)}
-      className="flex items-center gap-1  rounded text-xs bg-white "
-    >
-      {sortOrder === 'newest' ? 'Newest' : 'Oldest'}
-      <ChevronDownIcon className="w-3 h-3" />
-    </button>
-
-    {showSortOptions && (
-      <div className="absolute mt-1 right-0 w-14  rounded  z-20">
-        <button
-          onClick={() =>
-            handleSortChange(sortOrder === 'newest' ? 'oldest' : 'newest')
-          }
-          className="w-full text-left text-xs  hover:bg-gray-100  "
-        >
-          {sortOrder === 'newest' ? 'Oldest' : 'Newest'}
-        </button>
-      </div>
-    )}
-  </div>
-</div>
-
-      {/* 히스토리 리스트 */}
-      <div className=" w-full">
-        {filtered.map((item, idx) => (
-          <div key={idx}>
+      {/* Filter Section */}
+      <div className="px-4 mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex space-x-2">
             <button
-              onClick={() => toggleDetail(idx)}
-              className={`w-full flex items-center justify-between text-left border-b-1 px-3 py-3 
-                 hover:bg-gray-100  bg-gray-100  transition
-                ${openIndexes.includes(idx) ? ' bg-blue-50' : ''}
-                 ${idx === 0 ? 'rounded-t-2xl' : ''}`}
+              onClick={() => setSelectedFilter('done')}
+              className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+                selectedFilter === 'done'
+                  ? 'border-blue-500 text-blue-500 bg-white'
+                  : 'border-gray-300 text-gray-500 bg-white'
+              }`}
             >
-              {/* 왼쪽: 프로필 */}
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gray-300 shrink-0" />
-                <div className="flex flex-col text-start">
-                  <span className="font-semibold text-black">{item.role}</span>
-                  <span className= "text-sm text-gray-400 truncate w-40">
-                    {item.summary}
-                  </span>
-                </div>
-              </div>
-
-              {/* 오른쪽: 토글 */}
-              <div className="flex flex-col items-end gap-1">
-                {openIndexes.includes(idx) ? (
-                  <ChevronDownIcon className="w-4 h-4 text-gray-500" />
-                ) : (
-                  <ChevronRightIcon className="w-4 h-4 text-gray-500" />
-                )}
-              </div>
+              Done
             </button>
-
-            <AnimatePresence>
-              {openIndexes.includes(idx) && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.1 }}
-                  className="px-4 py-6 bg-gray-100  text-sm space-y-4"
-                >
-                  <p className="font-semibold">Learning Report</p>
-                  <p>the most commonly mistaken expression</p>
-                  <p>Score</p>
-                  <p className="underline">View entire conversation</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <button
+              onClick={() => setSelectedFilter('in-progress')}
+              className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+                selectedFilter === 'in-progress'
+                  ? 'border-blue-500 text-blue-500 bg-white'
+                  : 'border-gray-300 text-gray-500 bg-white'
+              }`}
+            >
+              In progress
+            </button>
           </div>
-        ))}
+        </div>
       </div>
+
+      {/* Chat History List */}
+      <div className="px-4 pb-20">
+        <div className="space-y-4">
+          {loading && <p>Loading...</p>}
+          {error && <p className="text-red-500">{error}</p>}
+          {history.length === 0 && !loading && <p className="text-gray-400 text-center">No chat history.</p>}
+          {history.map(chat => (
+            <div
+              key={chat.conversationId}
+              className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <div className="relative">
+                {chat.profileImageUrl && chat.profileImageUrl.startsWith('http') ? (
+                  <Image
+                    src={chat.profileImageUrl}
+                    width={48}
+                    height={48}
+                    alt={chat.personaName}
+                    className="w-12 h-12 rounded-full bg-gray-200"
+                  />
+                ) : (
+                  <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center shadow-sm">
+                    <span className="text-gray-600 font-semibold text-sm">
+                      {chat.personaName?.charAt(0)}
+                    </span>
+                  </div>
+                )}
+                {/* 날짜 등 추가 필요시 여기에 */}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-black text-base">{chat.personaName}</h3>
+                <p className="text-sm text-black truncate">{chat.description}</p>
+                <p className="text-xs text-gray-500">{chat.situation}</p>
+              </div>
+              {/* 원하는 아이콘 등 추가 */}
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* ... (네비게이션 등) ... */}
     </div>
   );
 }

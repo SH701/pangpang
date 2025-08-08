@@ -1,69 +1,84 @@
-"use client";
+'use client'
 
-import { motion } from "framer-motion";
-import { useState, useRef, useEffect } from "react";
+import { InformationCircleIcon } from '@heroicons/react/24/solid'
+import { useState } from 'react'
 
-export default function HonorificSlider() {
-  const [level, setLevel] = useState(1);
-  const max = 3;
-  const exampleSentence = "식사 맛있게 드세요.";
-  const trackRef = useRef<HTMLDivElement>(null);
-  const [trackWidth, setTrackWidth] = useState(0);
-  useEffect(() => {
-    if (trackRef.current) {
-      setTrackWidth(trackRef.current.offsetWidth);
-    }
-  }, []);
-  const thumbPos = trackWidth
-    ? ((level - 1) / (max - 1)) * trackWidth
-    : 0;
+export default function Slider() {
+  const steps = [
+    'Familiar','','','',
+    'Highly Polite',
+  ]
+  const max = steps.length - 1
+  const [level, setLevel] = useState(0)
+  const percent = (level / max) * 100
+  const stops = steps.length
 
   return (
-    <div className="w-[335px] pt-4  shadow-lg rounded-2xl mb-5">
-      <p className="text-black font-semibold mb-2 text-center">Today’s honorific expression</p>
-      <div className="bg-white rounded-2xl h-10 flex items-center justify-center">
-        <span className="text-sm text-gray-800">{exampleSentence}</span>
+    <div className='w-[335px] flex flex-col justify-center items-center rounded-xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] mb-6'>
+      <span className='font-semibold text-lg py-2 px-4 mt-3'>Today`s honorific expression</span>
+      <span className='w-[296px] bg-gray-200 text-center py-2 my-2 mb-6 rounded-xl'>문장</span>
+    <div className="w-[335px] px-4 max-w-md mx-auto border rounded-xl border-blue-400">
+      <div className="flex justify-center mb-4">
+        <span className="inline-flex items-center bg-white px-3 py-1 text-xs text-gray-600 rounded-full shadow">
+          <InformationCircleIcon className="w-4 h-4 mr-1 text-blue-600" />
+          Choose your speech level
+        </span>
       </div>
-     <div className="w-full max-w-md mx-auto bg-blue-50 p-4 rounded-xl flex-col">
-      <h2 className="text-center font-medium text-gray-800 mb-4">
-        Slide to raise your speech level
-      </h2>
-      <div ref={trackRef} className="relative h-3 bg-blue-200 rounded-full">
-        <motion.div
-          className="absolute h-full bg-blue-600 rounded-full"
-          animate={{ width: thumbPos }}
-          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+      <div className="relative h-2 mb-6">
+        <div className="absolute inset-0 bg-gray-200 rounded-full" />
+      {Array.from({ length: stops }).map((_, i) => (
+          <div
+            key={i}
+            className={`
+              absolute top-1/2 z-10
+              w-3 h-3 rounded-full border-2
+              transform -translate-x-1/2 -translate-y-1/2
+              transition-colors
+              ${i <= level 
+                ? 'bg-blue-600 border-blue-600' 
+                : 'bg-white border-gray-300'}
+            `}
+            style={{ left: `${(i / max) * 100}%` }}
+          />
+        ))}
+  
+        <div
+          className="absolute inset-y-0 left-0 bg-blue-600 rounded-full transition-all duration-300 ease-out"
+          style={{ width: `${percent}%` }}
         />
-        <motion.div
-          className="absolute top-[-6px] w-6 h-6 bg-white border border-blue-700 rounded-full shadow"
-          animate={{ x: thumbPos - 12 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+        <div
+          className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-out"
+          style={{ left: `${percent}%` }}
+        >
+          <div className="w-6 h-6 bg-white border-2 border-blue-600 rounded-full shadow -translate-x-1/2" />
+        </div>
+        <input
+          type="range"
+          min={0}
+          max={max}
+          step={1}
+          value={level}
+          onChange={e => setLevel(Number(e.target.value))}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
       </div>
-      <input
-        type="range"
-        min="0"
-        max={max}
-        step="1"
-        value={level}
-        onChange={(e) => setLevel(Number(e.target.value))}
-        className="w-full opacity-0 h-0"
-      />
-      <div className="flex justify-between text-sm text-gray-700 -mt-3">
-        <div className="text-center w-[60px]">
-          <div>0</div>
-          <div className="text-xs text-gray-500">Friendly</div>
-        </div>
-        <div className="text-center w-[60px]">
-          <div>50</div>
-          <div className="text-xs text-gray-500">Casual</div>
-        </div>
-        <div className="text-center w-[60px]">
-          <div>100</div>
-          <div className="text-xs text-gray-500">Formal</div>
-        </div>
+      <div className="flex justify-between text-xs text-gray-600">
+        {steps.map((label, i) => (
+          <span
+            key={i}
+            className={`flex-1 ${
+              i === 0
+                ? 'text-left'
+                : i === steps.length - 1
+                ? 'text-right'
+                : 'text-center'
+            }`}
+          >
+            {label}
+          </span>
+        ))}
       </div>
     </div>
     </div>
-  );
+  )
 }

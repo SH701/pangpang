@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/UserContext';
+import Link from 'next/link';
+import { ChevronLeftIcon } from '@heroicons/react/24/solid';
+import Image from 'next/image'
 
 const LEVELS = [
   {
@@ -26,7 +29,11 @@ const LEVELS = [
 ] as const;
 
 type Level = (typeof LEVELS)[number]['value'];
-
+const images=[
+  "/circle/circle1.png",
+  "/circle/circle2.png",
+  "/circle/circle3.png",
+]
 export default function LevelSelectPage() {
   const router = useRouter();
   const { accessToken, koreanLevel, setKoreanLevel } = useAuth();
@@ -59,35 +66,50 @@ export default function LevelSelectPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto p-4 space-y-6">
+    <div className="max-w-md mx-auto p-4 space-y-6 mt-10">
+      <div className="relative py-4">
+  <Link href="/profile" className="absolute left-4 top-1/2 transform -translate-y-1/2">
+    <ChevronLeftIcon className="w-6 h-6 text-gray-600" />
+  </Link>
+  <h2 className="text-lg font-semibold text-center">
+    Difficulty
+  </h2>
+</div>
+<div className='flex flex-col gap-2'>
       <h1 className="text-xl font-bold">Select your level</h1>
       <p className="text-sm text-gray-500">
-        Feedback and suggestions will match your level.
+        Feedback and suggestions will <br /> match your level.
       </p>
+      </div>
 
       <div className="space-y-4">
-        {LEVELS.map(({ value, title, description }) => (
-          <button
-            key={value}
-            onClick={() => setSelected(value)}
-            className={`w-full flex items-start space-x-4 p-4 border rounded-lg transition ${
-              selected === value
-                ? 'border-blue-600 bg-blue-50'
-                : 'border-gray-200 bg-gray-50'
-            }`}
-          >
-            <div
-              className={`mt-1 w-5 h-5 rounded-full border-2 ${
-                selected === value ? 'border-blue-600 bg-blue-600' : 'border-gray-400'
-              }`}
-            />
-            <div className="text-left">
-              <p className="font-medium">{title}</p>
-              <p className="text-sm text-gray-600">{description}</p>
-            </div>
-          </button>
-        ))}
+  {LEVELS.map(({ value, title, description }, i) => (
+    <button
+      key={value}
+      onClick={() => setSelected(value)}
+      className={`w-full flex items-center justify-center space-x-4 p-4 border rounded-lg transition ${
+        selected === value
+          ? 'border-blue-600 bg-blue-50'
+          : 'border-gray-200 bg-gray-50'
+      }`}
+    >
+      {/* 동그라미 이미지 */}
+      <Image
+        src={images[i]}
+        width={48}
+        height={48}
+        alt={`level-${value}`}
+        className={`rounded-full flex-shrink-0 border-2 ${
+          selected === value ? 'border-blue-600' : 'border-gray-400'
+        }`}
+      />
+      <div className="text-left">
+        <p className="font-medium">{title}</p>
+        <p className="text-sm text-gray-600">{description}</p>
       </div>
+    </button>
+  ))}
+</div>
 
       <button
         disabled={loading}

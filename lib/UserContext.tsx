@@ -20,7 +20,7 @@ interface UserContextType {
   // 토큰 관련 상태 추가
   accessToken: string | null;
   setKoreanLevel: (v: Level) => void;
-  setSelectedFace: (i: number) => void;
+   setSelectedFace: (i: number | null) => void;
   setProfileImageUrl: (v: string) => void;
   setInterests: (v: Interest[]) => void;
   setAccessToken: (token: string | null) => void;

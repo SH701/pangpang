@@ -81,8 +81,8 @@ export default function ProfileEditPage() {
   const presignRes = await fetch('/api/files/presigned-url', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ fileType: file.type, fileExtension: ext }),
-  });
+    body: JSON.stringify({ fileType: file.type, fileExtension: ext,fileName: file.name }),
+  })
   const { url: uploadUrl } = await presignRes.json();
 
   // 3) S3에 파일 PUT
@@ -91,6 +91,7 @@ export default function ProfileEditPage() {
     headers: { 'Content-Type': file.type },
     body: file,
   });
+  console.log(uploadRes)
   if (!uploadRes.ok) throw new Error('S3 업로드 실패');
 
 
@@ -135,15 +136,12 @@ export default function ProfileEditPage() {
       profileImageUrl &&
       profileImageUrl !== originalProfile.profileImageUrl
     ) {
-      // if user uploaded a custom image URL
       body.profileImageUrl = profileImageUrl;
     }
-
     if (!Object.keys(body).length) {
       setSubmitting(false);
       return; // nothing changed
     }
-
     const res = await fetch('/api/users/me/profile', {
       method: 'PUT',
       credentials: 'include',
@@ -158,8 +156,6 @@ export default function ProfileEditPage() {
       setSubmitting(false);
       return;
     }
-
-    // 성공하면 /profile로 돌아가기
     router.push('/profile');
   };
 
@@ -168,22 +164,24 @@ export default function ProfileEditPage() {
     return <p className="text-center mt-10">Loading profile...</p>;
 
   return (
-    <form onSubmit={onSubmit} className="max-w-md mx-auto p-4 space-y-6">
+    <form onSubmit={onSubmit} className="max-w-md mx-auto p-4 space-y-6 mt-15">
       {/* Back & Title */}
-      <div className="flex items-center space-x-2">
-        <Link href="/profile">
-          <ChevronLeftIcon className="w-6 h-6 text-gray-600" />
-        </Link>
-        <h2 className="text-lg font-semibold">Edit Profile</h2>
-      </div>
+      <div className="relative py-4">
+  <Link href="/profile" className="absolute left-4 top-1/2 transform -translate-y-1/2">
+    <ChevronLeftIcon className="w-6 h-6 text-gray-600" />
+  </Link>
+  <h2 className="text-lg font-semibold text-center">
+    Edit Profile
+  </h2>
+</div>
 
       {/* Avatar */}
       <div className="flex justify-center">
         <div
           onClick={openFileDialog}
-          className="w-32 h-32 rounded-full border-2 border-blue-500 bg-blue-100 overflow-hidden cursor-pointer"
+          className="w-32 h-32 rounded-full ring-2 ring-blue-500 p-2 bg-blue-100 flex items-center justify-center overflow-hidden cursor-pointer"
         >
-          {profileImageUrl.startsWith('http') ? (
+          {profileImageUrl.startsWith('http') || profileImageUrl.startsWith('data:') ? (
             <Image
               src={profileImageUrl}
               alt="avatar"
@@ -193,7 +191,6 @@ export default function ProfileEditPage() {
               unoptimized
             />
           ) : profileImageUrl ? (
-            // face id case, render SVG
             (() => {
               // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
               const C = FACES.find(f => f.id === profileImageUrl)?.Component!;
@@ -233,12 +230,10 @@ export default function ProfileEditPage() {
             </button>
           )}
         </div>
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-gray-400 mb-10">
           Nickname should be 15 characters or less
         </p>
       </div>
-
-      {/* Face Selector */}
       <p className="text-center text-gray-600">Pick your favorite one!</p>
       <div className="flex justify-center space-x-4">
         {FACES.map(({ Component }, idx) => (

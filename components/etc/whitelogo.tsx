@@ -1,6 +1,6 @@
 export default function WhiteLogo(){
     return(
-        <svg width="1099" height="100" viewBox="0 0 1099 256" fill="none" xmlns="http://www.w3.org/2000/svg" className="pl-5">
+        <svg width="300" height="100" viewBox="0 0 1099 256" fill="none" xmlns="http://www.w3.org/2000/svg" className="pl-5">
 <g clipPath="url(#clip0_791_4608)">
 <path d="M233.486 8.28223C268.035 8.28226 296.665 42.4044 296.665 85.3418C296.665 128.279 268.035 162.402 233.486 162.402C198.938 162.402 170.308 128.279 170.308 85.3418C170.308 42.4043 198.938 8.28223 233.486 8.28223Z" fill="white" stroke="#1F2937" strokeWidth="4"/>
 <path d="M214.445 37.0005C239.56 37.0005 260.083 62.0043 260.083 93.0718C260.083 124.139 239.56 149.144 214.445 149.144C189.331 149.144 168.808 124.139 168.808 93.0718C168.808 62.0043 189.331 37.0005 214.445 37.0005Z" fill="black" stroke="#111827"/>

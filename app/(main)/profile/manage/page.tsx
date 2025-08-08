@@ -2,20 +2,23 @@
 // app/account/manage/page.tsx
 'use client'
 
-import { useState, useEffect, ChangeEvent } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/UserContext'
+import Link from 'next/link'
+import { ChevronLeftIcon } from '@heroicons/react/24/solid'
 
 export default function AccountManage() {
   const router = useRouter()
-  const { accessToken } = useAuth()      // auth 컨텍스트에서 토큰 꺼내기
+  const { accessToken } = useAuth()
   const [userInfo, setUserInfo] = useState<{
     nickname: string
-    birth: string
+    birthDate: string
     email: string
   } | null>(null)
 
   const [password, setPassword] = useState('')
+  const masked = '•'.repeat(password.length)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string|null>(null)
 
@@ -29,7 +32,7 @@ export default function AccountManage() {
       .then(data => {
         setUserInfo({
           nickname: data.nickname,
-          birth: data.birth,
+          birthDate: data.birthDate,
           email: data.email
         })
       })
@@ -61,45 +64,43 @@ export default function AccountManage() {
   if (!userInfo) return <p>로딩 중…</p>
 
   return (
-    <div className="p-6 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Manage Account</h1>
-
-      <div className="space-y-3 mb-6">
-        <div>
+    <div className="p-6 max-w-md mt-10">
+      <div className="relative py-4">
+  <Link href="/profile" className="absolute left-4 top-1/2 transform -translate-y-1/2">
+    <ChevronLeftIcon className="w-6 h-6 text-gray-600" />
+  </Link>
+  <h2 className="text-lg font-semibold text-center">
+    Manage Account
+  </h2>
+</div>
+<p className='text-xl text-left font-semibold my-5'>Edit Details</p>
+      <div className="space-y-3 mb-6  mt-10 bg-[#F3F4F6] rounded-xl p-8">
+        <div className='flex gap-10 mb-5'>
           <label className="block text-sm text-gray-600">Nickname</label>
-          <p className="mt-1">{userInfo.nickname}</p>
+          <p>{userInfo.nickname}</p>
         </div>
-        <div>
+        <div className='flex gap-10 mb-5'>
           <label className="block text-sm text-gray-600">Birth</label>
-          <p className="mt-1">{userInfo.birth}</p>
+          <p >{userInfo.birthDate}</p>
         </div>
-        <div>
+        <div className='flex gap-10 mb-5'>
           <label className="block text-sm text-gray-600">E-mail</label>
-          <p className="mt-1">{userInfo.email}</p>
+          <p >{userInfo.email}</p>
         </div>
-      </div>
-
-      <div className="space-y-3">
-        <div>
-          <label htmlFor="password" className="block text-sm text-gray-600">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-            className="w-full mt-1 p-2 border rounded"
-          />
-        </div>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        <button
-          onClick={handleSubmit}
-          className="w-full py-2 bg-blue-600 text-white rounded disabled:opacity-50"
-        >
-          {loading ? '저장 중…' : '비밀번호 변경'}
+        <div className='flex gap-10 mb-5'>
+          <span className="text-sm font-medium text-gray-600">
+        Password
+      </span>
+      <div className="flex items-center space-x-3">
+        <span className="text-sm tracking-widest text-gray-800">
+          {masked}
+        </span>
+        <button className="px-3 py-1 text-sm font-medium text-blue-500 bg-blue-100  hover:bg-blue-100 transition">
+          Edit
         </button>
+        </div>
       </div>
+    </div>
     </div>
   )
 }

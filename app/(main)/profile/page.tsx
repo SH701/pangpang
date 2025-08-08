@@ -1,5 +1,8 @@
 'use client';
 
+import Face0 from '@/components/character/face0';
+import Face1 from '@/components/character/face1';
+import Face2 from '@/components/character/face2';
 import Face3 from '@/components/character/face3';
 import { logout } from '@/lib/logout';
 import { useAuth } from '@/lib/UserContext';
@@ -25,14 +28,18 @@ type Profile = {
   profileImageUrl: string;
   interests: string[];
 };
+const FACES = [
+  { Component: Face0, id: 'face0' },
+  { Component: Face1, id: 'face1' },
+  { Component: Face2, id: 'face2' },
+  { Component: Face3, id: 'face3' },
+];
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState<string | null>(null);
   const { accessToken }       = useAuth();
-
-
   const [count, setCount]     = useState(45);
   const [level, setLevel]     = useState(45);
 
@@ -67,8 +74,8 @@ export default function ProfilePage() {
   if (!profile)      return <p className="text-center mt-10">No profile data</p>;
 
   return (
+    <>
     <div className="max-w-md mx-auto p-4 space-y-6 mt-20">
-      {/* 아바타 + 닉네임 */}
       <div className="flex flex-col items-center">
         <div className="relative">
           {profile.profileImageUrl.startsWith('http') ? (
@@ -80,9 +87,14 @@ export default function ProfilePage() {
               className="rounded-full bg-blue-50"
             />
           ) : (
-            <Face3 className="w-32 h-32 rounded-full bg-blue-50 p-4" />
-          )}
-
+           (() => {
+      const Face =
+        FACES.find(f => f.id === profile.profileImageUrl)?.Component || Face3;
+      return (
+        <Face className="w-32 h-32 rounded-full bg-blue-50 p-4" />
+      );
+    })()
+  )}
         </div>
         <Link
           href="/profile/edit"
@@ -94,44 +106,46 @@ export default function ProfilePage() {
       </div>
 
       {/* 통계 카드 */}
-      <div className="bg-[#316CEC] rounded-xl p-4 flex justify-around text-white">
-        <div className="flex flex-col items-center">
+      <div className="border border-blue-200 bg-[#EFF6FF] rounded-xl p-4 flex justify-around text-blue-600">
+        <div className="flex flex-col items-center w-[50%]">
           <span className="text-sm">Studied Sentence</span>
-          <span className="text-2xl font-bold">{count}</span>
+          <span className="text-2xl font-bold text-black">{count}</span>
         </div>
-        <div className="w-px bg-white opacity-50" />
-        <div className="flex flex-col items-center">
+        <div className="w-px bg-blue-200" />
+        <div className="flex flex-col items-center w-[50%]">
           <span className="text-sm">K-Level</span>
-          <span className="text-2xl font-bold">{level}</span>
+          <span className="text-2xl font-bold text-black">{level}</span>
         </div>
       </div>
-
-      {/* 메뉴 리스트 */}
-      <div className="space-y-4">
+    </div>
+     <div className='w-full bg-gray-100 h-4'></div>
+     <div className="bg-white rounded-xl divide-y divide-gray-200 overflow-hidden w-full mt-10">
         {[
           { href: '/profile/manage', icon: <UserIcon className="w-6 h-6 text-gray-600" />, label: 'Manage Account' },
           { href: '/profile/difficulty', icon: <ChartBarIcon className="w-6 h-6 text-gray-600" />, label: 'Difficulty' },
           { href: '/terms', icon: <DocumentTextIcon className="w-6 h-6 text-gray-600" />, label: 'Terms of Service / Licenses' },
         ].map(({ href, icon, label }) => (
-          <Link key={label} href={href} className="flex items-center justify-between">
+          <Link
+            key={label}
+            href={href}
+            className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 mt-3"
+          >
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
                 {icon}
               </div>
-              <span className="text-base">{label}</span>
+              <span className="text-base text-gray-800">{label}</span>
             </div>
             <ChevronRightIcon className="w-5 h-5 text-gray-400" />
           </Link>
         ))}
       </div>
-
-      {/* 로그아웃 */}
-      <button
+       <button
         onClick={logout}
-        className="block mx-auto text-sm text-gray-400 underline"
+        className="block mx-auto text-sm text-gray-400 underline absolute bottom-26 left-[42%]"
       >
         Log out
       </button>
-    </div>
+      </>
   );
 }

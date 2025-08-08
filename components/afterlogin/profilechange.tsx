@@ -1,7 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { useRef, ChangeEvent } from 'react';
+import React, { useRef, ChangeEvent, useEffect } from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/lib/UserContext';
 import Face0 from '../character/face0';
@@ -34,6 +35,14 @@ export default function ProfileChange() {
   const handleCircleClick = () => {
     fileInputRef.current?.click();
   };
+  useEffect(() => {
+    if (profileImageUrl && !profileImageUrl.startsWith('http')) {
+      const idx = FACES.findIndex(f => f.avatarId === profileImageUrl);
+      setSelectedFace(idx !== -1 ? idx : null);
+    } else {
+      setSelectedFace(null);
+    }
+  }, [profileImageUrl]);
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

@@ -1,11 +1,6 @@
 "use client";
 
 import {
-  HomeIcon as SolidHomeIcon,
-  ClockIcon as SolidClockIcon,
-  UserIcon as SolidUserIcon,
-} from "@heroicons/react/24/solid";
-import {
   HomeIcon as OutlineHomeIcon,
   ClockIcon as OutlineClockIcon,
   UserIcon as OutlineUserIcon,
@@ -29,33 +24,51 @@ export default function TabBar() {
         className="flex-1 flex flex-col items-center justify-center py-2"
       >
         {pathname === "/main" ? (
-          <SolidHomeIcon className="w-6 h-6 text-black" />
+          <>
+          <OutlineHomeIcon className="w-6 h-6 text-blue-500" />
+          <span className="text-xs text-blue-500 mt-1">Home</span>
+          </>
         ) : (
-          <OutlineHomeIcon className="w-6 h-6 text-black" />
+          <>
+          <OutlineHomeIcon className="w-6 h-6 text-gray-300" />
+          <span className="text-xs text-gray-300 mt-1">Home</span>
+          </>
         )}
-        <span className="text-xs text-black mt-1">Home</span>
+        
       </Link>
  <Link
         href="/chatbothistory"
         className="flex-1 flex flex-col items-center justify-center py-2"
       >
         {pathname === "/chatbothistory" ? (
-          <SolidClockIcon className="w-6 h-6 text-black" />
+          <>
+          <OutlineClockIcon className="w-6 h-6 text-blue-500" />
+          <span className="text-xs text-blue-500 mt-1">History</span>
+          </>
         ) : (
-          <OutlineClockIcon className="w-6 h-6 text-black" />
+          <>
+          <OutlineClockIcon className="w-6 h-6 text-gray-300" />
+          <span className="text-xs text-gray-300 mt-1">History</span>
+          </>
         )}
-        <span className="text-xs text-black mt-1">History</span>
+      
       </Link>
       <Link
         href="/profile"
         className="flex-1 flex flex-col items-center justify-center py-2"
       >
-        {pathname === "/profile" ? (
-          <SolidUserIcon className="w-6 h-6 text-black" />
+        {pathname.startsWith("/profile") ? (
+          <>
+          <OutlineUserIcon className="w-6 h-6 text-blue-500" />
+          <span className="text-xs text-blue-500 mt-1">Profile</span>
+          </>
         ) : (
-          <OutlineUserIcon className="w-6 h-6 text-black" />
+          <>
+          <OutlineUserIcon className="w-6 h-6 text-gray-300" />
+          <span className="text-xs text-gray-300 mt-1">Profile</span>
+          </>
         )}
-        <span className="text-xs text-black mt-1">Profile</span>
+        
       </Link>
     </div>
   );
