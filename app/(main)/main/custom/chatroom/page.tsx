@@ -2,19 +2,16 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeftIcon } from '@heroicons/react/24/solid';
-import { useUser } from '@clerk/nextjs';
 
 export default function ChatRoom() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const {user} = useUser();
   const label = searchParams.get('label') || '사장님';
   const name = searchParams.get('name') || '';
   const gender = searchParams.get('gender') || '';
-  const age = searchParams.get('age') || '';
   const role = searchParams.get('role') || '';
   const situation = searchParams.get('situation') || '';
-  const myname = user?.unsafeMetadata?.nickname
+
 
   return (
     <div className="flex flex-col h-[calc(100vh)]  bg-[#F2F7FA] w-full">
@@ -34,7 +31,7 @@ export default function ChatRoom() {
           <div>
             <p className="text-sm font-semibold">{name}</p>
             <div className="mt-1 px-3 py-2 bg-white rounded shadow-sm">
-              <p className="text-sm">{`${myname}씨, 이거 ${myname}씨가 처리한 거 맞지?`}</p>
+              <p className="text-sm">{`${name}씨, 이거 ${name}씨가 처리한 거 맞지?`}</p>
               <div className="flex gap-2 mt-2 text-gray-500 text-sm justify-between">
                 <div>
                 <button>🔊</button>

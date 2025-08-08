@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useAuth } from '@/lib/UserContext';
-import Image from 'next/image';
+import WhiteLogo from '@/components/etc/whitelogo';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -37,18 +37,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4">
       <div className="w-full max-w-sm space-y-6">
-        {/* 로고를 중앙 정렬하기 위해 flex 컨테이너 사용 */}
-        <div className="flex justify-center">
-          <Image
-            src="/logo3.png"
-            alt="로고"
-            width={218}
-            height={42}
-            // 이미지 자체에도 블록 레벨로 설정하고 싶다면 mx-auto 추가 가능
-            // className="mx-auto"
-          />
+        <div className="flex justify-center items-center" >
+         <WhiteLogo/>
         </div>
-
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
             Email

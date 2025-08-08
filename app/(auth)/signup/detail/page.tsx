@@ -13,7 +13,7 @@ export default function SignupStep2() {
   const [name, setName] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [gender, setGender] = useState<'MALE' | 'FEMALE'>('MALE');
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
 
   const canSubmit = name.trim() !== '' && birthDate !== '';
 
@@ -38,7 +38,7 @@ export default function SignupStep2() {
         setError(data.message || 'Signup failed');
         return;
       }
-      router.push('/login');
+      router.push('/after');
     } catch (e) {
       console.error(e);
       setError('Something went wrong');
@@ -49,10 +49,10 @@ export default function SignupStep2() {
     <div className="flex flex-col min-h-screen bg-white">
       {/* header */}
       <div className="px-4 pt-4 mt-20">
-        <button onClick={() => router.back()} className="absolute text-gray-600 hover:text-gray-800">
-          <ChevronLeftIcon className="w-6 h-6" />
+        <button onClick={() => router.back()} className="absolute text-gray-600 hover:text-gray-800 ">
+          <ChevronLeftIcon className="w-6 h-6 mt-1" />
         </button>
-        <h1 className="text-center text-lg font-semibold">Enter your details</h1>
+        <h1 className="text-center text-[22px] font-semibold">Enter your details</h1>
         <p className="text-center text-gray-500 text-sm mt-1">
           Enter it exactly as shown on your ID
         </p>

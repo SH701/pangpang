@@ -1,30 +1,33 @@
 'use client';
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Slider from 'react-slick';
+import Slider, { Settings } from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { useAuth, Level, Interest } from '@/lib/UserContext';
 import ProfileChange from "@/components/afterlogin/profilechange";
 
-export default function OnboardingPage() {
+export default function AfterPage() {
   const router = useRouter();
   const { 
     koreanLevel, setKoreanLevel, 
     profileImageUrl, 
     interests, setInterests 
   } = useAuth();
+  const { accessToken } = useAuth();
   const sliderRef = useRef<Slider>(null);
   const [current, setCurrent] = useState(0);
   const [error, setError] = useState<string|null>(null);
   const [loading, setLoading] = useState(false);
 
-  const settings = {
+  const settings:Settings = {
     dots: false,
     infinite: false,
-    speed: 300,
+    speed: 400,
     slidesToShow: 1,
     arrows: false,
+    draggable: false,
+    swipe: false, 
     afterChange: (i: number) => setCurrent(i),
     customPaging: (i: number) => (
       <button 
@@ -42,15 +45,16 @@ export default function OnboardingPage() {
       goMain();
     }
   };
+
   const goMain = async () => {
     setError(null);
     setLoading(true);
     try {
       const res = await fetch('/api/users/me/profile', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json',Authorization: `Bearer ${accessToken}`, },
         credentials: 'include',
-        body: JSON.stringify({ koreanLevel, profileImageUrl, interests }),
+        body: JSON.stringify({koreanLevel, profileImageUrl,interests }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -68,10 +72,8 @@ export default function OnboardingPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      {/* 슬라이더 영역 */}
       <div className="flex-1 relative">
         <Slider ref={sliderRef} {...settings}>
-          {/* 1. Korean Level */}
           <div className="px-4 pt-8 mt-20">
             <h1 className=" text-2xl font-semibold">
               Please select your <br /> Korean level

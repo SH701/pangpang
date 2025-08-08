@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 // 1) 프리플라이트 요청 처리
 export async function OPTIONS() {
   const res = new NextResponse(null, { status: 204 });
-  res.headers.set('Access-Control-Allow-Origin',  '*');                // 필요시 정확한 도메인으로 교체
+  res.headers.set('Access-Control-Allow-Origin',  '*');                
   res.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   return res;
@@ -14,7 +14,7 @@ export async function OPTIONS() {
 export async function POST(request: Request) {
   // CORS 헤더 미리 붙여두기
   const resHeaders = new Headers({
-    'Access-Control-Allow-Origin': '*',               // 필요시 정확한 도메인
+    'Access-Control-Allow-Origin': '*',               
   });
 
   // 1) Authorization 헤더 확인

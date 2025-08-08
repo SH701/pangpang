@@ -26,9 +26,9 @@ export default function SignupStep1() {
     <div className="flex flex-col min-h-screen bg-white">
       <div className="px-4 pt-4 mt-20">
         <button onClick={() => router.back()} className="absolute text-gray-600 hover:text-gray-800">
-          <ChevronLeftIcon className="w-6 h-6" />
+          <ChevronLeftIcon className="w-6 h-6 mt-1.5" />
         </button>
-        <h1 className="text-center text-lg font-semibold">Create account</h1>
+        <h1 className="text-center text-2xl font-semibold">Create account</h1>
       </div>
 
       <div className="flex-1 px-4 pt-8 space-y-10 mt-10">
@@ -79,12 +79,12 @@ export default function SignupStep1() {
         </label>
       </div>
 
-      <footer className="p-4 bg-blue-600">
+      <footer className={`p-4 ${canNext ? 'bg-blue-600' : 'bg-[#BFDBFE]'}`}>
         <button
           disabled={!canNext}
           onClick={goNext}
           className={`w-full py-3  font-semibold transition text-lg ${
-            canNext ? 'text-white' : ' text-gray-300 cursor-not-allowed' 
+            canNext ? 'text-white' : ' text-gray-100 cursor-not-allowed' 
           }`}
         >
           Next

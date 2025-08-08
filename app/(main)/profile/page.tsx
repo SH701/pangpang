@@ -1,80 +1,137 @@
-"use client";
+'use client';
 
-import { useUser } from "@clerk/nextjs";
-import Link from "next/link";
-import Image from "next/image"
-import { useState } from "react";
-import { SettingItem } from "@/components/profile/settingitem";
+import Face3 from '@/components/character/face3';
+import { logout } from '@/lib/logout';
+import { useAuth } from '@/lib/UserContext';
+import {
+  ChevronRightIcon,
+  UserIcon,
+  ChartBarIcon,
+  DocumentTextIcon,
+} from '@heroicons/react/24/outline';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
 
-function formatDate(iso?: string | Date | null) {
-  if (!iso) return "";
-  const d = typeof iso === "string" ? new Date(iso) : iso;
-  const opts: Intl.DateTimeFormatOptions = {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  };
-  return d.toLocaleString("en-US", opts);
-}
+type Profile = {
+  id: number;
+  email: string;
+  nickname: string;
+  gender: string;
+  birthDate: string;
+  role: string;
+  provider: string;
+  koreanLevel: string;
+  profileImageUrl: string;
+  interests: string[];
+};
 
-export default function Profile() {
-  const { isLoaded, isSignedIn, user } = useUser();
-  const [count,setCount] = useState(0)
-   const [level,setLevel] = useState(0)
-  if (!isLoaded) return <div>로딩중....</div>;
-  if (!isSignedIn || !user) return <div>로그인 필요</div>;
+export default function ProfilePage() {
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError]     = useState<string | null>(null);
+  const { accessToken }       = useAuth();
 
-  const name = `${user.unsafeMetadata.nickname}`.trim() || "익명";
-  const joined = formatDate(user.createdAt);
+
+  const [count, setCount]     = useState(45);
+  const [level, setLevel]     = useState(45);
+
+  useEffect(() => {
+    if (!accessToken) {
+      setError('로그인이 필요합니다');
+      setLoading(false);
+      return;
+    }
+    fetch('/api/users/me', {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || `Error ${res.status}`);
+        setProfile(data);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError(err.message);
+      })
+      .finally(() => setLoading(false));
+  }, [accessToken]);
+
+  if (loading)       return <p className="text-center mt-10">Loading…</p>;
+  if (error)         return <p className="text-red-500 text-center mt-10">Error: {error}</p>;
+  if (!profile)      return <p className="text-center mt-10">No profile data</p>;
 
   return (
-   <>
-    <span className="absolute top-12 left-4 text-2xl font-bold z-10">My Page</span>
-    <div className="flex flex-col">
-    <div className="relative flex flex-col items-center gap-4 px-6 py-8 bg-white">
-      <div className="relative flex flex-col items-center gap-2 mt-20">
-        <Image src={user?.imageUrl} alt="Profile" width={100} height={100} className="rounded-full"/>
-        <h1 className="text-xl font-semibold text-center">{name}</h1>
-        <Link href="/profile/edit" aria-label="설정" className="btn">
-          <span className="text-sm">Edit profile</span>
+    <div className="max-w-md mx-auto p-4 space-y-6 mt-20">
+      {/* 아바타 + 닉네임 */}
+      <div className="flex flex-col items-center">
+        <div className="relative">
+          {profile.profileImageUrl.startsWith('http') ? (
+            <Image
+              src={profile.profileImageUrl}
+              alt="프로필"
+              width={120}
+              height={120}
+              className="rounded-full bg-blue-50"
+            />
+          ) : (
+            <Face3 className="w-32 h-32 rounded-full bg-blue-50 p-4" />
+          )}
+
+        </div>
+        <Link
+          href="/profile/edit"
+          className="mt-4 inline-flex items-center space-x-1 text-lg font-semibold"
+        >
+          <span className='pl-8'>{profile.nickname}</span>
+          <ChevronRightIcon className="w-5 h-5 text-gray-400" />
         </Link>
-        <div className="text-xs text-gray-400 mt-1">Joined {joined}</div>
       </div>
-      <div className="w-[335px] h-25 bg-gray-300 rounded-2xl flex justify-between items-center px-10">
-        <div className="flex flex-col gap-2 items-center">
-          <span className="font-semibold text-sm">Studied sentence </span>
-          <span className="text-xl">{count}</span>
+
+      {/* 통계 카드 */}
+      <div className="bg-[#316CEC] rounded-xl p-4 flex justify-around text-white">
+        <div className="flex flex-col items-center">
+          <span className="text-sm">Studied Sentence</span>
+          <span className="text-2xl font-bold">{count}</span>
         </div>
-        <div className="border-r-1 h-18 w-1"></div>
-         <div className="flex flex-col gap-2 items-center">
-          <span className="font-semibold text-sm">Korean level</span>
-          <span className="text-xl">LV.{level}</span>
+        <div className="w-px bg-white opacity-50" />
+        <div className="flex flex-col items-center">
+          <span className="text-sm">K-Level</span>
+          <span className="text-2xl font-bold">{level}</span>
         </div>
       </div>
-    </div>
-   <div className="bg-white px-3 pt-4">
-      <div className="pl-6 mb-2">
-        <span className="text-lg font-semibold">Setting</span>
+
+      {/* 메뉴 리스트 */}
+      <div className="space-y-4">
+        {[
+          { href: '/profile/manage', icon: <UserIcon className="w-6 h-6 text-gray-600" />, label: 'Manage Account' },
+          { href: '/profile/difficulty', icon: <ChartBarIcon className="w-6 h-6 text-gray-600" />, label: 'Difficulty' },
+          { href: '/terms', icon: <DocumentTextIcon className="w-6 h-6 text-gray-600" />, label: 'Terms of Service / Licenses' },
+        ].map(({ href, icon, label }) => (
+          <Link key={label} href={href} className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                {icon}
+              </div>
+              <span className="text-base">{label}</span>
+            </div>
+            <ChevronRightIcon className="w-5 h-5 text-gray-400" />
+          </Link>
+        ))}
       </div>
-      <div className="w-[335px] mx-auto overflow-hidden bg-gray-200 mb-4 border-b-1 rounded-2xl">
-        <SettingItem
-          icon={<span className="font-bold">Lv</span>}
-          title="Difficulty Settings"
-          description = {`Current : Lv ${user?.unsafeMetadata.level}`}
-        />
-        <SettingItem
-          icon={<div className="w-8 h-8 bg-gray-400 rounded-full" />}
-          title="What?"
-          description="What?"
-        />
-        <SettingItem
-          icon={<span className="text-xl">📄</span>}
-          title="What?"
-          description="What?"
-        />
-      </div>
+
+      {/* 로그아웃 */}
+      <button
+        onClick={logout}
+        className="block mx-auto text-sm text-gray-400 underline"
+      >
+        Log out
+      </button>
     </div>
-    </div>
-  </>
   );
 }

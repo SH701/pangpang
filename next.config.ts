@@ -5,7 +5,7 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   images: {
-    domains: ["img.clerk.com"],
+    domains: ["noonchi-bucket.s3.ap-northeast-2.amazonaws.com"],
   },
   theme: {
     extend: {

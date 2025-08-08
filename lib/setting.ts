@@ -1,4 +1,5 @@
-import First from "@/components/character/first"
+import First from "@/components/onboard/svg/first";
+
 export const slides = [
   {
     id: 1,
@@ -18,14 +19,14 @@ export const slides = [
     desc: "Slide to shift your tone and see your message transform.",
     img:"/onboard3.png"
   },
-  // {
-  //   id: 4,
-  //   title: "Powerd by K-AI trained for Korean culture",
-  //   desc: "Noonchi is built with K-culture AI, fine-tuned on thousands of real Korean conversations.",
-  //   img:"/onboard4.png"
-  // },
   {
     id: 4,
+    title: "Powerd by K-AI trained for Korean culture",
+    desc: "Noonchi is built with K-culture AI, fine-tuned on thousands of real Korean conversations.",
+    img:"/onboard4.png"
+  },
+  {
+    id: 5,
     title: "Ready to start?",
     desc: "Practice honorifics naturally by chatting with K-Etiquette.",
     img:"/onboard5.png"

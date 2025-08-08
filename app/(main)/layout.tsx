@@ -1,4 +1,5 @@
 import TabBar from "@/components/etc/tab-bar";
+import { AuthProvider } from "@/lib/UserContext";
 
 export const dynamic = "force-dynamic";
 
@@ -8,6 +9,7 @@ export default function MainsLayout({
   children: React.ReactNode;
 }) {
   return (
+    <AuthProvider>
     <div className="w-full flex flex-col overflow-hidden">
       <div className=" flex items-center justify-center">
         {children}
@@ -17,5 +19,6 @@ export default function MainsLayout({
         <TabBar />
       </div>
     </div>
+    </AuthProvider>
   );
 }

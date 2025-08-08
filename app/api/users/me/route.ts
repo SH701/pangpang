@@ -1,63 +1,36 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function PUT(req: NextRequest) {
-  let body: any;
+// 공통: 인증 헤더/쿠키 추출
+export async function GET(req: NextRequest) {
   try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ message: 'Invalid JSON' }, { status: 400 });
-  }
+    // 1) 인증 헤더/쿠키 준비
+    const headers: Record<string,string> = {};
+    const auth = req.headers.get('authorization');
+    if (auth) headers['authorization'] = auth;
+    const sess = req.cookies.get('__session')?.value;
+    if (sess) headers['cookie'] = `__session=${sess}`;
 
-  const { koreanLevel, interests, profileImageUrl } = body;
-  if (
-    typeof koreanLevel !== 'string' ||
-    !Array.isArray(interests) ||
-    typeof profileImageUrl !== 'string'
-  ) {
+    // 2) 실제 백엔드 호출
+    const upstream = await fetch('http://localhost:8080/api/users/me', {
+      method: 'GET',
+      headers,
+    });
+
+    const text = await upstream.text();
+    if (!upstream.ok) {
+      let msg = text;
+      try { msg = JSON.parse(text).message; } catch {}
+      return NextResponse.json({ message: msg }, { status: upstream.status });
+    }
+
+    // 빈 바디 방지
+    const data = text ? JSON.parse(text) : {};
+    return NextResponse.json(data, { status: upstream.status });
+  } catch (err) {
+    console.error('GET /api/users/me/profile proxy error', err);
     return NextResponse.json(
-      { message: 'Missing or invalid fields' },
-      { status: 400 }
+      { message: 'Internal Server Error' },
+      { status: 500 }
     );
   }
-
-  try {
-  // Next.js의 req.cookies API 사용
-  const sessionCookie = req.cookies.get('__session')?.value;
-  const accessToken = req.cookies.get('accessToken')?.value;
-
-  // 전달할 헤더 객체 구성
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-  if (sessionCookie) {
-    headers['cookie'] = `__session=${sessionCookie}`;
-  }
-  if (accessToken) {
-    headers['authorization'] = `Bearer ${accessToken}`;
-  }
-
-  const upstream = await fetch('http://localhost:8080/api/users/me', {
-    method: 'GET',
-    headers,
-    body: JSON.stringify({ koreanLevel, interests, profileImageUrl }),
-  });
-
-  if (!upstream.ok) {
-    const errData = await upstream.json().catch(() => null);
-    return NextResponse.json(
-      { message: errData?.message || `Backend error ${upstream.status}` },
-      { status: upstream.status }
-    );
-  }
-
-  const data = await upstream.json();
-  return NextResponse.json(data, { status: upstream.status });
-} catch (err) {
-  console.error('/api/profile proxy error', err);
-  return NextResponse.json(
-    { message: 'Internal Server Error' },
-    { status: 500 }
-  );
-}
 }
