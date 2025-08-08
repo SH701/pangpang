@@ -33,6 +33,7 @@ export default function PersonaAndRoom() {
   const [profileImageUrl,setProfileImageUrl] = useState('')
    const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   const [loading, setLoading] = useState(false)
+  const [status,setStatus] = useState<'ACTIVE'|"ENDED">('ACTIVE')
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,7 +53,8 @@ export default function PersonaAndRoom() {
           age: age === '' ? 0 : age,
           relationship,
           description,
-          profileImageUrl, // 이미지 직접 넣을 수 있으면 넣기
+          profileImageUrl,
+          status // 이미지 직접 넣을 수 있으면 넣기
         }),
       })
       if (!personaRes.ok) throw new Error('Persona 생성 실패')
@@ -72,8 +74,6 @@ export default function PersonaAndRoom() {
       })
       if (!convoRes.ok) throw new Error('방 생성 실패')
       const convo = await convoRes.json()
-
-      // 3) 방으로 이동
      router.push(`/main/custom/chatroom/${convo.conversationId}`);
     } catch (e: any) {
       alert('생성 실패: ' + (e?.message ?? e))
@@ -129,7 +129,7 @@ export default function PersonaAndRoom() {
             key={img}
             className={`w-20 h-20 rounded-full overflow-hidden border-4 ${profileImageUrl === img ? 'border-blue-500' : 'border-transparent'}`}
             onClick={() => {
-              setProfileImageUrl(img);      // 이건 미리 준비된 아바타일 때!
+              setProfileImageUrl(img); 
               setAvatarModalOpen(false);
             }}
           >
