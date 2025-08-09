@@ -54,14 +54,14 @@ export async function DELETE(
       cache: 'no-store',
     });
 
-    const body = await upstream.text();
-    return new NextResponse(body, {
-      status: upstream.status,
-      headers: {
-        'content-type': upstream.headers.get('content-type') ?? 'application/json',
-      },
-    });
+     if (upstream.ok || upstream.status === 404) {
+      return new NextResponse(null, { status: 204 });
+    }
+
+    const text = await upstream.text();
+    return new NextResponse(text || 'Upstream error', { status: upstream.status });
   } catch (e) {
+    // 여기 오면 대부분 params / API_URL / fetch 예외
     console.error('Error in DELETE /api/personas/[id]:', e);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
