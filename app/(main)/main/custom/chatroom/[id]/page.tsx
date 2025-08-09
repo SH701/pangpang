@@ -2,7 +2,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation' // ✅ 동적 라우트 파람은 이걸로
+import { useParams, useRouter } from 'next/navigation' // ✅ 동적 라우트 파람은 이걸로
 import { MyAI } from '@/lib/types'
 import { useAuth } from '@/lib/UserContext'
 import Link from 'next/link'
@@ -19,9 +19,10 @@ type ConversationDetail = {
 }
 
 export default function ChatroomPage() {
+  // ✅ 페이지 컴포넌트에서 Promise로 받지 마세요. (use(params) ❌)
   const params = useParams<{ id: string }>()
   const id = params?.id // 동적 파라미터
-
+  const router = useRouter();
   const { accessToken } = useAuth()
 
   const [message, setMessage] = useState('')
@@ -98,6 +99,23 @@ export default function ChatroomPage() {
       setLoading(false)
     }
   }
+const handleEnd = async () => {
+  try {
+    const res = await fetch(`/api/conversations/${id}/end`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    if (!res.ok) {
+      console.error('Failed to end conversation');
+      return;
+    }
+    router.push(`/main/custom/chatroom/${id}/result`)
+    console.log("대화가 종료되었습니다.")
+  } catch (error) {
+    console.error('Error ending conversation:', error);
+  }
+};
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -112,9 +130,11 @@ export default function ChatroomPage() {
             </Link>
             <span className="text-lg font-semibold text-black">{myAI?.name ?? '...'}</span>
           </div>
+          <button onClick={handleEnd}>
           <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
           </svg>
+          </button>
         </div>
       </div>
 
