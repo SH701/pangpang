@@ -32,6 +32,7 @@ export async function proxyJSON(
 
   const method = init?.method ?? "GET";
   const forwardAuth = init?.forwardAuth ?? false;
+  
   const timeoutMs = init?.timeoutMs ?? 12_000;
 
   // 1) 업스트림 URL 구성 (+ 쿼리스트링 전파)
@@ -46,10 +47,14 @@ export async function proxyJSON(
 
   // 3) 헤더 구성
   const headers: Record<string,string> = { "Content-Type": "application/json" };
-  if (forwardAuth) {
-    const auth = req.headers.get("authorization");
-    if (auth) headers["Authorization"] = auth;
+if (forwardAuth) {
+  let auth = req.headers.get("authorization");
+  if (!auth) {
+    const token = req.cookies.get("accessToken")?.value;
+    if (token) auth = `Bearer ${token}`;
   }
+  if (auth) headers["Authorization"] = auth;
+}
 
   // 4) 바디 준비 (GET/DELETE는 바디 금지)
   const fetchInit: RequestInit = {
