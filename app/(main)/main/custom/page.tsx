@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeftIcon } from '@heroicons/react/24/solid'
 import { useAuth } from '@/lib/UserContext'
@@ -20,6 +20,11 @@ const images = [
   "characters/character2.png",
   "characters/character3.png",
 ];
+const SITUATIONS: Record<'BOSS' | 'GF_PARENTS' | 'CLERK', string[]> = {
+  BOSS: ['BOSS1', 'BOSS2', 'BOSS3'],
+  GF_PARENTS: ['GF_PARENTS1', 'GF_PARENTS2', 'GF_PARENTS3'],
+  CLERK: ['CLERK1', 'CLERK2', 'CLERK3'],
+};
 
 export default function PersonaAndRoom() {
   const { accessToken } = useAuth()
@@ -37,7 +42,10 @@ export default function PersonaAndRoom() {
    const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   const [loading, setLoading] = useState(false)
   const [status,setStatus] = useState<'ACTIVE'|"ENDED">('ACTIVE')
-
+   useEffect(() => {
+    const firstSituation = SITUATIONS[relationship][0];
+    setDescription(firstSituation as typeof description);
+  }, [relationship]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -184,57 +192,49 @@ export default function PersonaAndRoom() {
         />
 
         {/* Role */}
-        <label className="text-sm font-medium">Role</label>
-        <div className="flex gap-2 my-2">
-          {[
-            { value: 'BOSS', label: 'Boss' },
-            { value: "GF_PARENTS", label: "Gf_Parents" },
-            { value: 'CLERK', label: 'Clerk' },
-          ].map(({ value, label }) => {
-            const isSelected = relationship === value
-            return (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setRelationship(value as 'BOSS' | 'GF_PARENTS' | 'CLERK')}
-                className={`flex-1 px-4 rounded-md border text-sm font-medium cursor-pointer ${isSelected ? 'bg-blue-400 border-2 text-black border-blue-200' : ''}`}
-              >
-                {label}
-              </button>
-            )
-          })}
-        </div>
+         {/* Role */}
+      <label className="text-sm font-medium">Role</label>
+      <div className="flex gap-2 my-2">
+        {[
+          { value: 'BOSS', label: 'Boss' },
+          { value: 'GF_PARENTS', label: 'Gf_Parents' },
+          { value: 'CLERK', label: 'Clerk' },
+        ].map(({ value, label }) => {
+          const isSelected = relationship === value;
+          return (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setRelationship(value as 'BOSS' | 'GF_PARENTS' | 'CLERK')}
+              className={`flex-1 px-4 rounded-md border text-sm font-medium cursor-pointer ${
+                isSelected ? 'bg-blue-400 border-2 text-black border-blue-200' : ''
+              }`}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
 
-       {/* Situation */}
-<label className="text-sm font-medium">Situation</label>
-<div className="flex flex-col gap-2 my-2">
-  {[
-    { value: 'BOSS1',  },
-    { value: 'BOSS2',  },
-    { value: 'BOSS3',  },
-
-    { value: 'GF_PARENTS1',  },
-     { value: 'GF_PARENTS2',  },
-      { value: 'GF_PARENTS3',  },
-    { value: 'CLERK1',  },
-    { value: 'CLERK2',  },
-    { value: 'CLERK3',  },
-  ].map(({ value }) => {
-    const isSelected = description === value
-    return (
-      <button
-        key={value}
-        type="button"
-        onClick={() => setDescription(value as typeof description)}
-        className={`flex-1 px-4 py-2 rounded-md border text-sm font-medium cursor-pointer ${
-          isSelected ? 'bg-blue-300 border-2 text-black border-blue-200' : ''
-        }`}
-      >
-        {value}
-      </button>
-    )
-  })}
-</div>
+      {/* Situation */}
+      <label className="text-sm font-medium">Situation</label>
+      <div className="flex flex-col gap-2 my-2">
+        {SITUATIONS[relationship].map((value) => {
+          const isSelected = description === value;
+          return (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setDescription(value as typeof description)}
+              className={`flex-1 px-4 py-2 rounded-md border text-sm font-medium cursor-pointer ${
+                isSelected ? 'bg-blue-300 border-2 text-black border-blue-200' : ''
+              }`}
+            >
+              {value}
+            </button>
+          );
+        })}
+      </div>
 
 <button
   type="submit"
