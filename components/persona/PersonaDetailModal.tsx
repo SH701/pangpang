@@ -65,9 +65,11 @@ export default function PersonaDetailModal({
     };
     run();
   }, [open, personaId, accessToken]);
+
+  // 삭제 핸들러
  const handleDelete = async () => {
     if (!personaId || !accessToken) return;
-    if (!confirm('정말 삭제할까요? 이 작업은 되돌릴 수 없습니다.')) return;
+    if (!confirm('Delete This AI?.')) return;
     setDeleting(true);
     try {
       const res = await fetch(`/api/personas/${personaId}`, {

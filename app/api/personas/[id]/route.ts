@@ -30,7 +30,7 @@ export async function GET(
       },
     });
   } catch (e) {
-    console.error('Error in GET /api/conversations/[id]:', e);
+    console.error('Error in GET /api/personas/[id]:', e);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
@@ -48,7 +48,7 @@ export async function DELETE(
   }
 
   try {
-    const upstream = await fetch(`${API}/api/conversations/${id}`, {
+    const upstream = await fetch(`${API}/api/personas/${id}`, {
       method: 'DELETE',
       headers: { authorization: token },
       cache: 'no-store',
@@ -62,7 +62,7 @@ export async function DELETE(
       },
     });
   } catch (e) {
-    console.error('Error in DELETE /api/conversations/[id]:', e);
+    console.error('Error in DELETE /api/personas/[id]:', e);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
