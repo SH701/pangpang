@@ -38,9 +38,7 @@ export default function SignupStep2() {
         setError(data.message || 'Signup failed');
         return;
       }
-      setTimeout(() => {
-      router.push('/after');
-    }, 3000);
+      router.push('/after')
     } catch (e) {
       setError('Something went wrong');
     }
