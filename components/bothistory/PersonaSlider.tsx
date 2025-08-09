@@ -1,83 +1,58 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// components/bothistory/PersonaSlider.tsx
 'use client';
 
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { useAuth } from '@/lib/UserContext';
 
 export type PersonaSlide =
   | { isAdd: true }
   | { isAdd?: false; personaId: number | string; name: string; profileImageUrl?: string };
 
 type Props = {
-  items: PersonaSlide[];
-  onAdd?: () => void;
-  itemSize?: number;        // default 56 (w-14)
-  gap?: number;             // default 12 (space-x-3)
-  visibleCount?: number;    // default 5
-  viewportWidth?: number;   // 고정 폭을 직접 줄 때
+  items: PersonaSlide[];                         // 부모에서 공급
+  onAdd?: () => void;                            // '+' 클릭
+  onItemClick?: (idx: number, it: PersonaSlide) => void; // 아이템 클릭(모달 오픈용)
+  itemSize?: number;
+  gap?: number;
+  visibleCount?: number;
+  viewportWidth?: number;
 };
 
-const normalizeSrc = (src?: string) => {
-  if (!src) return '';
-  if (src.startsWith('http')) return src;
-  if (src.startsWith('/')) return src;
-  return `/${src}`;
-};
+const normalizeSrc = (src?: string) =>
+  !src ? '' : src.startsWith('http') || src.startsWith('/') ? src : `/${src}`;
 
 export default function PersonaSlider({
   items,
   onAdd,
+  onItemClick,
   itemSize = 56,
   gap = 12,
   visibleCount = 5,
   viewportWidth,
 }: Props) {
-  const trackWidth = useMemo(
-    () => (items.length ? items.length * itemSize + (items.length - 1) * gap : 0),
-    [items.length, itemSize, gap]
-  );
-
-  // 보일 영역 폭(고정 폭 주면 그 값을 사용)
   const viewW = viewportWidth ?? visibleCount * itemSize + (visibleCount - 1) * gap;
+  const trackWidth = useMemo(
+    () => (items?.length ? items.length * itemSize + (items.length - 1) * gap : 0),
+    [items, itemSize, gap]
+  );
+  const leftLimit = useMemo(() => Math.min(0, viewW - trackWidth), [viewW, trackWidth]);
 
-  // 트랙이 뷰포트보다 짧으면 드래그 불가, 길면 왼쪽으로만
-  const leftLimit = useMemo(() => Math.min(0, viewW - trackWidth), [viewW, trackWidth])
-  const {accessToken} = useAuth();
-  const [sliderItems, setSliderItems] = useState<PersonaSlide[]>([{ isAdd: true }])
-  // ✅ 슬라이더용: 모든 페르소나 불러오기 (필터와 무관)
-    const loadPersonasForSlider = useCallback(async () => {
-      if (!accessToken) return
-      try {
-        const res = await fetch('/api/persona/my', {
-          headers: { Authorization: `Bearer ${accessToken}` },
-          cache: 'no-store',
-        })
-  
-        if (res.status === 404) {
-          setSliderItems([{ isAdd: true }]) // 데이터 없으면 '+'만
-          return
-        }
-        if (!res.ok) throw new Error('persona load failed')
-  
-        const data = await res.json()
-        const list: PersonaSlide[] = (Array.isArray(data) ? data : [])
-          .filter(Boolean)
-          .map((p: any) => ({
-            personaId: p.id ?? p.personaId ?? p.name,
-            name: p.name || 'Unknown',
-            profileImageUrl: typeof p.profileImageUrl === 'string' ? p.profileImageUrl : '',
-          }))
-  
-        // 항상 '+'를 맨 앞에
-        setSliderItems(([{ isAdd: true }, ...list] as PersonaSlide[]))
-      } catch {
-        setSliderItems([{ isAdd: true }])
-      }
-    }, [accessToken])
-  
-    useEffect(() => { loadPersonasForSlider() }, [loadPersonasForSlider])
+  if (!items || items.length === 0) {
+    // 비어있을 때 '+'만 노출
+    return (
+      <div className="overflow-hidden" style={{ width: viewW }}>
+        <button
+          onClick={onAdd}
+          className="rounded-full bg-black text-white flex items-center justify-center text-2xl"
+          style={{ width: itemSize, height: itemSize }}
+          aria-label="Add persona"
+        >
+          +
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="overflow-hidden" style={{ width: viewW }}>
@@ -100,15 +75,20 @@ export default function PersonaSlider({
               +
             </button>
           ) : (
-            <div key={`${it.personaId}-${i}`} className="flex flex-col items-center shrink-0" style={{ width: itemSize }}>
+            <div
+              key={`${it.personaId}-${i}`}
+              className="flex flex-col items-center shrink-0"
+              style={{ width: itemSize }}
+            >
               {it.profileImageUrl ? (
                 <Image
                   src={normalizeSrc(it.profileImageUrl)}
                   alt={it.name}
                   width={itemSize}
                   height={itemSize}
-                  className="rounded-full object-cover bg-gray-200"
+                  className="rounded-full object-cover bg-gray-200 cursor-pointer"
                   unoptimized
+                  onClick={() => onItemClick?.(i, it)}            // 아이템 클릭 이벤트 전달
                 />
               ) : (
                 <div

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // app/api/conversations/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { proxyJSON } from '@/app/api/_lib/proxy';
@@ -36,9 +37,17 @@ export async function GET(
 
 
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
-  return proxyJSON(req, `/api/personas/${params.id}`, {
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+  if (!params?.id) {
+    return new Response(JSON.stringify({ message: 'conversation id is required' }), {
+      status: 400,
+      headers: { 'content-type': 'application/json' },
+    });
+  }
+  return proxyJSON(req as any, `/api/conversations/${params.id}`, {
     method: 'DELETE',
-    forwardAuth: true, // 토큰/쿠키 전달
+    forwardAuth: true,
+    retries: 0,
+    devPassthrough: true,
   });
 }
