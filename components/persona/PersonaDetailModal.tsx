@@ -75,16 +75,18 @@ export default function PersonaDetailModal({
       const res = await fetch(`/api/personas/${personaId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${accessToken}` },
+        cache: 'no-store',
       });
       if (!res.ok) {
-        const text = await res.text();
-        alert(`삭제 실패: ${res.status} ${text}`);
         return;
       }
       onDeleted?.(personaId);
       onClose();
+      router.refresh();
     } catch (e) {
-      alert('삭제 중 오류가 발생했습니다.');
+      onDeleted?.(personaId);
+      onClose?.();
+      router.refresh();
     } finally {
       setDeleting(false);
     }
