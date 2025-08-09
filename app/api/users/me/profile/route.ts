@@ -6,5 +6,6 @@ export async function PUT(req: NextRequest) {
   return proxyJSON(req, "/api/users/me/profile", {
     method: "PUT",
     forwardAuth: true,
+    forwardCookies: true,
   });
 }

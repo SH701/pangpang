@@ -19,6 +19,7 @@ export type Conversation = {
   conversationId: number
   userId: number
   aiPersona: {
+    id: number
     personaId: number
     userId: number
     name: string
