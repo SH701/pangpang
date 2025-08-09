@@ -1,7 +1,7 @@
 'use client';
 export const dynamic = 'force-dynamic'; // ✅ 빌드 시 프리렌더 방지
 
-import { useAuth } from '@/lib/UserContext';
+import { useAuth } from '@/lib/Token';
 import { ChevronLeftIcon } from '@heroicons/react/24/solid';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
