@@ -1,6 +1,7 @@
 'use client';
 export const dynamic = 'force-dynamic'; // ✅ 빌드 시 프리렌더 방지
 
+import { useAuth } from '@/lib/UserContext';
 import { ChevronLeftIcon } from '@heroicons/react/24/solid';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -8,7 +9,7 @@ import { useState, useEffect } from 'react';
 export default function SignupStep2() {
   const router = useRouter();
   const params = useSearchParams();
-
+  const { setAccessToken } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -18,7 +19,6 @@ export default function SignupStep2() {
 
   const canSubmit = name.trim() !== '' && birthDate !== '';
 
-  // ✅ 쿼리 파라미터는 클라이언트에서만 읽기
   useEffect(() => {
     setEmail(params.get('email') || '');
     setPassword(params.get('password') || '');
@@ -44,6 +44,12 @@ export default function SignupStep2() {
         setError(data.message || 'Signup failed');
         return;
       }
+       if (data.accessToken) {
+      setAccessToken(data.accessToken);
+      document.cookie = `accessToken=${data.accessToken}; Path=/; SameSite=Lax`;
+      router.push('/after');
+      return;
+    }
       router.push('/after');
     } catch {
       setError('Something went wrong');

@@ -57,7 +57,6 @@ export default function PersonaAndRoom() {
           relationship,
           description,
           profileImageUrl,
-          status // 이미지 직접 넣을 수 있으면 넣기
         }),
       })
       if (!personaRes.ok) throw new Error('Persona 생성 실패')
@@ -189,7 +188,7 @@ export default function PersonaAndRoom() {
         <div className="flex gap-2 my-2">
           {[
             { value: 'BOSS', label: 'Boss' },
-            { value: "GIRLFRIEND'S PARENTS", label: "Girlfriend's Parents" },
+            { value: "GF_PARENTS", label: "Gf_Parents" },
             { value: 'CLERK', label: 'Clerk' },
           ].map(({ value, label }) => {
             const isSelected = relationship === value
