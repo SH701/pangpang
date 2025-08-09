@@ -24,12 +24,12 @@ export default function PersonaAndRoom() {
   const [name, setName] = useState('')
   const [gender, setGender] = useState<'MALE' | 'FEMALE' | 'NONE'>('NONE')
   const [age, setAge] = useState<number | ''>('')
-  const [relationship, setRelationship] = useState<'BOSS' | 'GIRLFRIEND\'S PARENTS' | 'CLERK'>('BOSS')
+  const [relationship, setRelationship] = useState<'BOSS' | 'GF_PARENTS' | 'CLERK'>('BOSS')
   const [description, setDescription] = useState<
-    'APOLOGIZIONG FOR A MISTAKE AT WORK.'
-    | 'THE FIRST TIME I VISITED MY GIRLFRIEND.'
-    | 'COMPLAINING ABOUT INCORRECT FOOD ORDERS.'
-  >('APOLOGIZIONG FOR A MISTAKE AT WORK.')
+  | 'BOSS1' | 'BOSS2' | 'BOSS3'
+  | 'GF_PARENTS1' | 'GF_PARENTS2' | 'GF_PARENTS3'
+  | 'CLERK1' | 'CLERK2' | 'CLERK3'
+>('BOSS1')
   const [profileImageUrl,setProfileImageUrl] = useState('')
    const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   const [loading, setLoading] = useState(false)
@@ -194,7 +194,7 @@ export default function PersonaAndRoom() {
               <button
                 key={value}
                 type="button"
-                onClick={() => setRelationship(value as 'BOSS' | 'GIRLFRIEND\'S PARENTS' | 'CLERK')}
+                onClick={() => setRelationship(value as 'BOSS' | 'GF_PARENTS' | 'CLERK')}
                 className={`flex-1 px-4 rounded-md border text-sm font-medium cursor-pointer ${isSelected ? 'bg-blue-400 border-2 text-black border-blue-200' : ''}`}
               >
                 {label}
@@ -203,48 +203,45 @@ export default function PersonaAndRoom() {
           })}
         </div>
 
-        {/* Situation */}
-        <label className="text-sm font-medium">Situation</label>
-        <div className="flex flex-col gap-2 my-2">
-          {[
-            {
-              value: 'APOLOGIZIONG FOR A MISTAKE AT WORK.',
-              label: 'Apologizing for a mistake at work.',
-            },
-            {
-              value: 'THE FIRST TIME I VISITED MY GIRLFRIEND.',
-              label: 'The first time I visited my girlfriend.',
-            },
-            {
-              value: 'COMPLAINING ABOUT INCORRECT FOOD ORDERS.',
-              label: 'Complaining about incorrect food orders.',
-            },
-          ].map(({ value, label }) => {
-            const isSelected = description === value
-            return (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setDescription(value as
-                  | 'APOLOGIZIONG FOR A MISTAKE AT WORK.'
-                  | 'THE FIRST TIME I VISITED MY GIRLFRIEND.'
-                  | 'COMPLAINING ABOUT INCORRECT FOOD ORDERS.'
-                )}
-                className={`flex-1 px-4 py-2 rounded-md border text-sm font-medium cursor-pointer ${isSelected ? 'bg-blue-300 border-2 text-black border-blue-200' : ''}`}
-              >
-                {label}
-              </button>
-            )
-          })}
-        </div>
-        <button
-          type="submit"
-          className="w-full py-3 bg-blue-600 text-white text-sm font-semibold rounded mt-7"
-          disabled={loading}
-        >
-          {loading ? "로딩중..." : "Start chatting"}
-        </button>
-      </form>
-    </div>
-  )
+       {/* Situation */}
+<label className="text-sm font-medium">Situation</label>
+<div className="flex flex-col gap-2 my-2">
+  {[
+    { value: 'BOSS1',  },
+    { value: 'BOSS2',  },
+    { value: 'BOSS3',  },
+
+    { value: 'GF_PARENTS1',  },
+     { value: 'GF_PARENTS2',  },
+      { value: 'GF_PARENTS3',  },
+    { value: 'CLERK1',  },
+    { value: 'CLERK2',  },
+    { value: 'CLERK3',  },
+  ].map(({ value }) => {
+    const isSelected = description === value
+    return (
+      <button
+        key={value}
+        type="button"
+        onClick={() => setDescription(value as typeof description)}
+        className={`flex-1 px-4 py-2 rounded-md border text-sm font-medium cursor-pointer ${
+          isSelected ? 'bg-blue-300 border-2 text-black border-blue-200' : ''
+        }`}
+      >
+        {value}
+      </button>
+    )
+  })}
+</div>
+
+<button
+  type="submit"
+  className="w-full py-3 bg-blue-600 text-white text-sm font-semibold rounded mt-7"
+  disabled={loading}
+>
+  {loading ? "로딩중..." : "Start chatting"}
+</button>
+</form>
+</div>
+)
 }

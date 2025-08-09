@@ -5,23 +5,9 @@ import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { useAuth } from '@/lib/UserContext'
 import { motion } from 'framer-motion'
+import { Conversation } from '@/lib/types'
 
-type Conversation = {
-  conversationId: number
-  userId: number
-  aiPersona: {
-    personaId: number
-    userId: number
-    name: string
-    gender: string
-    age: number
-    relationship: string
-    description: string
-    profileImageUrl: string
-  }
-  status: string
-  situation: string
-}
+
 
 type SliderItem =
   | { isAdd: true }
@@ -66,7 +52,7 @@ useEffect(() => {
     if (!accessToken) return
     setLoading(true)
     setError(null)
-    fetch(`/api/conversations?status=${filterMap[selectedFilter]}&page=1&size=20`, {
+    fetch(`/api/personas/my`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     })
       .then(res => res.json())

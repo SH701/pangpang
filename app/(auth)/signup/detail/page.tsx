@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { ChevronLeftIcon } from '@heroicons/react/24/solid';
@@ -20,7 +21,6 @@ export default function SignupStep2() {
   const handleSignup = async () => {
     if (!canSubmit) return;
     setError(null);
-
     try {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
@@ -38,9 +38,10 @@ export default function SignupStep2() {
         setError(data.message || 'Signup failed');
         return;
       }
+      setTimeout(() => {
       router.push('/after');
+    }, 3000);
     } catch (e) {
-      console.error(e);
       setError('Something went wrong');
     }
   };
