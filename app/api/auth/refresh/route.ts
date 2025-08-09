@@ -1,36 +1,6 @@
-
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from "next/server";
+import { proxyJSON } from "@/app/api/_lib/proxy";
 
 export async function POST(req: NextRequest) {
-  const { refreshToken } = await req.json();
-
-  if (!refreshToken) {
-    return NextResponse.json(
-      { message: 'refreshToken is required' },
-      { status: 400 }
-    );
-  }
-
-  try {
-    const res = await fetch(`${process.env.API_URL}/api/auth/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      return NextResponse.json(data, { status: res.status });
-    }
-    return NextResponse.json(
-      { accessToken: data.accessToken },
-      { status: 200 }
-    );
-  } catch (err) {
-    console.error('Refresh token proxy error', err);
-    return NextResponse.json(
-      { message: 'Internal Server Error' },
-      { status: 500 }
-    );
-  }
+  return proxyJSON(req, "/api/auth/refresh", { method: "POST" });
 }

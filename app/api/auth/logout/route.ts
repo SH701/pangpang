@@ -1,20 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { proxyJSON } from "@/app/api/_lib/proxy";
 
-export async function POST(req:NextRequest){
-    const body = await req.json();
-     try {
-    const res = await fetch(`${process.env.API_URL}/api/auth/logout`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
-  } catch (error) {
-    console.error("Logout error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-  }
+export async function POST(req: NextRequest) {
+  return proxyJSON(req, "/api/auth/logout", { method: "POST" });
 }

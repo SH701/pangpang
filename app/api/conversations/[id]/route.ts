@@ -5,7 +5,7 @@ const API = process.env.API_URL ?? 'http://localhost:8080';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> } // ✅ Promise로 받기
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params; // ✅ await 필요
 

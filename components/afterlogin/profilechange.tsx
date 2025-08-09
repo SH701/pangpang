@@ -5,31 +5,29 @@
 import React, { useRef, ChangeEvent, useEffect } from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/lib/UserContext';
-import Face0 from '../character/face0';
-import Face1 from '../character/face1';
-import Face2 from '../character/face2';
-import Face3 from '../character/face3';
 
-const FACES = [
-  { Component: Face0, avatarId: 'face0' },
-  { Component: Face1, avatarId: 'face1' },
-  { Component: Face2, avatarId: 'face2' },
-  { Component: Face3, avatarId: 'face3' },
+// ✅ 로컬 아바타는 public/characters/* 에 넣고 경로 문자열로 관리
+const FACES: string[] = [
+  '/characters/character1.png',
+  '/characters/character2.png',
+  '/characters/character3.png',
+  '/characters/character4.png',
 ];
 
 export default function ProfileChange() {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { accessToken } = useAuth();
-  const {
-    selectedFace,
-    setSelectedFace,
-    profileImageUrl,
-    setProfileImageUrl,
-  } = useAuth();
 
-  const handleFaceSelect = (avatarId: string, idx: number) => {
+  // ✅ useAuth 한 번만 호출해서 필요한 값 모두 구조분해
+  const {
+    accessToken,
+    selectedFace,                 // number | null
+    setSelectedFace,              // (v: number | null) => void
+    profileImageUrl,              // string
+    setProfileImageUrl,           // (v: string) => void
+  } = useAuth();
+  const handleFaceSelect = (idx: number) => {
     setSelectedFace(idx);
-    setProfileImageUrl(avatarId);
+    setProfileImageUrl(FACES[idx]); // 로컬 파일 경로 자체를 avatarId로 사용
   };
 
   const handleCircleClick = () => {
@@ -37,22 +35,19 @@ export default function ProfileChange() {
   };
   useEffect(() => {
     if (profileImageUrl && !profileImageUrl.startsWith('http')) {
-      const idx = FACES.findIndex(f => f.avatarId === profileImageUrl);
+      const idx = FACES.findIndex((p) => p === profileImageUrl);
       setSelectedFace(idx !== -1 ? idx : null);
     } else {
-      setSelectedFace(null);
+      setSelectedFace(null); // 외부 URL(업로드 이미지)이면 선택 해제
     }
   }, [profileImageUrl]);
-
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // 확장자
     const ext = file.name.split('.').pop() || '';
 
     try {
-      // 1) presigned-url 요청
       const presignRes = await fetch('/api/files/presigned-url', {
         method: 'POST',
         headers: {
@@ -74,9 +69,7 @@ export default function ProfileChange() {
 
       const uploadRes = await fetch(uploadUrl, {
         method: 'PUT',
-        headers: {
-          'Content-Type': file.type,
-        },
+        headers: { 'Content-Type': file.type },
         body: file,
       });
 
@@ -85,37 +78,50 @@ export default function ProfileChange() {
         throw new Error(`Upload failed: ${uploadRes.status} ${text}`);
       }
 
-      // 3) public URL 얻기 (쿼리스트링 제거)
       const publicUrl = uploadUrl.split('?')[0];
       setProfileImageUrl(publicUrl);
+      setSelectedFace(null); // 외부 URL로 전환되었으니 선택 해제
     } catch (err: any) {
       console.error('File upload error', err);
+    } finally {
+      // input 재선택 가능하도록 value 비우기
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
   return (
     <div className="px-4 pt-8 flex flex-col items-center w-full">
-      <h2 className="text-xl font-semibold mb-4">프로필 사진 설정</h2>
+      <h2 className="text-xl font-semibold mb-4">Please select a profile</h2>
 
       <div
         onClick={handleCircleClick}
-        className="w-32 h-32 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center cursor-pointer mb-6"
+        className="w-25 h-25 rounded-full bg-gray-100 border-2 border-blue-500 overflow-hidden flex items-center justify-center cursor-pointer mb-6"
+        aria-label="프로필 이미지 업로드"
       >
         {selectedFace !== null ? (
-          React.createElement(FACES[selectedFace].Component, { className: 'w-full h-full' })
+          <Image
+            src={FACES[selectedFace]}
+            alt="avatar"
+            width={100}
+            height={100}
+            className="object-cover"
+            priority
+          />
         ) : profileImageUrl ? (
           <Image
             src={profileImageUrl}
             alt="avatar"
-            width={128}
-            height={128}
+            width={100}
+            height={100}
             className="object-cover"
+            priority
           />
         ) : (
           <span className="text-gray-400">Click to upload</span>
         )}
       </div>
 
+      {/* ✅ 파일 업로드 인풋 */}
       <input
         type="file"
         accept="image/*"
@@ -124,18 +130,24 @@ export default function ProfileChange() {
         onChange={handleFileChange}
       />
 
+      {/* ✅ 로컬 아바타 그리드 */}
       <div className="grid grid-cols-4 gap-4">
-        {FACES.map(({ Component, avatarId }, idx) => (
+        {FACES.map((src, idx) => (
           <button
-            key={idx}
-            onClick={() => handleFaceSelect(avatarId, idx)}
-            className={`w-12 h-12 overflow-hidden flex items-center justify-center transition ${
-              selectedFace === idx
-                ? 'border-blue-600 '
-                : 'border-gray-300 bg-white'
+            key={src}
+            onClick={() => handleFaceSelect(idx)}
+            className={`w-12 h-12 rounded-full overflow-hidden flex items-center justify-center border-2 transition ${
+              selectedFace === idx ? 'border-blue-600' : 'border-gray-300'
             }`}
+            aria-label={`choose avatar ${idx + 1}`}
           >
-            <Component className="w-full h-full" />
+            <Image
+              src={src}
+              alt={`avatar-${idx + 1}`}
+              width={48}
+              height={48}
+              className="object-cover"
+            />
           </button>
         ))}
       </div>

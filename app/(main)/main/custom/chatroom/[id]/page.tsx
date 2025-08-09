@@ -19,7 +19,6 @@ type ConversationDetail = {
 }
 
 export default function ChatroomPage() {
-  // ✅ 페이지 컴포넌트에서 Promise로 받지 마세요. (use(params) ❌)
   const params = useParams<{ id: string }>()
   const id = params?.id // 동적 파라미터
 

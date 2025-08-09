@@ -16,6 +16,9 @@ const images = [
   "/avatars/avatar4.png",
   "/avatars/avatar5.png",
   "/avatars/avatar6.png",
+  "characters/character1.png",
+  "characters/character2.png",
+  "characters/character3.png",
 ];
 
 export default function PersonaAndRoom() {

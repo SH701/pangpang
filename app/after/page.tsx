@@ -7,6 +7,13 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { useAuth, Level, Interest } from '@/lib/UserContext';
 import ProfileChange from "@/components/afterlogin/profilechange";
+import Image from "next/image"
+
+const levelImg: Record<Level, string> = {
+  BEGINNER: '/circle/circle1.png',
+  INTERMEDIATE: '/circle/circle2.png',
+  ADVANCED: '/circle/circle3.png',
+};
 
 export default function AfterPage() {
   const router = useRouter();
@@ -92,9 +99,15 @@ export default function AfterPage() {
                     ${koreanLevel === lvl ? 'bg-blue-50 border border-blue-300' : 'bg-gray-50'}
                   `}
                 >
-                  <div className={`flex-shrink-0 w-8 h-8 rounded-full ${
-                    koreanLevel === lvl ? 'bg-blue-600' : 'bg-gray-200'
-                  }`} />
+                 <div className="flex-shrink-0 w-8 h-8 rounded-full overflow-hidden">
+  <Image
+    src={levelImg[lvl]}
+    alt={`circle-${lvl}`}
+    width={32}
+    height={32}
+    className={koreanLevel === lvl ? '' : 'opacity-50'}
+  />
+</div>
                   <div className="ml-2">
                     <h2 className="font-semibold">{lvl.charAt(0) + lvl.slice(1).toLowerCase()}</h2>
                     <p className="text-[13px] text-gray-600 mt-1">

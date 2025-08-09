@@ -1,84 +1,72 @@
-'use client';
+// components/history/PersonaSlider.tsx
+"use client";
+import { motion } from "framer-motion";
+import Image from "next/image";
 
-import { useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+export type PersonaSlide = {
+  isAdd?: false;
+  personaId: number | string;
+  name: string;
+  profileImageUrl: string; // http or local(/avatars/..)
+} | { isAdd: true };
 
-const characters = [
-  { name: '+', isAdd: true },
-  { name: 'Boss' },
-  { name: 'Minji' },
-  { name: 'Cafe' },
-  { name: 'Friend' },
-  { name: 'Hyunwoo' },
-  { name: 'Nana' },
-];
+type Props = {
+  items: PersonaSlide[];
+  onAdd?: () => void;      // '+' 클릭 핸들러
+  visibleCount?: number;   // 한 화면에 보일 개수 (기본 3)
+  itemSize?: number;       // 정사각 아이템 px (기본 56)
+};
 
-export default function CharacterSlider() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [open, setOpen] = useState(false);
-
-  const visibleCount = 3;
-  const itemWidth = 40;
-  const dragLimit = -((characters.length - visibleCount) * itemWidth + itemWidth / 2);
+export default function PersonaSlider({
+  items,
+  onAdd,
+  visibleCount = 3,
+  itemSize = 56,
+}: Props) {
+  // 드래그 한계 계산
+  const dragLimit = -((items.length - visibleCount) * itemSize + itemSize / 2);
 
   return (
-    <>
-      <div className="w-full px-4 py-2 mx-4 mt-8 ">
-        <div ref={containerRef} className="overflow-hidden w-[330px]">
-          <motion.div
-            className="flex space-x-3 cursor-grab active:cursor-grabbing"
-            drag="x"
-            dragConstraints={{ left: dragLimit, right: 0 }}
-            transition={{ type: 'spring', bounce: 0.2 }}
-          >
-            {characters.map((c, i) =>
-              c.isAdd ? (
-                <button
-                  key={i}
-                  onClick={() => setOpen(true)}
-                  className="w-14 h-14 rounded-full bg-black text-white flex items-center justify-center text-2xl shrink-0"
-                >
-                  +
-                </button>
+    <div className="overflow-hidden w-[330px]">
+      <motion.div
+        className="flex space-x-3 cursor-grab active:cursor-grabbing"
+        drag="x"
+        dragConstraints={{ left: dragLimit, right: 0 }}
+        transition={{ type: "spring", bounce: 0.2 }}
+      >
+        {items.map((it, i) =>
+          it.isAdd ? (
+            <button
+              key={`add-${i}`}
+              onClick={onAdd}
+              className="w-14 h-14 rounded-full bg-black text-white flex items-center justify-center text-2xl shrink-0"
+            >
+              +
+            </button>
+          ) : (
+            <div key={`${it.personaId}-${i}`} className="flex flex-col items-center shrink-0" style={{ width: itemSize }}>
+              {it.profileImageUrl ? (
+                <Image
+                  src={it.profileImageUrl}
+                  alt={it.name}
+                  width={itemSize}
+                  height={itemSize}
+                  className="rounded-full object-cover"
+                  unoptimized
+                />
               ) : (
                 <div
-                  key={i}
-                  className="flex flex-col items-center shrink-0 w-14"
+                  className="rounded-full bg-gray-300 flex items-center justify-center text-xl"
+                  style={{ width: itemSize, height: itemSize }}
                 >
-                  <div className="w-14 h-14 rounded-full bg-gray-300" />
-                  <span className="text-sm text-center">{c.name}</span>
+                  {it.name?.charAt(0) ?? "?"}
                 </div>
-              )
-            )}
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Action Sheet */}
-      {open && (
-  <div
-    className="fixed inset-0 z-50 bg-black/40 flex items-end h-full"
-    onClick={(e) => {
-      if (e.target === e.currentTarget) setOpen(false);
-    }}
-  >
-    <div className="w-full bg-white rounded-t-2xl pt-4 pb-[calc(env(safe-area-inset-bottom,20px)+20px)] px-4">
-      <button className="w-full flex justify-between items-center py-4 text-base font-medium">
-        Start New Chat <span>{'>'}</span>
-      </button>
-      <button className="w-full flex justify-between items-center py-4 text-base font-medium">
-        View Settings <span>{'>'}</span>
-      </button>
-      <button
-        onClick={() => setOpen(false)}
-        className="mt-4 w-full py-3 text-center text-gray-500 text-sm"
-      >
-        Cancel
-      </button>
+              )}
+              <span className="text-xs text-center truncate max-w-14">{it.name || "Unknown"}</span>
+            </div>
+          )
+        )}
+      </motion.div>
     </div>
-  </div>
-)}
-
-    </>
   );
 }
