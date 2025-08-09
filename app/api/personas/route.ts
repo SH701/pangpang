@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   let upstreamRes: Response
   try {
     upstreamRes = await fetch(
-      'http://localhost:8080/api/personas',
+      `${process.env.API_URL}/api/personas`,
       {
         method: 'POST',
         headers: {

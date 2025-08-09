@@ -26,7 +26,7 @@ export async function PUT(req: NextRequest) {
   }
 
     // 4) Spring 백엔드 호출
-    const upstream = await fetch('http://localhost:8080/api/users/me/profile', {
+    const upstream = await fetch(`${process.env.API_URL}/api/users/me/profile`, {
       method: 'PUT',
       headers,
       body: JSON.stringify({ nickname,birthDate,koreanLevel, profileImageUrl, interests }),

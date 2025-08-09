@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req:NextRequest){
     const body = await req.json();
      try {
-    const res = await fetch("http://localhost:8080/api/auth/logout", {
+    const res = await fetch(`${process.env.API_URL}/api/auth/logout`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   // 2) 필드 검증 생략…
 
   try {
-    const upstream = await fetch('http://localhost:8080/api/auth/signup', {
+    const upstream = await fetch(`${process.env.API_URL}/api/auth/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),

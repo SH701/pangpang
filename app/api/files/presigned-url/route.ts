@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   // 2) Spring upstream 으로 토큰 + body 포워딩
   let upstream: Response;
   try {
-    upstream = await fetch('http://localhost:8080/api/files/presigned-url', {
+    upstream = await fetch(`${process.env.API_URL}/api/files/presigned-url`, {
       method:  'POST',
       headers: {
         'Content-Type':  'application/json',

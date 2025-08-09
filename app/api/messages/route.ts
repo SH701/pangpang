@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     // Spring Boot API로 프록시
-    const backendRes = await fetch('http://localhost:8080/api/messages', {
+    const backendRes = await fetch(`${process.env.API_URL}/api/messages`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
     }
 
     const backendRes = await fetch(
-      `http://localhost:8080/api/messages?conversationId=${conversationId}&page=${page}&size=${size}`,
+      `${process.env.API_URL}/api/messages?conversationId=${conversationId}&page=${page}&size=${size}`,
       {
         method: 'GET',
         headers: { Authorization: token },

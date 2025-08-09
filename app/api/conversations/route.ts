@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   let upstreamRes: Response
   try {
     upstreamRes = await fetch(
-      'http://localhost:8080/api/conversations',
+      `${process.env.API_URL}/api/conversations`,
       {
         method: 'POST',
         headers: {
@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
   let upstreamRes: Response
   try {
     upstreamRes = await fetch(
-      'http://localhost:8080/api/conversations' + query,
+      `${process.env.API_URL}/api/conversations` + query,
       {
         method: 'GET',
         headers: {

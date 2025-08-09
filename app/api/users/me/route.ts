@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     if (sess) headers['cookie'] = `__session=${sess}`;
 
     // 2) 실제 백엔드 호출
-    const upstream = await fetch('http://localhost:8080/api/users/me', {
+    const upstream = await fetch(`${process.env.API_URL}/api/users/me`, {
       method: 'GET',
       headers,
     });

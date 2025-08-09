@@ -11,7 +11,7 @@ export async function GET(req:NextRequest){
         }
 
     const backendRes = await fetch(
-     `http://localhost:8080/api/personas/my`,
+     `${process.env.API_URL}/api/personas/my`,
       {
         method: 'GET',
         headers: { Authorization: token },
