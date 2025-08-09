@@ -5,13 +5,13 @@ import { useState, useEffect } from 'react';
 import LottieAnimation from '@/components/etc/LottieAnimation';
 import { loadLottieAnimation, LOTTIE_PATHS } from '@/lib/lottie-loader';
 
-export default function First() {
+export default function Fifth() {
   const [animationData, setAnimationData] = useState<any>(null);
 
   useEffect(() => {
     const loadAnimation = async () => {
       try {
-        const animation = await loadLottieAnimation(LOTTIE_PATHS.ON_1);
+        const animation = await loadLottieAnimation(LOTTIE_PATHS.ON_5);
         if (animation) {
           setAnimationData(animation);
         }
@@ -42,4 +42,4 @@ export default function First() {
       </div>
     </div>
   );
-}
+} 
