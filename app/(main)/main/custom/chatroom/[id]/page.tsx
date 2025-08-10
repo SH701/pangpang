@@ -28,21 +28,12 @@ type ChatMsg = {
 
 export default function ChatroomPage() {
   const params = useParams<{ id: string }>()
-  const rawId = params?.id
+  const id= params.id
+
   
+
   // 디버깅용 로그 추가
-  console.log('URL params:', params)
-  console.log('Raw ID:', rawId)
-  
-  const convId = Number.parseInt(
-    Array.isArray(rawId) ? rawId[0] : (rawId ?? ''),
-    10
-  )
-  const hasValidId = Number.isFinite(convId) && convId > 0
-  
-  // 디버깅용 로그 추가
-  console.log('Parsed convId:', convId)
-  console.log('Has valid ID:', hasValidId)
+
 
   const router = useRouter()
   const { accessToken } = useAuth()
@@ -52,7 +43,7 @@ export default function ChatroomPage() {
   const [messages, setMessages] = useState<ChatMsg[]>([])
   const [myAI, setMyAI] = useState<MyAI | null>(null)
   const [error, setError] = useState<string | null>(null) // 에러 상태 추가
-  const canCall = Boolean(accessToken && hasValidId)
+  const canCall = Boolean(accessToken)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   // ✅ 대화 정보(페르소나) 불러오기
@@ -60,7 +51,7 @@ export default function ChatroomPage() {
     if (!canCall) return
     ;(async () => {
       try {
-        const res = await fetch(`/api/conversations/${convId}`, {
+        const res = await fetch(`/api/conversations/${id}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
           cache: 'no-store',
         })
@@ -78,14 +69,14 @@ export default function ChatroomPage() {
         setError('네트워크 오류가 발생했습니다')
       }
     })()
-  }, [accessToken, convId, canCall])
+  }, [accessToken, id, canCall])
 
   // ✅ 과거 메시지 불러오기 (백엔드가 role 대신 type을 줄 수도 있어서 매핑)
   const fetchMessages = async () => {
     if (!canCall) return
     try {
       setError(null)
-      const res = await fetch(`/api/messages?conversationId=${convId}&page=1&size=20`, {
+      const res = await fetch(`/api/messages?conversationId=${id}&page=1&size=20`, {
         headers: { Authorization: `Bearer ${accessToken}` },
         cache: 'no-store',
       })
@@ -115,7 +106,7 @@ export default function ChatroomPage() {
   useEffect(() => {
     fetchMessages()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accessToken, convId])
+  }, [accessToken, id])
 
   // ✅ 항상 하단으로 스크롤
   useEffect(() => {
@@ -178,7 +169,7 @@ export default function ChatroomPage() {
     if (!canCall || !message.trim() || loading) return
     
     // conversationId 유효성 재확인
-    if (!convId || convId <= 0) {
+    if (!id) {
       setError('유효하지 않은 대화방 ID입니다')
       return
     }
@@ -198,7 +189,7 @@ export default function ChatroomPage() {
     setMessage('') // 입력창 즉시 비우기
 
     const requestBody = {
-      conversationId: convId,
+      conversationId: id,
       content: content,
     }
 
@@ -308,7 +299,7 @@ export default function ChatroomPage() {
   // ✅ 대화 종료
   const handleEnd = async () => {
     try {
-      const res = await fetch(`/api/conversations/${convId}/end`, {
+      const res = await fetch(`/api/conversations/${id}/end`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${accessToken}` },
       })
@@ -317,7 +308,7 @@ export default function ChatroomPage() {
         setError('대화를 종료할 수 없습니다')
         return
       }
-      router.push(`/main/custom/chatroom/${convId}/result`)
+      router.push(`/main/custom/chatroom/${id}/result`)
     } catch (error) {
       console.error('대화 종료 오류:', error)
       setError('대화 종료 중 오류가 발생했습니다')
@@ -325,7 +316,7 @@ export default function ChatroomPage() {
   }
 
   // 연결 상태 확인
-  if (!hasValidId) {
+  if (!id) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
