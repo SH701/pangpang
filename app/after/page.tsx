@@ -56,7 +56,7 @@ export default function AfterPage() {
   };
 
  const goMain = async () => {
-
+  console.log({accessToken})
 
   setError(null);
   setLoading(true);
@@ -77,8 +77,8 @@ export default function AfterPage() {
       router.replace('/main');
     }
   } catch (e) {
+    router.replace('/main');
     console.error(e);
-    setError('알 수 없는 오류가 발생했습니다.');
   } finally {
     setLoading(false);
   }
