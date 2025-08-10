@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation' // ✅ 동적 라우트 파람은 이걸로
+import { useEffect, useRef, useState } from 'react'
+import { useParams, useRouter } from 'next/navigation'
 import { MyAI } from '@/lib/types'
 import { useAuth } from '@/lib/UserContext'
 import Link from 'next/link'
-import Image from "next/image"
+import Image from 'next/image'
 
 type ConversationDetail = {
   conversationId: number
@@ -19,22 +19,30 @@ type ConversationDetail = {
   endedAt: string | null
 }
 
+type ChatMsg = {
+  messageId: string
+  role: 'USER' | 'AI'
+  content: string
+  createdAt: string
+}
+
 export default function ChatroomPage() {
-  // ✅ 페이지 컴포넌트에서 Promise로 받지 마세요. (use(params) ❌)
   const params = useParams<{ id: string }>()
-  const id = params?.id // 동적 파라미터
-  const router = useRouter();
+  const id = params?.id
+  const router = useRouter()
   const { accessToken } = useAuth()
 
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
-  const [messages, setMessages] = useState<any[]>([])
+  const [messages, setMessages] = useState<ChatMsg[]>([])
   const [myAI, setMyAI] = useState<MyAI | null>(null)
   const canCall = Boolean(accessToken && id)
+  const bottomRef = useRef<HTMLDivElement>(null)
 
+  // ✅ 대화 정보(페르소나) 불러오기
   useEffect(() => {
     if (!canCall) return
-    const fetchAI = async () => {
+    ;(async () => {
       try {
         const res = await fetch(`/api/conversations/${id}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
@@ -46,21 +54,27 @@ export default function ChatroomPage() {
       } catch (err) {
         console.error(err)
       }
-    }
+    })()
+  }, [accessToken, id, canCall])
 
-    fetchAI()
-  }, [accessToken, id, canCall]) 
-
+  // ✅ 과거 메시지 불러오기 (백엔드가 role 대신 type을 줄 수도 있어서 매핑)
   const fetchMessages = async () => {
     if (!canCall) return
     try {
-      const res = await fetch(
-        `/api/messages?conversationId=${id}&page=1&size=20`,
-        { headers: { Authorization: `Bearer ${accessToken}` }, cache: 'no-store' }
-      )
+      const res = await fetch(`/api/messages?conversationId=${id}&page=1&size=20`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        cache: 'no-store',
+      })
       if (!res.ok) throw new Error(`Failed to fetch messages: ${res.status}`)
       const data = await res.json()
-      setMessages(data.content || [])
+      const list = (data?.content ?? data ?? []) as any[]
+      const mapped: ChatMsg[] = list.map((m) => ({
+        messageId: String(m.messageId ?? `${m.createdAt}-${m.role ?? m.type}`),
+        role: (m.role ?? m.type) as 'USER' | 'AI',
+        content: m.content ?? '',
+        createdAt: m.createdAt ?? new Date().toISOString(),
+      }))
+      setMessages(mapped)
     } catch (err) {
       console.error(err)
     }
@@ -69,57 +83,87 @@ export default function ChatroomPage() {
   useEffect(() => {
     fetchMessages()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accessToken, id]) // ✅ id/토큰 바뀌면 재조회
+  }, [accessToken, id])
 
-  // ✅ 메시지 전송
+  // ✅ 항상 하단으로 스크롤
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  // ✅ 유저 전송 → /api/messages/ai-reply 호출 → AI 응답 추가 (낙관적 업데이트)
   const sendMessage = async () => {
-    if (!canCall || !message.trim()) return
+    if (!canCall || !message.trim() || loading) return
+    const content = message.trim()
+
+    // 1) 유저 메시지 낙관적 반영
+    const tempUser: ChatMsg = {
+      messageId: `temp_user_${Date.now()}`,
+      role: 'USER',
+      content,
+      createdAt: new Date().toISOString(),
+    }
+    setMessages((prev) => [...prev, tempUser])
+    setMessage('')
     setLoading(true)
+
     try {
-      const res = await fetch('/api/messages', {
+      // 2) /api/messages/ai-reply (프록시 라우트) 호출
+      const res = await fetch('/api/messages/ai-reply', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          conversationId: Number(id), // id는 문자열 → 숫자 변환
-          content: message,
-          audioBase64: '',
+          conversationId: Number(id),
+          content, // 유저가 입력한 내용
+          // 필요 시 personaId, extra 옵션 추가
         }),
       })
+
       if (!res.ok) {
+        // 실패 시 낙관적 유저 메시지 롤백
+        setMessages((prev) => prev.filter((m) => m.messageId !== tempUser.messageId))
         const t = await res.text()
-        throw new Error(`Send failed: ${res.status} ${t}`)
+        throw new Error(`ai-reply failed: ${res.status} ${t}`)
       }
-      setMessage('')
-      await fetchMessages() // 전송 후 목록 새로고침
+
+      // 3) 성공 응답에서 AI 메시지 생성
+      //    예시 응답: { messageId, content, createdAt, role: 'AI' }
+      const data = await res.json()
+      const aiMsg: ChatMsg = {
+        messageId: String(data.messageId ?? `ai_${Date.now()}`),
+        role: (data.role ?? 'AI') as 'AI',
+        content: data.content ?? '',
+        createdAt: data.createdAt ?? new Date().toISOString(),
+      }
+      setMessages((prev) => [...prev, aiMsg])
     } catch (err) {
       console.error(err)
     } finally {
       setLoading(false)
     }
   }
-const handleEnd = async () => {
-  try {
-    const res = await fetch(`/api/conversations/${id}/end`, {
-      method: 'PUT',
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
 
-    if (!res.ok) {
-      console.error('Failed to end conversation');
-      return;
+  // ✅ 대화 종료
+  const handleEnd = async () => {
+    try {
+      const res = await fetch(`/api/conversations/${id}/end`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      if (!res.ok) {
+        console.error('Failed to end conversation')
+        return
+      }
+      router.push(`/main/custom/chatroom/${id}/result`)
+    } catch (error) {
+      console.error('Error ending conversation:', error)
     }
-    router.push(`/main/custom/chatroom/${id}/result`)
-    console.log("대화가 종료되었습니다.")
-  } catch (error) {
-    console.error('Error ending conversation:', error);
   }
-};
 
   return (
-     <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
       <div className="bg-white border-b border-blue-200 px-4 py-3 sticky top-0 z-10">
         <div className="flex items-center justify-between w-full">
@@ -139,11 +183,11 @@ const handleEnd = async () => {
 
       {/* Messages */}
       <div className="flex-1 bg-white px-4 py-4 overflow-y-auto">
-        {messages.map(m => {
-          const isMine = m.type === 'USER'
+        {messages.map((m) => {
+          const isMine = m.role === 'USER'
           return (
             <div
-              key={m.messageId ?? `${m.createdAt}-${m.type}`}
+              key={m.messageId}
               className={`flex items-start mb-4 ${isMine ? 'justify-end' : 'justify-start'} gap-3`}
             >
               {/* 상대방 아바타 */}
@@ -152,7 +196,7 @@ const handleEnd = async () => {
                   {myAI?.profileImageUrl ? (
                     <Image
                       src={myAI.profileImageUrl}
-                      alt={myAI.name ?? 'AI Avatar'}
+                      alt={myAI?.name ?? 'AI Avatar'}
                       width={40}
                       height={40}
                       className="w-full h-full object-cover"
@@ -189,6 +233,7 @@ const handleEnd = async () => {
             </div>
           )
         })}
+        <div ref={bottomRef} />
       </div>
 
       {/* Bottom bar */}
@@ -211,7 +256,10 @@ const handleEnd = async () => {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') sendMessage()
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  sendMessage()
+                }
               }}
             />
             <button
@@ -219,7 +267,7 @@ const handleEnd = async () => {
               disabled={loading || !message.trim() || !canCall}
               className="text-blue-500 font-semibold disabled:opacity-40 text-sm"
             >
-              Send
+              {loading ? 'Sending...' : 'Send'}
             </button>
           </div>
 
