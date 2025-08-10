@@ -96,60 +96,90 @@ const canCall = Boolean(accessToken && hasValidId)
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // ✅ 유저 전송 → /api/messages/ai-reply 호출 → AI 응답 추가 (낙관적 업데이트)
-  const sendMessage = async () => {
-    if (!canCall || !message.trim() || loading) return
-    const content = message.trim()
+  function normalizeAiReply(data: any): ChatMsg[] {
+  // 1) { userMessage: {...}, aiMessage: {...} }
+  if (data?.userMessage || data?.aiMessage) {
+    const u = data.userMessage
+      ? {
+          messageId: String(data.userMessage.messageId ?? `u_${Date.now()}`),
+          role: (data.userMessage.role ?? data.userMessage.type ?? 'USER') as 'USER' | 'AI',
+          content: data.userMessage.content ?? '',
+          createdAt: data.userMessage.createdAt ?? new Date().toISOString(),
+        }
+      : null
 
-    // 1) 유저 메시지 낙관적 반영
-    const tempUser: ChatMsg = {
-      messageId: `temp_user_${Date.now()}`,
-      role: 'USER',
-      content,
-      createdAt: new Date().toISOString(),
-    }
-    setMessages((prev) => [...prev, tempUser])
-    setMessage('')
-    setLoading(true)
+    const a = data.aiMessage
+      ? {
+          messageId: String(data.aiMessage.messageId ?? `a_${Date.now()}`),
+          role: (data.aiMessage.role ?? data.aiMessage.type ?? 'AI') as 'USER' | 'AI',
+          content: data.aiMessage.content ?? '',
+          createdAt: data.aiMessage.createdAt ?? new Date().toISOString(),
+        }
+      : null
 
-    try {
-      // 2) /api/messages/ai-reply (프록시 라우트) 호출
-      const res = await fetch('/api/messages/ai-reply', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-           conversationId: convId,
-          content, // 유저가 입력한 내용
-          // 필요 시 personaId, extra 옵션 추가
-        }),
-      })
+    return [u, a].filter(Boolean) as ChatMsg[]
+  }
 
-      if (!res.ok) {
-        // 실패 시 낙관적 유저 메시지 롤백
-        setMessages((prev) => prev.filter((m) => m.messageId !== tempUser.messageId))
-        const t = await res.text()
-        throw new Error(`ai-reply failed: ${res.status} ${t}`)
-      }
+  // 2) [{...}, {...}] 배열로 올 때
+  if (Array.isArray(data)) {
+    return data.map((m: any) => ({
+      messageId: String(m.messageId ?? `${m.createdAt}-${m.role ?? m.type}`),
+      role: (m.role ?? m.type ?? 'AI') as 'USER' | 'AI',
+      content: m.content ?? '',
+      createdAt: m.createdAt ?? new Date().toISOString(),
+    }))
+  }
 
-      // 3) 성공 응답에서 AI 메시지 생성
-      //    예시 응답: { messageId, content, createdAt, role: 'AI' }
-      const data = await res.json()
-      const aiMsg: ChatMsg = {
-        messageId: String(data.messageId ?? `ai_${Date.now()}`),
-        role: (data.role ?? 'AI') as 'AI',
+  // 3) 단일 객체만 올 때 (최소한 AI 답변)
+  if (data && typeof data === 'object') {
+    return [
+      {
+        messageId: String(data.messageId ?? `m_${Date.now()}`),
+        role: (data.role ?? data.type ?? 'AI') as 'USER' | 'AI',
         content: data.content ?? '',
         createdAt: data.createdAt ?? new Date().toISOString(),
-      }
-      setMessages((prev) => [...prev, aiMsg])
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
+      },
+    ]
   }
+
+  return []
+}
+  // ✅ 유저 전송 → /api/messages/ai-reply 호출 → AI 응답 추가 (낙관적 업데이트)
+const sendMessage = async () => {
+  if (!canCall || !message.trim() || loading) return
+  const content = message.trim()
+  setLoading(true)
+
+  try {
+    const res = await fetch('/api/messages/ai-reply', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        conversationId: Number(convId), // convId 쓰고 있으면 convId로 교체
+        content,
+      }),
+    })
+
+    if (!res.ok) {
+      const t = await res.text()
+      throw new Error(`ai-reply failed: ${res.status} ${t}`)
+    }
+
+    const data = await res.json()
+    const bundle = normalizeAiReply(data)
+
+    // ✅ 전송 완료된 후에 한 번에: [유저메시지, AI메시지] 추가
+    setMessages(prev => [...prev, ...bundle])
+    setMessage('')
+  } catch (e) {
+    console.error(e)
+  } finally {
+    setLoading(false)
+  }
+}
 
   // ✅ 대화 종료
   const handleEnd = async () => {
