@@ -28,7 +28,13 @@ type ChatMsg = {
 
 export default function ChatroomPage() {
   const params = useParams<{ id: string }>()
-  const id = params?.id
+  const rawId = params?.id
+const convId = Number.parseInt(
+  Array.isArray(rawId) ? rawId[0] : (rawId ?? ''),
+  10
+)
+const hasValidId = Number.isFinite(convId) && convId > 0
+
   const router = useRouter()
   const { accessToken } = useAuth()
 
@@ -36,7 +42,7 @@ export default function ChatroomPage() {
   const [loading, setLoading] = useState(false)
   const [messages, setMessages] = useState<ChatMsg[]>([])
   const [myAI, setMyAI] = useState<MyAI | null>(null)
-  const canCall = Boolean(accessToken && id)
+const canCall = Boolean(accessToken && hasValidId)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   // ✅ 대화 정보(페르소나) 불러오기
@@ -44,7 +50,7 @@ export default function ChatroomPage() {
     if (!canCall) return
     ;(async () => {
       try {
-        const res = await fetch(`/api/conversations/${id}`, {
+        const res = await fetch(`/api/conversations/${convId}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
           cache: 'no-store',
         })
@@ -55,13 +61,13 @@ export default function ChatroomPage() {
         console.error(err)
       }
     })()
-  }, [accessToken, id, canCall])
+  }, [accessToken, convId, canCall])
 
   // ✅ 과거 메시지 불러오기 (백엔드가 role 대신 type을 줄 수도 있어서 매핑)
   const fetchMessages = async () => {
     if (!canCall) return
     try {
-      const res = await fetch(`/api/messages?conversationId=${id}&page=1&size=20`, {
+      const res = await fetch(`/api/messages?conversationId=${convId}&page=1&size=20`, {
         headers: { Authorization: `Bearer ${accessToken}` },
         cache: 'no-store',
       })
@@ -83,7 +89,7 @@ export default function ChatroomPage() {
   useEffect(() => {
     fetchMessages()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accessToken, id])
+  }, [accessToken, convId])
 
   // ✅ 항상 하단으로 스크롤
   useEffect(() => {
@@ -115,7 +121,7 @@ export default function ChatroomPage() {
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          conversationId: Number(id),
+           conversationId: convId,
           content, // 유저가 입력한 내용
           // 필요 시 personaId, extra 옵션 추가
         }),
@@ -148,7 +154,7 @@ export default function ChatroomPage() {
   // ✅ 대화 종료
   const handleEnd = async () => {
     try {
-      const res = await fetch(`/api/conversations/${id}/end`, {
+      const res = await fetch(`/api/conversations/${convId}/end`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${accessToken}` },
       })
@@ -156,7 +162,7 @@ export default function ChatroomPage() {
         console.error('Failed to end conversation')
         return
       }
-      router.push(`/main/custom/chatroom/${id}/result`)
+      router.push(`/main/custom/chatroom/${convId}/result`)
     } catch (error) {
       console.error('Error ending conversation:', error)
     }
