@@ -173,7 +173,7 @@ export default function ChatroomPage() {
     return []
   }
 
-  // ✅ 유저 전송 → /api/messages/ai-reply 호출 → AI 응답 추가 (낙관적 업데이트)
+  // ✅ 2단계 메시지 전송: 1) 사용자 메시지 전송 2) AI 응답 요청
   const sendMessage = async () => {
     if (!canCall || !message.trim() || loading) return
     
@@ -198,22 +198,17 @@ export default function ChatroomPage() {
     setMessage('') // 입력창 즉시 비우기
 
     const requestBody = {
-      conversationId: convId, // Number()로 변환하지 말고 그대로 사용
+      conversationId: convId,
       content: content,
     }
 
     try {
-      console.log('AI 응답 요청 상세:', {
-        url: '/api/messages/ai-reply',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-        },
-        body: requestBody
-      })
+      console.log('=== 1단계: 사용자 메시지 전송 ===')
+      console.log('URL:', '/api/messages')
+      console.log('요청 본문:', requestBody)
       
-      const res = await fetch('/api/messages/ai-reply', {
+      // 1단계: 사용자 메시지 전송
+      const userRes = await fetch('/api/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -222,40 +217,85 @@ export default function ChatroomPage() {
         body: JSON.stringify(requestBody),
       })
 
-      if (!res.ok) {
-        const errorText = await res.text()
-        console.error('AI 응답 실패:', res.status, errorText)
-        setError(`메시지 전송 실패: ${res.status} ${errorText}`)
+      console.log('사용자 메시지 전송 응답 상태:', userRes.status)
+
+      if (!userRes.ok) {
+        const errorText = await userRes.text()
+        console.error('사용자 메시지 전송 실패:', userRes.status, errorText)
+        setError(`메시지 전송 실패: ${userRes.status} ${errorText}`)
         // 실패시 사용자 메시지 제거
         setMessages(prev => prev.filter(msg => msg.messageId !== userMessage.messageId))
         setMessage(content) // 입력창에 다시 복원
         return
       }
 
-      const data = await res.json()
-      console.log('AI 응답 받음:', data) // 디버깅용
-      
-      const bundle = normalizeAiReply(data)
-      console.log('정규화된 메시지:', bundle) // 디버깅용
+      const userMsgData = await userRes.json()
+      console.log('사용자 메시지 전송 완료:', userMsgData)
 
-      // AI 응답만 추가 (사용자 메시지는 이미 추가됨)
-      const aiMessages = bundle.filter(msg => msg.role === 'AI')
-      if (aiMessages.length > 0) {
-        setMessages(prev => [...prev, ...aiMessages])
-      }
-
-      // 서버 응답에 사용자 메시지도 포함된 경우 (서버에서 생성된 ID로 업데이트)
-      const serverUserMessage = bundle.find(msg => msg.role === 'USER')
-      if (serverUserMessage && serverUserMessage.messageId !== userMessage.messageId) {
+      // 사용자 메시지 ID 업데이트 (서버에서 생성된 ID로)
+      if (userMsgData?.messageId) {
         setMessages(prev => 
           prev.map(msg => 
-            msg.messageId === userMessage.messageId ? serverUserMessage : msg
+            msg.messageId === userMessage.messageId 
+              ? { ...msg, messageId: String(userMsgData.messageId) }
+              : msg
           )
         )
       }
 
+      console.log('=== 2단계: AI 응답 요청 ===')
+      console.log('URL:', '/api/messages/ai-reply')
+      console.log('요청 본문:', requestBody)
+      
+      // 2단계: AI 응답 요청
+      const aiRes = await fetch('/api/messages/ai-reply', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(requestBody),
+      })
+
+      console.log('AI 응답 요청 응답 상태:', aiRes.status)
+
+      if (!aiRes.ok) {
+        const errorText = await aiRes.text()
+        console.error('=== AI 응답 요청 실패 ===')
+        console.error('상태 코드:', aiRes.status)
+        console.error('오류 내용:', errorText)
+        
+        // JSON 파싱 시도
+        try {
+          const errorJson = JSON.parse(errorText)
+          console.error('파싱된 오류:', errorJson)
+        } catch {
+          console.error('JSON 파싱 실패, 원문:', errorText)
+        }
+        
+        setError(`AI 응답 요청 실패: ${aiRes.status} ${errorText}`)
+        return // 사용자 메시지는 이미 전송되었으므로 제거하지 않음
+      }
+
+      const aiData = await aiRes.json()
+      console.log('=== AI 응답 수신 완료 ===')
+      console.log('AI 응답 데이터:', aiData)
+      
+      const bundle = normalizeAiReply(aiData)
+      console.log('정규화된 AI 메시지:', bundle)
+
+      // AI 응답만 추가
+      const aiMessages = bundle.filter(msg => msg.role === 'AI')
+      if (aiMessages.length > 0) {
+        setMessages(prev => [...prev, ...aiMessages])
+        console.log('AI 메시지 화면에 추가됨:', aiMessages)
+      } else {
+        console.warn('AI 응답에서 AI 메시지를 찾을 수 없음')
+      }
+
     } catch (e) {
-      console.error('메시지 전송 오류:', e)
+      console.error('=== 네트워크 오류 ===')
+      console.error('오류 객체:', e)
       setError('네트워크 오류로 메시지를 전송할 수 없습니다')
       // 실패시 사용자 메시지 제거
       setMessages(prev => prev.filter(msg => msg.messageId !== userMessage.messageId))
