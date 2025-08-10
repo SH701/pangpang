@@ -117,7 +117,7 @@ export default function ProfileChange() {
             priority
           />
         ) : (
-          <span className="text-gray-400">Click to upload</span>
+          <span className="text-gray-400 text-center">Click to upload</span>
         )}
       </div>
 

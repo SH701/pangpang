@@ -106,7 +106,7 @@ export default function Slider() {
   }
 
   return (
-    <div className="w-[335px] flex flex-col justify-center items-center rounded-xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] mb-6">
+    <div className="w-[335px] flex flex-col justify-center items-center rounded-xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] mb-6 ml-3">
       <span className="font-semibold text-lg py-2 px-4 mt-3">Today`s honorific expression</span>
 
       {/* Daily-picked situation + sentence */}

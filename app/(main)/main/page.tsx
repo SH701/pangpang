@@ -51,44 +51,52 @@ export default function Main() {
     }, [accessToken]);
   
   return (
-    <div className="mb-10 flex flex-col items-center">
-      <div className="w-screen bg-[#3B6BF0] p-6 mb-5 h-[calc(40vh-30px)]">
-        <div className="flex justify-between items-center mb-4 mt-4">
-          <Logo/>
-        </div>
-        <div className="flex justify-between items-center">
-          <div className="flex flex-col gap-5">
-            <p className="font-semibold text-white text-xl pt-4">Hi, {profile?.nickname}!</p>
-            <p className=" text-white">
+    <div className="min-h-screen bg-blue-50 flex flex-col">
+      
+        <div className="px-6 pt-6 pb-4 border-b border-blue-200 bg-blue-500">
+        <Logo/>
+      </div>
+        <div className="w-full px-6 py-8 text-white bg-blue-500">
+        <div className="flex justify-between items-start mb-8">
+          <div className="flex flex-col gap-4">
+            <h1 className="font-bold text-white text-3xl leading-tight">
+              Hi, {profile?.nickname || 'Noonchi'}!
+            </h1>
+            <p className="text-white text-lg leading-relaxed">
               Start a conversation <br />
               with your partner
             </p>
             <Link href="/main/custom">
-             <button
-      className="
-        mt-2  h-10 px-2
-        flex items-center justify-center gap-2 
-        bg-white text-blue-600 text-sm font-medium 
-        rounded-lg shadow
-      "
-    >
-      <span>Start Conversation</span>
-      <ChevronRightIcon className="w-4 h-4" />
-    </button>
+              <button className="
+                mt-4 h-14 px-8
+                flex items-center justify-center gap-3 
+                bg-white text-blue-500 text-base font-semibold 
+                rounded-xl shadow-lg hover:bg-gray-50 transition-colors duration-200
+              ">
+                <span>Start Conversation</span>
+                <ChevronRightIcon className="w-5 h-5" />
+              </button>
             </Link>
           </div>
 
-          {/* 오른쪽 캐릭터 원박스 */}
-          <Face3 className="w-[150px] h-[117px]"/>
+          {/* 오른쪽 캐릭터 */}
+          <div className="flex-shrink-0">
+            <Face3 className="w-[140px] h-[110px]"/>
+          </div>
         </div>
       </div>
 
-      <Slider />
+       <div className="px-6 mb-8">
+        <Slider />
+      </div>
 
-      <RoleplaySlider />
-
+      <div className="px-6 mb-8">
+        <RoleplaySlider />
+      </div>
       {/* 채팅 입력 섹션 */}
-      <ChatInputWrapper />
+        <div className="mt-auto">
+        <ChatInputWrapper />
+      </div>
     </div>
   );
 }

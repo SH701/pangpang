@@ -20,9 +20,9 @@ export default function AfterPage() {
   const { 
     koreanLevel, setKoreanLevel, 
     profileImageUrl, 
-    interests, setInterests 
+    interests, setInterests ,accessToken
   } = useAuth();
-  const { accessToken } = useAuth();
+
   const sliderRef = useRef<Slider>(null);
   const [current, setCurrent] = useState(0);
   const [error, setError] = useState<string|null>(null);
@@ -54,29 +54,38 @@ export default function AfterPage() {
     }
   };
 
-  const goMain = async () => {
-    setError(null);
-    setLoading(true);
-    try {
-      const res = await fetch('/api/users/me/profile', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json',Authorization: `Bearer ${accessToken}`, },
-        credentials: 'include',
-        body: JSON.stringify({koreanLevel, profileImageUrl,interests }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.message || '설정에 실패했습니다.');
-      } else {
-        router.replace('/main');
-      }
-    } catch (e) {
-      console.error(e);
-      setError('알 수 없는 오류가 발생했습니다.');
-    } finally {
-      setLoading(false);
+ const goMain = async () => {
+  if (!accessToken) {
+    setError('인증 토큰이 없습니다. 다시 로그인 해주세요.');
+    return;
+  }
+
+  setError(null);
+  setLoading(true);
+  try {
+    const res = await fetch('/api/users/me/profile', {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      credentials: 'include',
+      body: JSON.stringify({ koreanLevel, profileImageUrl, interests }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setError(data.message || '설정에 실패했습니다.');
+    } else {
+      router.replace('/main');
     }
-  };
+  } catch (e) {
+    console.error(e);
+    setError('알 수 없는 오류가 발생했습니다.');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="flex flex-col min-h-screen bg-white">

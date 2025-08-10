@@ -44,7 +44,7 @@ export default function PersonaSlider({
       <div className="overflow-hidden" style={{ width: viewW }}>
         <button
           onClick={onAdd}
-          className="rounded-full bg-black text-white flex items-center justify-center text-2xl"
+          className="rounded-full bg-blue-500 text-white flex items-center justify-center text-2xl"
           style={{ width: itemSize, height: itemSize }}
           aria-label="Add persona"
         >
