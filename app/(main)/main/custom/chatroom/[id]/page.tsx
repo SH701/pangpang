@@ -179,18 +179,14 @@ export default function ChatroomPage() {
     setError(null)
 
     // 먼저 사용자 메시지를 화면에 추가 (낙관적 업데이트)
-    const userMessage: ChatMsg = {
-      messageId: `user_${Date.now()}`,
-      role: 'USER',
-      content,
-      createdAt: new Date().toISOString(),
-    }
-    setMessages(prev => [...prev, userMessage])
-    setMessage('') // 입력창 즉시 비우기
-
-    const requestBody = {
-      conversationId: Number(id),
-    }
+    const optimistic: ChatMsg = {
+    messageId: `user_${Date.now()}`,
+    role: 'USER',
+    content,
+    createdAt: new Date().toISOString(),
+  }
+  setMessages(prev => [...prev, optimistic])
+  setMessage('')
 
     try {
          // 1단계: 사용자 메시지 전송
@@ -200,7 +196,8 @@ export default function ChatroomPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify( {conversationId: Number(id),
+        content }),
       })
 
       console.log('사용자 메시지 전송 응답 상태:', userRes.status)
@@ -210,7 +207,7 @@ export default function ChatroomPage() {
         console.error('사용자 메시지 전송 실패:', userRes.status, errorText)
         setError(`메시지 전송 실패: ${userRes.status} ${errorText}`)
         // 실패시 사용자 메시지 제거
-        setMessages(prev => prev.filter(msg => msg.messageId !== userMessage.messageId))
+        setMessages(prev => prev.filter(msg => msg.messageId !== optimistic.messageId))
         setMessage(content) // 입력창에 다시 복원
         return
       }
@@ -222,25 +219,22 @@ export default function ChatroomPage() {
       if (userMsgData?.messageId) {
         setMessages(prev => 
           prev.map(msg => 
-            msg.messageId === userMessage.messageId 
+            msg.messageId === optimistic.messageId 
               ? { ...msg, messageId: String(userMsgData.messageId) }
               : msg
           )
         )
       }
 
-      console.log('=== 2단계: AI 응답 요청 ===')
-      console.log('URL:', '/api/messages/ai-reply')
-      console.log('요청 본문:', requestBody)
+
       
       // 2단계: AI 응답 요청
-      const aiRes = await fetch('/api/messages/ai-reply', {
+      const aiRes = await fetch(`/api/messages/ai-reply?conversationId=${id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(requestBody),
       })
 
       console.log('AI 응답 요청 응답 상태:', aiRes.status)
@@ -264,12 +258,9 @@ export default function ChatroomPage() {
       }
 
       const aiData = await aiRes.json()
-      console.log('=== AI 응답 수신 완료 ===')
-      console.log('AI 응답 데이터:', aiData)
+
       
       const bundle = normalizeAiReply(aiData)
-      console.log('정규화된 AI 메시지:', bundle)
-
       // AI 응답만 추가
       const aiMessages = bundle.filter(msg => msg.role === 'AI')
       if (aiMessages.length > 0) {
@@ -280,11 +271,9 @@ export default function ChatroomPage() {
       }
 
     } catch (e) {
-      console.error('=== 네트워크 오류 ===')
-      console.error('오류 객체:', e)
       setError('네트워크 오류로 메시지를 전송할 수 없습니다')
       // 실패시 사용자 메시지 제거
-      setMessages(prev => prev.filter(msg => msg.messageId !== userMessage.messageId))
+      setMessages(prev => prev.filter(msg => msg.messageId !== optimistic.messageId))
       setMessage(content) // 입력창에 다시 복원
     } finally {
       setLoading(false)
