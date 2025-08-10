@@ -29,11 +29,20 @@ type ChatMsg = {
 export default function ChatroomPage() {
   const params = useParams<{ id: string }>()
   const rawId = params?.id
-const convId = Number.parseInt(
-  Array.isArray(rawId) ? rawId[0] : (rawId ?? ''),
-  10
-)
-const hasValidId = Number.isFinite(convId) && convId > 0
+  
+  // 디버깅용 로그 추가
+  console.log('URL params:', params)
+  console.log('Raw ID:', rawId)
+  
+  const convId = Number.parseInt(
+    Array.isArray(rawId) ? rawId[0] : (rawId ?? ''),
+    10
+  )
+  const hasValidId = Number.isFinite(convId) && convId > 0
+  
+  // 디버깅용 로그 추가
+  console.log('Parsed convId:', convId)
+  console.log('Has valid ID:', hasValidId)
 
   const router = useRouter()
   const { accessToken } = useAuth()
@@ -42,7 +51,8 @@ const hasValidId = Number.isFinite(convId) && convId > 0
   const [loading, setLoading] = useState(false)
   const [messages, setMessages] = useState<ChatMsg[]>([])
   const [myAI, setMyAI] = useState<MyAI | null>(null)
-const canCall = Boolean(accessToken && hasValidId)
+  const [error, setError] = useState<string | null>(null) // 에러 상태 추가
+  const canCall = Boolean(accessToken && hasValidId)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   // ✅ 대화 정보(페르소나) 불러오기
@@ -54,11 +64,18 @@ const canCall = Boolean(accessToken && hasValidId)
           headers: { Authorization: `Bearer ${accessToken}` },
           cache: 'no-store',
         })
-        if (!res.ok) throw new Error(`Failed to fetch AI info: ${res.status}`)
+        if (!res.ok) {
+          const errorText = await res.text()
+          console.error('대화 정보 조회 실패:', res.status, errorText)
+          setError(`대화 정보를 불러올 수 없습니다: ${res.status}`)
+          return
+        }
         const data: ConversationDetail = await res.json()
         setMyAI(data.aiPersona)
+        setError(null) // 성공시 에러 초기화
       } catch (err) {
-        console.error(err)
+        console.error('대화 정보 조회 오류:', err)
+        setError('네트워크 오류가 발생했습니다')
       }
     })()
   }, [accessToken, convId, canCall])
@@ -67,12 +84,20 @@ const canCall = Boolean(accessToken && hasValidId)
   const fetchMessages = async () => {
     if (!canCall) return
     try {
+      setError(null)
       const res = await fetch(`/api/messages?conversationId=${convId}&page=1&size=20`, {
         headers: { Authorization: `Bearer ${accessToken}` },
         cache: 'no-store',
       })
-      if (!res.ok) throw new Error(`Failed to fetch messages: ${res.status}`)
+      if (!res.ok) {
+        const errorText = await res.text()
+        console.error('메시지 조회 실패:', res.status, errorText)
+        setError(`메시지를 불러올 수 없습니다: ${res.status}`)
+        return
+      }
       const data = await res.json()
+      console.log('받은 메시지 데이터:', data) // 디버깅용
+      
       const list = (data?.content ?? data ?? []) as any[]
       const mapped: ChatMsg[] = list.map((m) => ({
         messageId: String(m.messageId ?? `${m.createdAt}-${m.role ?? m.type}`),
@@ -82,7 +107,8 @@ const canCall = Boolean(accessToken && hasValidId)
       }))
       setMessages(mapped)
     } catch (err) {
-      console.error(err)
+      console.error('메시지 조회 오류:', err)
+      setError('메시지를 불러오는 중 오류가 발생했습니다')
     }
   }
 
@@ -97,89 +123,147 @@ const canCall = Boolean(accessToken && hasValidId)
   }, [messages])
 
   function normalizeAiReply(data: any): ChatMsg[] {
-  // 1) { userMessage: {...}, aiMessage: {...} }
-  if (data?.userMessage || data?.aiMessage) {
-    const u = data.userMessage
-      ? {
-          messageId: String(data.userMessage.messageId ?? `u_${Date.now()}`),
-          role: (data.userMessage.role ?? data.userMessage.type ?? 'USER') as 'USER' | 'AI',
-          content: data.userMessage.content ?? '',
-          createdAt: data.userMessage.createdAt ?? new Date().toISOString(),
-        }
-      : null
+    console.log('정규화할 AI 응답 데이터:', data) // 디버깅용
+    
+    // 1) { userMessage: {...}, aiMessage: {...} }
+    if (data?.userMessage || data?.aiMessage) {
+      const u = data.userMessage
+        ? {
+            messageId: String(data.userMessage.messageId ?? `u_${Date.now()}`),
+            role: (data.userMessage.role ?? data.userMessage.type ?? 'USER') as 'USER' | 'AI',
+            content: data.userMessage.content ?? '',
+            createdAt: data.userMessage.createdAt ?? new Date().toISOString(),
+          }
+        : null
 
-    const a = data.aiMessage
-      ? {
-          messageId: String(data.aiMessage.messageId ?? `a_${Date.now()}`),
-          role: (data.aiMessage.role ?? data.aiMessage.type ?? 'AI') as 'USER' | 'AI',
-          content: data.aiMessage.content ?? '',
-          createdAt: data.aiMessage.createdAt ?? new Date().toISOString(),
-        }
-      : null
+      const a = data.aiMessage
+        ? {
+            messageId: String(data.aiMessage.messageId ?? `a_${Date.now()}`),
+            role: (data.aiMessage.role ?? data.aiMessage.type ?? 'AI') as 'USER' | 'AI',
+            content: data.aiMessage.content ?? '',
+            createdAt: data.aiMessage.createdAt ?? new Date().toISOString(),
+          }
+        : null
 
-    return [u, a].filter(Boolean) as ChatMsg[]
-  }
-
-  // 2) [{...}, {...}] 배열로 올 때
-  if (Array.isArray(data)) {
-    return data.map((m: any) => ({
-      messageId: String(m.messageId ?? `${m.createdAt}-${m.role ?? m.type}`),
-      role: (m.role ?? m.type ?? 'AI') as 'USER' | 'AI',
-      content: m.content ?? '',
-      createdAt: m.createdAt ?? new Date().toISOString(),
-    }))
-  }
-
-  // 3) 단일 객체만 올 때 (최소한 AI 답변)
-  if (data && typeof data === 'object') {
-    return [
-      {
-        messageId: String(data.messageId ?? `m_${Date.now()}`),
-        role: (data.role ?? data.type ?? 'AI') as 'USER' | 'AI',
-        content: data.content ?? '',
-        createdAt: data.createdAt ?? new Date().toISOString(),
-      },
-    ]
-  }
-
-  return []
-}
-  // ✅ 유저 전송 → /api/messages/ai-reply 호출 → AI 응답 추가 (낙관적 업데이트)
-const sendMessage = async () => {
-  if (!canCall || !message.trim() || loading) return
-  const content = message.trim()
-  setLoading(true)
-
-  try {
-    const res = await fetch('/api/messages/ai-reply', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify({
-        conversationId: Number(convId), // convId 쓰고 있으면 convId로 교체
-        content,
-      }),
-    })
-
-    if (!res.ok) {
-      const t = await res.text()
-      throw new Error(`ai-reply failed: ${res.status} ${t}`)
+      return [u, a].filter(Boolean) as ChatMsg[]
     }
 
-    const data = await res.json()
-    const bundle = normalizeAiReply(data)
+    // 2) [{...}, {...}] 배열로 올 때
+    if (Array.isArray(data)) {
+      return data.map((m: any) => ({
+        messageId: String(m.messageId ?? `${m.createdAt}-${m.role ?? m.type}`),
+        role: (m.role ?? m.type ?? 'AI') as 'USER' | 'AI',
+        content: m.content ?? '',
+        createdAt: m.createdAt ?? new Date().toISOString(),
+      }))
+    }
 
-    // ✅ 전송 완료된 후에 한 번에: [유저메시지, AI메시지] 추가
-    setMessages(prev => [...prev, ...bundle])
-    setMessage('')
-  } catch (e) {
-    console.error(e)
-  } finally {
-    setLoading(false)
+    // 3) 단일 객체만 올 때 (최소한 AI 답변)
+    if (data && typeof data === 'object') {
+      return [
+        {
+          messageId: String(data.messageId ?? `m_${Date.now()}`),
+          role: (data.role ?? data.type ?? 'AI') as 'USER' | 'AI',
+          content: data.content ?? '',
+          createdAt: data.createdAt ?? new Date().toISOString(),
+        },
+      ]
+    }
+
+    return []
   }
-}
+
+  // ✅ 유저 전송 → /api/messages/ai-reply 호출 → AI 응답 추가 (낙관적 업데이트)
+  const sendMessage = async () => {
+    if (!canCall || !message.trim() || loading) return
+    
+    // conversationId 유효성 재확인
+    if (!convId || convId <= 0) {
+      setError('유효하지 않은 대화방 ID입니다')
+      return
+    }
+    
+    const content = message.trim()
+    setLoading(true)
+    setError(null)
+
+    // 먼저 사용자 메시지를 화면에 추가 (낙관적 업데이트)
+    const userMessage: ChatMsg = {
+      messageId: `user_${Date.now()}`,
+      role: 'USER',
+      content,
+      createdAt: new Date().toISOString(),
+    }
+    setMessages(prev => [...prev, userMessage])
+    setMessage('') // 입력창 즉시 비우기
+
+    const requestBody = {
+      conversationId: convId, // Number()로 변환하지 말고 그대로 사용
+      content: content,
+    }
+
+    try {
+      console.log('AI 응답 요청 상세:', {
+        url: '/api/messages/ai-reply',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: requestBody
+      })
+      
+      const res = await fetch('/api/messages/ai-reply', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(requestBody),
+      })
+
+      if (!res.ok) {
+        const errorText = await res.text()
+        console.error('AI 응답 실패:', res.status, errorText)
+        setError(`메시지 전송 실패: ${res.status} ${errorText}`)
+        // 실패시 사용자 메시지 제거
+        setMessages(prev => prev.filter(msg => msg.messageId !== userMessage.messageId))
+        setMessage(content) // 입력창에 다시 복원
+        return
+      }
+
+      const data = await res.json()
+      console.log('AI 응답 받음:', data) // 디버깅용
+      
+      const bundle = normalizeAiReply(data)
+      console.log('정규화된 메시지:', bundle) // 디버깅용
+
+      // AI 응답만 추가 (사용자 메시지는 이미 추가됨)
+      const aiMessages = bundle.filter(msg => msg.role === 'AI')
+      if (aiMessages.length > 0) {
+        setMessages(prev => [...prev, ...aiMessages])
+      }
+
+      // 서버 응답에 사용자 메시지도 포함된 경우 (서버에서 생성된 ID로 업데이트)
+      const serverUserMessage = bundle.find(msg => msg.role === 'USER')
+      if (serverUserMessage && serverUserMessage.messageId !== userMessage.messageId) {
+        setMessages(prev => 
+          prev.map(msg => 
+            msg.messageId === userMessage.messageId ? serverUserMessage : msg
+          )
+        )
+      }
+
+    } catch (e) {
+      console.error('메시지 전송 오류:', e)
+      setError('네트워크 오류로 메시지를 전송할 수 없습니다')
+      // 실패시 사용자 메시지 제거
+      setMessages(prev => prev.filter(msg => msg.messageId !== userMessage.messageId))
+      setMessage(content) // 입력창에 다시 복원
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // ✅ 대화 종료
   const handleEnd = async () => {
@@ -189,13 +273,41 @@ const sendMessage = async () => {
         headers: { Authorization: `Bearer ${accessToken}` },
       })
       if (!res.ok) {
-        console.error('Failed to end conversation')
+        console.error('대화 종료 실패:', res.status)
+        setError('대화를 종료할 수 없습니다')
         return
       }
       router.push(`/main/custom/chatroom/${convId}/result`)
     } catch (error) {
-      console.error('Error ending conversation:', error)
+      console.error('대화 종료 오류:', error)
+      setError('대화 종료 중 오류가 발생했습니다')
     }
+  }
+
+  // 연결 상태 확인
+  if (!hasValidId) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-red-600 mb-2">잘못된 대화 ID</h2>
+          <p className="text-gray-600">유효하지 않은 대화방입니다.</p>
+          <Link href="/main" className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg">
+            메인으로 돌아가기
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  if (!accessToken) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-red-600 mb-2">인증 필요</h2>
+          <p className="text-gray-600">로그인이 필요합니다.</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -217,8 +329,37 @@ const sendMessage = async () => {
         </div>
       </div>
 
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-400 p-4 mx-4 mt-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+            <div className="ml-auto pl-3">
+              <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600">
+                <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Messages */}
       <div className="flex-1 bg-white px-4 py-4 overflow-y-auto">
+        {messages.length === 0 && !loading && (
+          <div className="text-center text-gray-500 mt-8">
+            <p>대화를 시작해보세요!</p>
+          </div>
+        )}
+        
         {messages.map((m) => {
           const isMine = m.role === 'USER'
           return (
@@ -269,6 +410,32 @@ const sendMessage = async () => {
             </div>
           )
         })}
+        
+        {/* 로딩 표시 */}
+        {loading && (
+          <div className="flex items-start mb-4 justify-start gap-3">
+            <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 mt-1 ring-1 ring-gray-200">
+              <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+            </div>
+            <div className="max-w-[75%]">
+              <div className="text-sm font-medium text-black/80 mb-1">
+                {myAI?.name ?? 'AI'}
+              </div>
+              <div className="bg-gray-100 text-black border-gray-200 border rounded-2xl rounded-tl-sm p-3 sm:p-4">
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <div ref={bottomRef} />
       </div>
 
@@ -279,6 +446,7 @@ const sendMessage = async () => {
             className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm"
             onClick={fetchMessages}
             aria-label="Refresh messages"
+            disabled={loading}
           >
             <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -297,6 +465,7 @@ const sendMessage = async () => {
                   sendMessage()
                 }
               }}
+              disabled={loading}
             />
             <button
               onClick={sendMessage}
@@ -308,9 +477,10 @@ const sendMessage = async () => {
           </div>
 
           <button
-            className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center shadow-lg"
+            className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center shadow-lg disabled:opacity-50"
             onClick={() => console.log('record')}
             aria-label="Record"
+            disabled={loading}
           >
             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
