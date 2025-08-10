@@ -55,21 +55,24 @@ export default function AfterPage() {
     }
   };
 
- const goMain = async () => {
+const goMain = async () => {
   setError(null);
   setLoading(true);
 
-  const headers: Record<string,string> = { 'Content-Type': 'application/json' };
-  if (accessToken) headers.Authorization = `Bearer ${accessToken}`; // ✅ 있을 때만
-
   try {
+    // 헤더 구성 (토큰 있을 때만 Authorization 추가)
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+
+    // ✅ res 변수에 담기
     const res = await fetch('/api/users/me/profile', {
       method: 'PUT',
       headers,
-      credentials: 'include', // ✅ 쿠키도 함께 전달(프록시가 쿠키→Bearer 재구성 가능)
+      credentials: 'include', // 쿠키도 함께 전송
       body: JSON.stringify({ koreanLevel, profileImageUrl, interests }),
     });
 
+    // HTML이 내려오는 403/500 대비
     const ct = res.headers.get('content-type') || '';
     const data = ct.includes('application/json') ? await res.json() : await res.text();
 
@@ -77,6 +80,7 @@ export default function AfterPage() {
       setError(typeof data === 'string' ? data : data?.message || '설정에 실패했습니다.');
       return;
     }
+
     router.replace('/main');
   } catch (e) {
     console.error(e);

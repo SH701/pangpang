@@ -23,38 +23,39 @@ export default function SignupStep2() {
     setEmail(params.get('email') || '');
     setPassword(params.get('password') || '');
   }, [params]);
+const parseJsonSafe = async (res: Response) => {
+  const ct = res.headers.get('content-type') || ''
+  return ct.includes('application/json') ? res.json() : {}
+}
+const handleSignup = async () => {
+  if (!canSubmit) return;
+  setError(null);
+  try {
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, nickname: name, gender, birthDate }),
+    });
 
-  const handleSignup = async () => {
-    if (!canSubmit) return;
-    setError(null);
-    try {
-      const res = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          password,
-          nickname: name,
-          gender,
-          birthDate,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.message || 'Signup failed');
-        return;
-      }
-       if (data.accessToken) {
-      setAccessToken(data.accessToken);
-      document.cookie = `accessToken=${data.accessToken}; Path=/; SameSite=Lax`;
-      router.push('/after');
+    const data = await parseJsonSafe(res);
+    if (!res.ok) {
+      setError(data?.message || 'Signup failed');
       return;
     }
-      router.push('/after');
-    } catch {
-      setError('Something went wrong');
+
+    const token = data?.accessToken;
+    if (!token) {
+      setError('토큰이 없습니다. 관리자에게 문의하세요.'); // ❗ 계약 보장 필요
+      return;
     }
-  };
+
+    setAccessToken(token);                 // 메모리/컨텍스트
+    localStorage.setItem('accessToken', token); // 지속성 원하면 (보안 고려)
+    router.push('/after');
+  } catch {
+    setError('Something went wrong');
+  }
+};
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
