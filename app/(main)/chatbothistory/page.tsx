@@ -9,6 +9,8 @@ import { useAuth } from '@/lib/UserContext';
 import PersonaSlider, { PersonaSlide } from '@/components/bothistory/PersonaSlider';
 import PersonaDetailModal from '@/components/persona/PersonaDetailModal';
 import type { Conversation } from '@/lib/types';
+import Link from 'next/link';
+import { ChevronRightIcon } from '@heroicons/react/24/solid';
 
 const normalizeSrc = (src?: string) =>
   !src ? '' : src.startsWith('http') || src.startsWith('/') ? src : `/${src}`;
@@ -184,7 +186,17 @@ export default function ChatBothistoryPage() {
           {loading && <p>Loading...</p>}
           {error && <p className="text-red-500">{error}</p>}
           {(!history || history.length === 0) && !loading && (
-            <p className="text-gray-400 text-center mt-10">No chat history.</p>
+             < div className='flex flex-col items-center justify-center mt-20'>
+              <Image src="/circle/circle4.png" alt='loading' width={81} height={81}/>
+              <p className="text-gray-400 text-center mt-10">No chat history.</p>
+              <Link 
+      href="/main/custom" 
+      className="flex items-center text-blue-500 hover:underline text-sm" 
+    >
+      Start a conversation with a custom chatbot
+      <ChevronRightIcon className="size-4 pt-1" />
+      </Link>
+            </div>
           )}
 
           {(history ?? []).map((chat) => {
