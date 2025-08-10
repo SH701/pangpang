@@ -58,21 +58,26 @@ export default function AfterPage() {
  const goMain = async () => {
   setError(null);
   setLoading(true);
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+
+  const headers: Record<string,string> = { 'Content-Type': 'application/json' };
+  if (accessToken) headers.Authorization = `Bearer ${accessToken}`; // ✅ 있을 때만
+
   try {
     const res = await fetch('/api/users/me/profile', {
       method: 'PUT',
-      credentials: 'include',
+      headers,
+      credentials: 'include', // ✅ 쿠키도 함께 전달(프록시가 쿠키→Bearer 재구성 가능)
       body: JSON.stringify({ koreanLevel, profileImageUrl, interests }),
     });
-     const ct = res.headers.get('content-type') || '';
+
+    const ct = res.headers.get('content-type') || '';
     const data = ct.includes('application/json') ? await res.json() : await res.text();
+
     if (!res.ok) {
       setError(typeof data === 'string' ? data : data?.message || '설정에 실패했습니다.');
       return;
     }
-    router.push('/main')
+    router.replace('/main');
   } catch (e) {
     console.error(e);
     setError('알 수 없는 오류가 발생했습니다.');
@@ -80,6 +85,7 @@ export default function AfterPage() {
     setLoading(false);
   }
 };
+
 
 
   return (
