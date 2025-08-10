@@ -28,7 +28,7 @@ type ChatMsg = {
 
 export default function ChatroomPage() {
   const params = useParams<{ id: string }>()
-  const id= params.id
+  const id= params?.id
 
   
 
@@ -189,16 +189,12 @@ export default function ChatroomPage() {
     setMessage('') // 입력창 즉시 비우기
 
     const requestBody = {
-      conversationId: id,
+      conversationId: Number(id),
       content: content,
     }
 
     try {
-      console.log('=== 1단계: 사용자 메시지 전송 ===')
-      console.log('URL:', '/api/messages')
-      console.log('요청 본문:', requestBody)
-      
-      // 1단계: 사용자 메시지 전송
+         // 1단계: 사용자 메시지 전송
       const userRes = await fetch('/api/messages', {
         method: 'POST',
         headers: {
