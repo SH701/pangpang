@@ -190,7 +190,6 @@ export default function ChatroomPage() {
 
     const requestBody = {
       conversationId: Number(id),
-      content: content,
     }
 
     try {

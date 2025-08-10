@@ -20,8 +20,9 @@ export default function AfterPage() {
   const { 
     koreanLevel, setKoreanLevel, 
     profileImageUrl, 
-    interests, setInterests ,accessToken
+    interests, setInterests ,
   } = useAuth();
+  const {accessToken}= useAuth();
 
   const sliderRef = useRef<Slider>(null);
   const [current, setCurrent] = useState(0);
@@ -55,10 +56,7 @@ export default function AfterPage() {
   };
 
  const goMain = async () => {
-  if (!accessToken) {
-    setError('인증 토큰이 없습니다. 다시 로그인 해주세요.');
-    return;
-  }
+
 
   setError(null);
   setLoading(true);
