@@ -7,12 +7,5 @@ module.exports = {
   images: {
     domains: ["noonchi-bucket.s3.ap-northeast-2.amazonaws.com"],
   },
-  theme: {
-    extend: {
-      fontFamily: {
-        sans: ["Pretendard", "ui-sans-serif", "system-ui", "sans-serif"],
-      },
-    },
-  },
   plugins: [],
 };
