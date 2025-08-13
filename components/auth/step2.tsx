@@ -45,7 +45,7 @@ const handleSignup = async () => {
 
     const token = data?.accessToken;
     if (!token) {
-      setError('토큰이 없습니다. 관리자에게 문의하세요.'); // ❗ 계약 보장 필요
+      setError('토큰이 없습니다. 관리자에게 문의하세요.'); 
       return;
     }
 
