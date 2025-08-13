@@ -22,7 +22,7 @@ export default function MainsLayout({
   return (
     <AuthProvider>
     <div className="w-full flex flex-col">
-      <div className=" flex items-center justify-center">
+      <div className=" flex items-center justify-center h-full w-[375px] mx-auto">
         {children}
       </div>
       {!hideTabbar&&(<div className="sticky bottom-0 w-full">

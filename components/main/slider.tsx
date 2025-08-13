@@ -1,24 +1,16 @@
 'use client'
 
-/**
- * Slider with: 
- * - 5 speech levels (0~4)
- * - 7 situations (hardcoded)
- * - EXACTLY ONE situation is shown per day
- * - The chosen situation changes at Korea (Asia/Seoul) midnight (00:00)
- */
+
 
 import { InformationCircleIcon } from '@heroicons/react/24/solid'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 export default function Slider() {
-  // 1) Level UI ----------------------------------------------------------------
   const steps = ['Familiar', 'Casual Polite', 'Polite', 'More Polite', 'Highly Polite'] as const
   const max = steps.length - 1
   const [level, setLevel] = useState(0)
   const percent = (level / max) * 100
 
-  // 2) Hardcoded expressions: 7 situations × 5 levels --------------------------
   const expressions = {
     ask_eat:      ['밥 먹었어?', '밥 먹었어요?', '식사하셨어요?', '식사하셨나요?', '식사하셨습니까?'],
     greeting:     ['잘 지내?', '잘 지내세요?', '잘 지내고 계세요?', '잘 지내고 계신가요?', '잘 지내고 계십니까?'],
@@ -31,9 +23,7 @@ export default function Slider() {
 
   const situationKeys = useMemo(() => Object.keys(expressions) as Array<keyof typeof expressions>, [])
 
-  // 3) Daily selection (fixed per Korea date) ----------------------------------
-  //    - dateKey: 'YYYY-MM-DD' in Asia/Seoul
-  //    - index = hash(dateKey) % 7
+
   const getSeoulParts = () => {
     const fmt = (opt: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', ...opt })
     const y = Number(fmt({ year: 'numeric' }).format(new Date()))
@@ -53,7 +43,7 @@ export default function Slider() {
   }
 
   const hash = (str: string) => {
-    // djb2
+
     let h = 5381
     for (let i = 0; i < str.length; i++) h = ((h << 5) + h) + str.charCodeAt(i)
     return Math.abs(h)
@@ -63,17 +53,15 @@ export default function Slider() {
   const [situationIdx, setSituationIdx] = useState(() => hash(getSeoulDateKey()) % situationKeys.length)
   const timerRef = useRef<number | null>(null)
 
-  // compute ms until next Korea midnight (00:00)
   const msUntilNextSeoulMidnight = () => {
     const { y, m, d, H, min, s } = getSeoulParts()
-    // Seoul midnight next day → convert to UTC epoch by subtracting 9 hours
-    // Date.UTC(year, monthIndex, day, hour, minute, second)
-    const nextDayUTC = Date.UTC(y, m - 1, d + 1, -9, 0, 0) // 00:00 KST == -9:00 UTC
+
+    const nextDayUTC = Date.UTC(y, m - 1, d + 1, -9, 0, 0) 
     const nowUTC = Date.now()
     return Math.max(0, nextDayUTC - nowUTC)
   }
 
-  // set timer to flip at Korea midnight
+
   useEffect(() => {
     const schedule = () => {
       const ms = msUntilNextSeoulMidnight()
@@ -81,7 +69,7 @@ export default function Slider() {
         const newKey = getSeoulDateKey()
         setDateKey(newKey)
         setSituationIdx(hash(newKey) % situationKeys.length)
-        schedule() // reschedule for the following day
+        schedule()
       }, ms)
     }
     schedule()
@@ -94,28 +82,20 @@ export default function Slider() {
   const currentKey = situationKeys[situationIdx]
   const currentSentence = expressions[currentKey][level]
 
-  // Optional: pretty label for the chosen situation
-  const situationLabel: Record<typeof currentKey, string> = {
-    ask_eat: '밥/식사 묻기',
-    greeting: '안부 인사',
-    ask_where: '행선지 묻기',
-    ask_doing: '현재 활동 묻기',
-    ask_day: '하루 소감 묻기',
-    ask_weekend: '주말 안부 묻기',
-    ask_okay: '상태/컨디션 묻기',
-  }
+
+
 
   return (
-    <div className="w-[335px] flex flex-col justify-center items-center rounded-xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] mb-6 ml-3">
+    <div className="w-[335px] flex flex-col justify-center items-center rounded-xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] mx-auto bg-white mt-5">
       <span className="font-semibold text-lg py-2 px-4 mt-3">Today`s honorific expression</span>
 
       {/* Daily-picked situation + sentence */}
-      <div className="w-[296px] bg-gray-50 border border-gray-200 text-center py-3 my-2 mb-3 rounded-xl">
+      <div className="w-[296px] bg-gray-100 border border-gray-200 text-center py-3 my-2 mb-6 rounded-xl">
         <div className="mt-1 text-base">{currentSentence}</div>
       </div>
 
       {/* Slider box */}
-      <div className="w-[335px] px-4 max-w-md mx-auto border rounded-xl border-blue-400">
+      <div className="w-[335px] px-4 max-w-md mx-auto border rounded-xl border-blue-400 bg-[#EFF6FF]">
         <div className="flex justify-center mb-4">
           <span className="inline-flex items-center bg-white px-3 py-1 text-xs text-gray-600 rounded-full shadow">
             <InformationCircleIcon className="w-4 h-4 mr-1 text-blue-600" />
@@ -124,7 +104,7 @@ export default function Slider() {
         </div>
 
         {/* Track + ticks + fill + knob */}
-        <div className="relative h-2 mb-6">
+        <div className="relative h-2 mb-2">
           <div className="absolute inset-0 bg-gray-200 rounded-full" />
           {steps.map((_, i) => (
             <div

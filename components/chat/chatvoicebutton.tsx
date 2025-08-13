@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MicIcon } from "lucide-react"; 
+import Image from "next/image"
 
 export default function ChatVoiceButton() {
   const [isRecording, setIsRecording] = useState(false);
@@ -21,11 +21,8 @@ export default function ChatVoiceButton() {
   return (
     <button
       onClick={handleVoiceInput}
-      className={`${
-        isRecording ? " text-black" : "bg-white text-black"
-      }`}
     >
-      <MicIcon className="w-7 h-7" />
+      <Image src="/etc/mic.png" alt="mic" width={16} height={16} />
     </button>
   );
 }

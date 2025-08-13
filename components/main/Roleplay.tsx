@@ -15,7 +15,7 @@ export default function RoleplayCarousel() {
   const dragLimit = -((totalItems - visibleCount) * fullCardWidth);
 
   return (
-    <div className="mb-6 select-none">
+    <div className="select-none">
       <div className="flex flex-col gap-2 mb-4">
         <span className="text-sm text-gray-500 font-medium">Roleplay situation</span>
         <span className="font-bold text-xl text-black">Noonchi Coach</span>

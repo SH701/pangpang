@@ -51,13 +51,10 @@ export default function Main() {
     }, [accessToken]);
   
   return (
-    <div className="min-h-screen bg-blue-50 flex flex-col">
-      
-        <div className="px-6 pt-6 pb-4 border-b border-blue-200 bg-blue-500">
-        <Logo/>
-      </div>
-        <div className="w-full px-6 py-8 text-white bg-blue-500">
-        <div className="flex justify-between items-start mb-8">
+    <div className=" bg-[#F2F7FF] flex flex-col">
+        <div className="w-full px-6 py-6 text-white bg-[#3B6BF0]">
+          <Logo/>
+        <div className="flex justify-between items-start mb-4 pt-2">
           <div className="flex flex-col gap-4">
             <h1 className="font-bold text-white text-3xl leading-tight">
               Hi, {profile?.nickname || 'Noonchi'}!
@@ -90,13 +87,11 @@ export default function Main() {
         <Slider />
       </div>
 
-      <div className="px-6 mb-8">
+      <div className="px-6 mb-4">
         <RoleplaySlider />
       </div>
       {/* 채팅 입력 섹션 */}
-        <div className="mt-auto">
         <ChatInputWrapper />
-      </div>
     </div>
   );
 }
