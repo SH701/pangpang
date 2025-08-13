@@ -55,7 +55,7 @@ export default function Onboard() {
         {slides.map((slide) => (
           <div key={slide.id} className="flex flex-col">
             <div
-            className={`w-[375px] h-[426px] flex items-center justify-center ${
+            className={`w-[375px] h-[400px] flex items-center justify-center ${
             slide.id !== 1 && slide.id !== 5 ? 'bg-[#EFF6FF]' : ''
             }`}>
               {slide.icon&& <slide.icon />}

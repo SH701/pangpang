@@ -2,7 +2,7 @@ import Onboard from "@/components/onboard/onboard";
 
 export default function Home() {
   return (
-    <main className="h-full flex items-center justify-center">
+    <main className="h-[812px] w-[375px] flex items-center justify-center mx-auto ">
       <Onboard />
     </main>
   );

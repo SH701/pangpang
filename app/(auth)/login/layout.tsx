@@ -5,7 +5,7 @@ export const metadata = { title: 'Setting' };
 export default function SignupLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-white">{children}</div>
+      <div className="h-[812px] w-[375px] mx-auto bg-white">{children}</div>
     </AuthProvider>
   );
 }

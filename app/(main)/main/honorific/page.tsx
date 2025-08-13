@@ -1,16 +1,7 @@
-"use client"
-
-import { ChevronLeftIcon } from "@heroicons/react/24/solid";
-import { useRouter } from "next/navigation"
-
-export default function HonoriciePage(){
-    const router = useRouter();
-    return(
-        <div className="flex">
-            <button onClick={()=>router.push("/main")}>
-                <ChevronLeftIcon className="size-6"/>
-            </button>
-            <p>Honofiric Helper</p>
-        </div>
-    )
+export default function Honorific() {
+  return (
+    <div className="text-3xl flex items-center justify-center">
+      존댓말헬퍼 페이지입니다.
+    </div>
+  );
 }
