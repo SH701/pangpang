@@ -14,7 +14,8 @@ export default function MainsLayout({
   const pathname = usePathname();
   const hide=[
     '/main/custom',
-    '/main/role'
+    '/main/role',
+    '/main/honorific'
   ]
   const hideTabbar = hide.some(path =>
     pathname === path || pathname.startsWith(path + '/')

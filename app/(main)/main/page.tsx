@@ -51,7 +51,7 @@ export default function Main() {
     }, [accessToken]);
   
   return (
-    <div className=" bg-[#F2F7FF] flex flex-col">
+    <div className=" bg-[#F2F7FF] flex flex-col overflow-y-scroll">
         <div className="w-full px-6 py-6 text-white bg-[#3B6BF0]">
           <Logo/>
         <div className="flex justify-between items-start mb-4 pt-2">

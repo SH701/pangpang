@@ -6,7 +6,7 @@ import { InformationCircleIcon } from '@heroicons/react/24/solid'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 export default function Slider() {
-  const steps = ['Familiar', 'Casual Polite', 'Polite', 'More Polite', 'Highly Polite'] as const
+  const steps = ['Familiar', '', '', '', 'Highly Polite'] as const
   const max = steps.length - 1
   const [level, setLevel] = useState(0)
   const percent = (level / max) * 100
