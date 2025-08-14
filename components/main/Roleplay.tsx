@@ -15,12 +15,12 @@ export default function RoleplayCarousel() {
   const dragLimit = -((totalItems - visibleCount) * fullCardWidth);
 
   return (
-    <div className="select-none">
+    <div className="mb-6 select-none">
       <div className="flex flex-col gap-2 mb-4">
-        <span className="text-sm text-gray-500 font-medium">Roleplay situation</span>
-        <span className="font-bold text-xl text-black">Noonchi Coach</span>
+        <span className="text-sm text-gray-500 font-medium leading-[130%]">Roleplay situation</span>
+        <span className="font-bold text-xl text-black leading-[130%]">Noonchi Coach</span>
       </div>
-      <div className="w-[335px] overflow-hidden relative">
+      <div className="w-full max-w-[335px] overflow-hidden relative">
         <motion.div
           className="flex gap-[20px] cursor-grab active:cursor-grabbing"
           drag="x"
@@ -31,9 +31,9 @@ export default function RoleplayCarousel() {
             <Link
               key={item.id}
               href="/main/role"
-              className="flex-shrink-0 w-[160px] h-[120px] bg-white rounded-xl shadow-lg border border-gray-100 flex items-center justify-center hover:shadow-xl transition-shadow duration-200"
+              className="flex-shrink-0 w-[150px] h-[110px] bg-white rounded-xl shadow-lg border border-gray-100 flex items-center justify-center hover:shadow-xl transition-shadow duration-200"
             >
-              <span className="text-center text-base font-semibold px-3 text-gray-800">
+              <span className="text-center text-sm font-semibold px-2 text-gray-800 leading-[130%]">
                 {item.title}
               </span>
             </Link>

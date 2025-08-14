@@ -21,18 +21,38 @@ export default function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
+  
       const data = await res.json();
+  
       if (!res.ok) {
         setError(data.message || 'Login failed');
         return;
       }
-      setAccessToken(data.accessToken);
+  
+      // 토큰이 정상적으로 응답으로 오면
+      const token = data.accessToken;
+      if (!token) {
+        setError('No access token received');
+        return;
+      }
+  
+      setAccessToken(token);
+  
+      // localStorage에 토큰 저장
+      localStorage.setItem('accessToken', token);
+  
+      // 쿠키에 토큰 저장
+      document.cookie = `accessToken=${encodeURIComponent(token)}; path=/; max-age=86400; SameSite=Lax`;
+  
+      // 로그인 후 페이지로 이동
       router.push('/after');
     } catch (err) {
       console.error('Login error:', err);
       setError('Something went wrong');
     }
   };
+  
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4">

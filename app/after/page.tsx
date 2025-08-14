@@ -60,11 +60,33 @@ const goMain = async () => {
   setLoading(true);
 
   try {
-    // 헤더 구성 (토큰 있을 때만 Authorization 추가)
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+    console.log('[After] goMain 함수 실행, 프로필 업데이트 시작');
+    console.log('[After] 현재 토큰 상태:', accessToken);
+    console.log('[After] localStorage 토큰:', localStorage.getItem('accessToken'));
+    
+    // 쿠키에서 토큰 확인
+    const cookies = document.cookie.split(';').map(c => c.trim());
+    const tokenCookie = cookies.find(c => c.startsWith('accessToken='));
+    console.log('[After] Cookie token:', tokenCookie ? tokenCookie.split('=')[1] : 'not found');
+    
+    // 쿠키에 토큰 설정 (서버 요청에 필요)
+    if (!tokenCookie) {
+      console.log('[After] 쿠키에 토큰이 없어 설정합니다');
+      document.cookie = `accessToken=${encodeURIComponent(accessToken)}; path=/; max-age=86400; SameSite=Lax`;
+    }
+    
+    // 헤더 구성
+    const headers: Record<string, string> = { 
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`
+    };
+    console.log('[After] Authorization 헤더 설정 완료');
+
+    // 전송할 데이터 로깅
+    console.log('[After] 전송할 데이터:', { koreanLevel, profileImageUrl, interests });
 
     // ✅ res 변수에 담기
+    console.log('[After] API 요청 시작: /api/users/me/profile');
     const res = await fetch('/api/users/me/profile', {
       method: 'PUT',
       headers,
@@ -72,15 +94,34 @@ const goMain = async () => {
       body: JSON.stringify({ koreanLevel, profileImageUrl, interests }),
     });
 
+    // 응답 상태 로깅
+    console.log('[After] API 응답 상태:', res.status);
+    console.log('[After] API 응답 헤더:', Object.fromEntries(res.headers.entries()));
+    
     // HTML이 내려오는 403/500 대비
     const ct = res.headers.get('content-type') || '';
     const data = ct.includes('application/json') ? await res.json() : await res.text();
+    console.log('[After] API 응답 데이터:', data);
 
     if (!res.ok) {
-      setError(typeof data === 'string' ? data : data?.message || '설정에 실패했습니다.');
+      const errorMsg = typeof data === 'string' ? data : data?.message || '설정에 실패했습니다.';
+      console.error('[After] API 요청 실패:', errorMsg);
+      setError(errorMsg);
       return;
     }
 
+    console.log('[After] 프로필 업데이트 성공, main 페이지로 이동합니다');
+    
+    // 토큰이 localStorage에 있는지 한번 더 확인
+    const localToken = localStorage.getItem('accessToken');
+    if (!localToken) {
+      console.warn('[After] localStorage에 토큰이 없습니다. 토큰을 다시 설정합니다.');
+      if (accessToken) {
+        localStorage.setItem('accessToken', accessToken);
+        document.cookie = `accessToken=${encodeURIComponent(accessToken)}; path=/; max-age=86400; SameSite=Lax`;
+      }
+    }
+    
     router.replace('/main');
   } catch (e) {
     console.error(e);

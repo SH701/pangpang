@@ -1,4 +1,3 @@
-// app/(main)/chatbothistory/page.tsx
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
@@ -11,6 +10,8 @@ import PersonaDetailModal from '@/components/persona/PersonaDetailModal';
 import type { Conversation } from '@/lib/types';
 import Link from 'next/link';
 import { ChevronRightIcon } from '@heroicons/react/24/solid';
+import { AnimatePresence, motion } from 'framer-motion';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 
 const normalizeSrc = (src?: string) =>
   !src ? '' : src.startsWith('http') || src.startsWith('/') ? src : `/${src}`;
@@ -22,29 +23,22 @@ const getImg = (url?: string) => (typeof url === 'string' ? url : '');
 export default function ChatBothistoryPage() {
   const router = useRouter();
   const { accessToken } = useAuth();
-
-  // 슬라이더 데이터
+  const [keyword, setKeyword] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [history, setHistory] = useState<Conversation[]>([]);
+  const [filtered, setFiltered] = useState<Conversation[]>([]); 
   const [sliderItems, setSliderItems] = useState<PersonaSlide[]>([{ isAdd: true }]);
-
-  // 모달 상태
   const [openDetail, setOpenDetail] = useState(false);
   const [selectedPersonaId, setSelectedPersonaId] = useState<number | string | null>(null);
-
-  // 리스트(필터)
-  const [history, setHistory] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<'done' | 'in-progress'>('done');
-
-  const filterMap: Record<typeof selectedFilter, string> = {
+  const filterMap: Record<'done' | 'in-progress', string> = {
     done: 'ENDED',
     'in-progress': 'ACTIVE',
   };
-
   const normalizeConversations = (arr: any): Conversation[] =>
-    (Array.isArray(arr) ? arr : []).filter(Boolean).filter(c => !!c?.aiPersona);
-
-  // 슬라이더용 페르소나 수집 (대화에서 고유 aiPersona 추출)
+    (Array.isArray(arr) ? arr : []).filter(Boolean).filter((c) => !!c?.aiPersona);
   const loadPersonasFromConversations = useCallback(async () => {
     if (!accessToken) return;
     const headers = { Authorization: `Bearer ${accessToken}` };
@@ -94,14 +88,17 @@ export default function ChatBothistoryPage() {
     }
   }, [accessToken]);
 
-  useEffect(() => { loadPersonasFromConversations(); }, [loadPersonasFromConversations]);
+  useEffect(() => {
+    loadPersonasFromConversations();
+  }, [loadPersonasFromConversations]);
 
-  // 리스트 로드 (필터 적용)
+
   useEffect(() => {
     if (!accessToken) return;
     setLoading(true);
     setError(null);
     const status = filterMap[selectedFilter];
+
     fetch(`/api/conversations?status=${status}&page=1&size=100`, {
       headers: { Authorization: `Bearer ${accessToken}` },
       cache: 'no-store',
@@ -111,25 +108,83 @@ export default function ChatBothistoryPage() {
       .catch(() => setError('불러오기 실패'))
       .finally(() => setLoading(false));
   }, [accessToken, selectedFilter]);
- const handlePersonaDeleted = (deletedId: number | string) => {
-  setSliderItems(prev => {
-    const rest = prev.filter(it => !('isAdd' in it) && it.personaId !== deletedId);
-    return [{ isAdd: true }, ...rest];
-  });
-  setHistory(prev =>
-    prev.filter(chat => {
-      const aid = chat.aiPersona?.id ?? (chat as any).aiPersona?.personaId;
-      return aid !== deletedId;
-    })
-  );
-  setOpenDetail(false);
-};
-  return (
-    <div className="bg-white w-full p-6 flex flex-col">
-      <span className="text-left font-semibold text-xl my-6">Chat History</span>
 
-      {/* 슬라이더: 아이템 클릭 → 상세 모달 */}
-      <div className="mb-6">
+  useEffect(() => {
+    setFiltered(history);
+  }, [history]);
+
+
+  useEffect(() => {
+    const q = keyword.trim().toLowerCase();
+    if (!q) {
+      setFiltered(history);
+      return;
+    }
+    setFiltered(history.filter((c) => (c.aiPersona?.name ?? '').toLowerCase().includes(q)));
+  }, [keyword, history]);
+
+
+  const handlePersonaDeleted = (deletedId: number | string) => {
+    setSliderItems((prev) => {
+      const rest = prev.filter((it) => !('isAdd' in it) && it.personaId !== deletedId);
+      return [{ isAdd: true }, ...rest];
+    });
+    setHistory((prev) =>
+      prev.filter((chat) => {
+        const aid = chat.aiPersona?.id ?? (chat as any).aiPersona?.personaId;
+        return aid !== deletedId;
+      })
+    );
+    setOpenDetail(false);
+  };
+  const handleSearch = () => {
+    const q = keyword.trim().toLowerCase();
+    if (!q) {
+      setFiltered(history);
+      return;
+    }
+    setFiltered(history.filter((c) => (c.aiPersona?.name ?? '').toLowerCase().includes(q)));
+  };
+  const toggleSearch = () =>
+    setIsSearchOpen((prev) => {
+      const next = !prev;
+      if (!next) {
+        setKeyword('');
+        setFiltered(history);
+      }
+      return next;
+    });
+
+  return (
+    <div className="bg-gray-100 w-full flex flex-col pt-10">
+       
+        <div className="flex justify-between items-center space-x-2 relative z-10 px-4">
+           <h1 className="text-xl font-bold z-10">
+        Chatbot History
+      </h1>
+          <AnimatePresence>
+            {isSearchOpen && (
+              <motion.input
+                key="search-input"
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: 120, opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                className="border p-1 rounded overflow-hidden placeholder:pl-1 my-1"
+                placeholder="Search..."
+                style={{ minWidth: 0 }}
+              />
+            )}
+          </AnimatePresence>
+          <button onClick={toggleSearch} className="cursor-pointer my-2">
+            <MagnifyingGlassIcon className="w-6 h-6 text-gray-700" />
+          </button>
+        </div>
+
+      <div className="mb-4 p-6">
         <PersonaSlider
           items={sliderItems}
           onAdd={() => router.push('/main/custom')}
@@ -143,17 +198,15 @@ export default function ChatBothistoryPage() {
         />
       </div>
 
-      {/* 상세 모달 */}
+
       <PersonaDetailModal
         open={openDetail}
         onClose={() => setOpenDetail(false)}
         personaId={selectedPersonaId}
-        onDeleted={
-          handlePersonaDeleted }
+        onDeleted={handlePersonaDeleted}
       />
 
-      {/* 필터 (리스트만 영향) */}
-      <div className="mb-6">
+      <div className="mb-6 px-6">
         <div className="flex items-center justify-between">
           <div className="flex space-x-2">
             <button
@@ -180,32 +233,36 @@ export default function ChatBothistoryPage() {
         </div>
       </div>
 
-      {/* 리스트 */}
-      <div className="flex-1 overflow-y-auto pb-24">
+      <div className="flex-1 overflow-y-auto pb-24 bg-white p-6 border-t">
         <div className="space-y-4">
           {loading && <p>Loading...</p>}
           {error && <p className="text-red-500">{error}</p>}
-          {(!history || history.length === 0) && !loading && (
-             < div className='flex flex-col items-center justify-center mt-20'>
-              <Image src="/circle/circle4.png" alt='loading' width={81} height={81}/>
+
+          {/* 결과 없음 처리 */}
+          {!loading && history.length === 0 && (
+            <div className="flex flex-col items-center justify-center mt-20">
+              <Image src="/circle/circle4.png" alt="loading" width={81} height={81} />
               <p className="text-gray-400 text-center mt-10">No chat history.</p>
-              <Link 
-      href="/main/custom" 
-      className="flex items-center text-blue-500 hover:underline text-sm" 
-    >
-      Start a conversation with a custom chatbot
-      <ChevronRightIcon className="size-4 pt-1" />
-      </Link>
+              <Link href="/main/custom" className="flex items-center text-blue-500 hover:underline text-sm">
+                Start a conversation with a custom chatbot
+                <ChevronRightIcon className="size-4 pt-1" />
+              </Link>
             </div>
           )}
 
-          {(history ?? []).map((chat) => {
+          {!loading && history.length > 0 && filtered.length === 0 && (
+            <div className="flex flex-col items-center justify-center mt-10">
+              <p className="text-gray-400">검색 결과가 없습니다.</p>
+            </div>
+          )}
+
+          {filtered.map((chat) => {
             const name = getName(chat?.aiPersona?.name);
             const desc = chat?.aiPersona?.description ?? '';
             const img = getImg(chat?.aiPersona?.profileImageUrl);
             return (
               <div
-                key={chat?.conversationId ?? Math.random().toString(36).slice(2)}
+                key={chat?.conversationId}
                 className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <div className="relative">
@@ -220,9 +277,7 @@ export default function ChatBothistoryPage() {
                     />
                   ) : (
                     <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center shadow-sm">
-                      <span className="text-gray-600 font-semibold text-sm">
-                        {getInitial(name)}
-                      </span>
+                      <span className="text-gray-600 font-semibold text-sm">{getInitial(name)}</span>
                     </div>
                   )}
                 </div>

@@ -45,7 +45,7 @@ const handleSignup = async () => {
 
     const token = data?.accessToken;
     if (!token) {
-      setError('토큰이 없습니다. 관리자에게 문의하세요.'); 
+      setError('토큰이 없습니다. 관리자에게 문의하세요.'); // ❗ 계약 보장 필요
       return;
     }
 
@@ -58,80 +58,81 @@ const handleSignup = async () => {
 };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
-      {/* header */}
-      <div className="px-4 pt-4 mt-20">
-        <button
-          onClick={() => router.back()}
-          className="absolute text-gray-600 hover:text-gray-800 "
-        >
-          <ChevronLeftIcon className="w-6 h-6 mt-1" />
-        </button>
-        <h1 className="text-center text-[22px] font-semibold">Enter your details</h1>
-        <p className="text-center text-gray-500 text-sm mt-1">
-          Enter it exactly as shown on your ID
-        </p>
-      </div>
+    <div className="min-h-screen bg-white px-4 pt-13">
+      <div className="w-full max-w-sm mx-auto flex flex-col h-full space-y-6">
 
-      {/* form */}
-      <div className="flex-1 px-4 pt-8 space-y-10">
-        {/* Name */}
-        <div>
-          <label className="block font-medium mb-1">Name</label>
-          <input
-            type="text"
-            placeholder="Enter your name"
-            className="w-full px-4 py-3 bg-gray-50 rounded-xl placeholder-gray-400 focus:outline-none"
-            value={name}
-            onChange={e => setName(e.target.value)}
-          />
+        
+        <div className="w-[274px] h-[62px] flex flex-col items-start justify-center">
+          <h2 className="font-pretendard text-2xl font-semibold leading-[130%] text-gray-900">
+            Enter your details
+          </h2>
+          <p className="font-pretendard text-sm font-normal leading-[140%] text-gray-400 mt-1">
+            Enter it exactly as shown on your ID
+          </p>
         </div>
 
-        {/* Birth date */}
-        <div>
-          <label className="block font-medium mb-1">Birth date</label>
-          <input
-            type="text"
-            placeholder="YYYY-MM-DD"
-            pattern="\d{4}-\d{2}-\d{2}"
-            className="w-full px-4 py-3 bg-gray-50 rounded-xl placeholder-gray-400 focus:outline-none"
-            value={birthDate}
-            onChange={e => setBirthDate(e.target.value)}
-          />
-        </div>
+        {/* form */}
+        <div className="space-y-6">
+          {/* Name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <input
+              type="text"
+              placeholder="Enter your name"
+              className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50"
+              value={name}
+              onChange={e => setName(e.target.value)}
+            />
+          </div>
 
-        {/* Gender toggle */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Gender</label>
-          <div className="flex space-x-4">
-            {(['MALE', 'FEMALE'] as const).map(g => (
-              <button
-                key={g}
-                onClick={() => setGender(g)}
-                className={`flex-1 py-3 rounded-xl border font-medium ${
-                  gender === g
-                    ? 'bg-blue-50 text-blue-500  border-blue-600'
-                    : 'bg-white text-gray-700 border-gray-300'
-                }`}
-              >
-                {g === 'MALE' ? 'Male' : 'Female'}
-              </button>
-            ))}
+          {/* Birth date */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Birth date</label>
+            <input
+              type="text"
+              placeholder="YYYY-MM-DD"
+              pattern="\d{4}-\d{2}-\d{2}"
+              className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50"
+              value={birthDate}
+              onChange={e => setBirthDate(e.target.value)}
+            />
+          </div>
+
+          {/* Gender toggle */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+            <div className="flex space-x-4">
+              {(['MALE', 'FEMALE'] as const).map(g => (
+                <button
+                  key={g}
+                  onClick={() => setGender(g)}
+                  className={`flex-1 py-3 rounded-md border font-medium ${
+                    gender === g
+                      ? 'bg-blue-50 text-blue-500 border-blue-600'
+                      : 'bg-white text-gray-700 border-gray-300'
+                  }`}
+                >
+                  {g === 'MALE' ? 'Male' : 'Female'}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
 
-      <footer className="p-4 bg-blue-600">
-        <button
-          disabled={!canSubmit}
-          onClick={handleSignup}
-          className={`w-full py-3 font-semibold transition text-lg ${
-            canSubmit ? 'text-white' : ' text-gray-300 cursor-not-allowed'
-          }`}
-        >
-          Next
-        </button>
-      </footer>
+        <div className="mt-auto pt-8">
+          <button
+            disabled={!canSubmit}
+            onClick={handleSignup}
+            className={`w-full py-3 font-medium rounded-md transition ${
+              canSubmit 
+                ? 'bg-blue-600 text-white hover:bg-gray-900' 
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            Next
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
