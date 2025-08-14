@@ -45,42 +45,53 @@ export default function Onboard() {
     }
   };
 
-  return (
-    <div className="w-full bg-white">
-      <Slider
-        ref={sliderRef}
-        {...settings}
-        afterChange={(i) => setCurrentSlide(i)}
-      >
-        {slides.map((slide) => (
-          <div key={slide.id} className="flex flex-col">
-            <div
-            className={`w-[375px] h-[426px] flex items-center justify-center ${
-            slide.id !== 1 && slide.id !== 5 ? 'bg-[#EFF6FF]' : ''
-            }`}>
-              {slide.icon&& <slide.icon />}
-              {slide.img&&<Image src={slide.img} alt="image" width={300} height={295}/>} 
-            </div>
-            <div className="w-full max-w-[300px] flex flex-col items-center text-center px-4 mx-auto">
-              <h2 className="text-xl font-bold mt-10">{slide.title}</h2>
-              <p className="text-gray-600 mt-5 text-sm leading-7 mb-5">{slide.desc}</p>
-            </div>
-          </div>
-        ))}
-      </Slider>
-
-      <div className="flex flex-col justify-center items-center mt-15 gap-2 m-0 ">
-        <button
-          onClick={handleNext}
-          className="bg-blue-600 px-30 py-2 rounded-lg cursor-pointer w-[335px]"
+    return (
+    <div className="min-h-screen bg-white px-4">
+      <div className="w-full max-w-sm mx-auto space-y-6">
+        <Slider
+          ref={sliderRef}
+          {...settings}
+          afterChange={(i) => setCurrentSlide(i)}
         >
-          <span className="font-semibold text-white">
+          {slides.map((slide) => (
+            <div key={slide.id} className="flex flex-col">
+              <div
+              className={`w-[375px] h-[426px] flex items-center justify-center ${
+              slide.id !== 1 && slide.id !== 5 ? 'bg-[#EFF6FF]' : ''
+              }`}>
+                {slide.icon&& <slide.icon />}
+                {slide.img&&<Image src={slide.img} alt="image" width={300} height={295}/>} 
+              </div>
+              <div className="w-[274px] h-[62px] flex flex-col items-center justify-center text-center mx-auto">
+                <h2 className={`text-center font-pretendard text-2xl font-semibold leading-[130%] text-gray-900 ${
+                  slide.id === 3 ? 'tracking-tight' : ''
+                }`}>
+                  {slide.title}
+                </h2>
+              </div>
+              <div className={`w-full flex flex-col items-center text-center px-4 mx-auto ${
+                slide.id === 4 ? 'max-w-[350px]' : 'max-w-[300px]'
+              }`}>
+                <p className="text-gray-600 mt-5 text-sm leading-7 mb-5">{slide.desc}</p>
+              </div>
+            </div>
+          ))}
+        </Slider>
+
+        <div className="pt-8">
+          <button
+            onClick={handleNext}
+            className="w-full py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-gray-900 transition"
+          >
             {currentSlide === 4 ? "Continue" : "Next"}
-          </span>
-        </button>
-        <div className="flex gap-2 ">
-        <p className="text-sm text-gray-500 ">Already have an account?</p>
-        <Link href="/login" className="text-blue-500 text-sm">Log in</Link>
+          </button>
+
+          <p className="text-center text-sm text-gray-500 mt-6">
+            Already have an account?{' '}
+            <Link href="/login" className="font-medium text-blue-500 hover:underline">
+              Log in
+            </Link>
+          </p>
         </div>
       </div>
     </div>

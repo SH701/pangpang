@@ -21,11 +21,9 @@ export default function ChatVoiceButton() {
   return (
     <button
       onClick={handleVoiceInput}
-      className={`${
-        isRecording ? " text-black" : "bg-white text-black"
-      }`}
+      className="text-blue-500 hover:text-blue-600 transition-colors"
     >
-      <MicIcon className="w-7 h-7" />
+      <MicIcon className="w-6 h-6" />
     </button>
   );
 }

@@ -106,17 +106,17 @@ export default function Slider() {
   }
 
   return (
-    <div className="w-[335px] flex flex-col justify-center items-center rounded-xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] mb-6 ml-3">
-      <span className="font-semibold text-lg py-2 px-4 mt-3">Today`s honorific expression</span>
+    <div className="w-[381px] h-[253px] flex flex-col justify-center items-center rounded-2xl border border-gray-50 bg-white shadow-[0_4px_10px_0_rgba(0,0,0,0.08)] mb-6 mx-auto flex-shrink-0">
+      <span className="font-semibold text-lg py-2 px-7 mt-3 leading-[130%]">Today`s honorific expression</span>
 
       {/* Daily-picked situation + sentence */}
-      <div className="w-[296px] bg-gray-50 border border-gray-200 text-center py-3 my-2 mb-3 rounded-xl">
-        <div className="mt-1 text-base">{currentSentence}</div>
+      <div className="w-full max-w-[296px] bg-gray-50 border border-gray-200 text-center py-3 my-2 mb-3 rounded-xl px-7">
+        <div className="mt-1 text-base leading-[130%]">{currentSentence}</div>
       </div>
 
       {/* Slider box */}
-      <div className="w-[335px] px-4 max-w-md mx-auto border rounded-xl border-blue-400">
-        <div className="flex justify-center mb-4">
+      <div className="w-[381px] h-[127px] px-4 pt-4 mx-auto border-2 rounded-2xl border-blue-400 bg-blue-50 flex-shrink-0 mt-auto">
+        <div className="flex justify-center mb-3">
           <span className="inline-flex items-center bg-white px-3 py-1 text-xs text-gray-600 rounded-full shadow">
             <InformationCircleIcon className="w-4 h-4 mr-1 text-blue-600" />
             Choose your speech level
@@ -158,7 +158,7 @@ export default function Slider() {
         </div>
 
         {/* Level labels */}
-        <div className="flex justify-between text-[11px] text-gray-600">
+        <div className="flex justify-between text-[11px] text-gray-600 leading-[130%]">
           {steps.map((label, i) => (
             <span
               key={i}

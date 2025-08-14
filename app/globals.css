@@ -4,6 +4,12 @@
 @import "slick-carousel/slick/slick-theme.css";
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
+@layer base {
+  .font-pretendard {
+    font-family: 'Pretendard', ui-sans-serif, system-ui, sans-serif;
+  }
+}
+
 :root {
   --background: #FFFFFF;
   --foreground: #0a0a0a;
