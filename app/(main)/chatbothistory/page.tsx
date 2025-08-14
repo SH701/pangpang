@@ -2,6 +2,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import SearchBar from '@/components/bothistory/SearchBar'
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/UserContext';
@@ -162,26 +163,23 @@ export default function ChatBothistoryPage() {
            <h1 className="text-xl font-bold z-10">
         Chatbot History
       </h1>
-          <AnimatePresence>
-            {isSearchOpen && (
-              <motion.input
-                key="search-input"
-                initial={{ width: 0, opacity: 0 }}
-                animate={{ width: 120, opacity: 1 }}
-                exit={{ width: 0, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                className="border p-1 rounded overflow-hidden placeholder:pl-1 my-1"
-                placeholder="Search..."
-                style={{ minWidth: 0 }}
-              />
-            )}
-          </AnimatePresence>
-          <button onClick={toggleSearch} className="cursor-pointer my-2">
-            <MagnifyingGlassIcon className="w-6 h-6 text-gray-700" />
-          </button>
+          <SearchBar
+          value={keyword}
+          onChange={setKeyword}
+          onSubmit={handleSearch}
+          isOpen={isSearchOpen}
+          onToggle={() =>
+            setIsSearchOpen((prev) => {
+              const next = !prev
+              if (!next) {
+                setKeyword('')
+                handleSearch() 
+              }
+              return next
+            })
+          }
+          placeholder="Search..."
+        />
         </div>
 
       <div className="mb-4 p-6">

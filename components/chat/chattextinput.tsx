@@ -24,7 +24,6 @@ export default function ChatTextInput() {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && text.trim()) {
-      console.log("전송:", text);
       setText("");
     }
   };

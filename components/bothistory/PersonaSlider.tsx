@@ -68,7 +68,7 @@ export default function PersonaSlider({
             <button
               key={`add-${i}`}
               onClick={onAdd}
-              className="rounded-full bg-black text-white flex items-center justify-center text-2xl shrink-0"
+              className="rounded-full bg-blue-500 text-white flex items-center justify-center text-2xl shrink-0"
               style={{ width: itemSize, height: itemSize }}
               aria-label="Add persona"
             >

@@ -39,36 +39,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      console.log('[UserContext] 초기화: localStorage에서 토큰 확인');
       const saved = localStorage.getItem('accessToken');
       
       if (saved) {
-        console.log('[UserContext] localStorage에서 토큰 발견:', saved.substring(0, 10) + '...');
+
         _setAccessToken(saved);
         
         // 쿠키에도 저장 (API 요청에서 사용)
         const cookieValue = `accessToken=${encodeURIComponent(saved)}; path=/; max-age=86400; SameSite=Lax`;
         document.cookie = cookieValue;
-        console.log('[UserContext] 초기화 시 쿠키에도 토큰 설정 완료');
+
       } else {
-        console.log('[UserContext] localStorage에 토큰이 없음');
+
       }
     }
   }, []);
 
   const setAccessToken = (token: string | null) => {
     if (token) {
-      console.log('[UserContext] 토큰 설정:', token.substring(0, 10) + '...');
       localStorage.setItem('accessToken', token);
       
       // 쿠키에도 저장 (API 요청에서 사용)
       const cookieValue = `accessToken=${encodeURIComponent(token)}; path=/; max-age=86400; SameSite=Lax`;
       document.cookie = cookieValue;
-      console.log('[UserContext] 쿠키 설정 완료');
       
       _setAccessToken(token);
     } else {
-      console.log('[UserContext] 토큰 제거');
       localStorage.removeItem('accessToken');
       
       // 쿠키도 삭제

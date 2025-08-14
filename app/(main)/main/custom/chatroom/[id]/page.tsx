@@ -87,7 +87,7 @@ export default function ChatroomPage() {
         return
       }
       const data = await res.json()
-      console.log('받은 메시지 데이터:', data) // 디버깅용
+  
       
       const list = (data?.content ?? data ?? []) as any[]
       const mapped: ChatMsg[] = list.map((m) => ({
@@ -114,7 +114,7 @@ export default function ChatroomPage() {
   }, [messages])
 
   function normalizeAiReply(data: any): ChatMsg[] {
-    console.log('정규화할 AI 응답 데이터:', data) // 디버깅용
+
     
     // 1) { userMessage: {...}, aiMessage: {...} }
     if (data?.userMessage || data?.aiMessage) {
@@ -200,8 +200,6 @@ export default function ChatroomPage() {
         content }),
       })
 
-      console.log('사용자 메시지 전송 응답 상태:', userRes.status)
-
       if (!userRes.ok) {
         const errorText = await userRes.text()
         console.error('사용자 메시지 전송 실패:', userRes.status, errorText)
@@ -213,7 +211,6 @@ export default function ChatroomPage() {
       }
 
       const userMsgData = await userRes.json()
-      console.log('사용자 메시지 전송 완료:', userMsgData)
 
       // 사용자 메시지 ID 업데이트 (서버에서 생성된 ID로)
       if (userMsgData?.messageId) {
@@ -236,8 +233,6 @@ export default function ChatroomPage() {
           Authorization: `Bearer ${accessToken}`,
         },
       })
-
-      console.log('AI 응답 요청 응답 상태:', aiRes.status)
 
       if (!aiRes.ok) {
         const errorText = await aiRes.text()
@@ -265,7 +260,6 @@ export default function ChatroomPage() {
       const aiMessages = bundle.filter(msg => msg.role === 'AI')
       if (aiMessages.length > 0) {
         setMessages(prev => [...prev, ...aiMessages])
-        console.log('AI 메시지 화면에 추가됨:', aiMessages)
       } else {
         console.warn('AI 응답에서 AI 메시지를 찾을 수 없음')
       }

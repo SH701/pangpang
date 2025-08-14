@@ -91,7 +91,6 @@ export default function ProfileEditPage() {
     headers: { 'Content-Type': file.type },
     body: file,
   });
-  console.log(uploadRes)
   if (!uploadRes.ok) throw new Error('S3 업로드 실패');
 
 
@@ -111,7 +110,6 @@ export default function ProfileEditPage() {
     const err = await apiRes.json().catch(() => ({}));
     console.error('Update Failed:', err.message || apiRes.status);
   } else {
-    console.log('Update Success.');
   }
 };
 

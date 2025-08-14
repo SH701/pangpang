@@ -140,9 +140,10 @@ export default function ProfilePage() {
           </Link>
         ))}
       </div>
+        <div className="h-[140px]" />
        <button
         onClick={logout}
-        className="block mx-auto text-sm text-gray-400 underline absolute bottom-26 left-[42%]"
+        className="fixed left-1/2 -translate-x-1/2 bottom-[100px] z-50 text-sm text-gray-600 underline"
       >
         Log out
       </button>
