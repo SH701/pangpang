@@ -1,14 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 
-const IS_PROD = process.env.NODE_ENV === "production";
-const IS_DEV = !IS_PROD;
-
 const BASE = process.env.API_URL;
-const PUBLIC_URL = process.env.PUBLIC_URL ?? (IS_PROD ? "https://pangpang-one.vercel.app" : "http://localhost:3000");
+const PUBLIC_URL = process.env.PUBLIC_URL ?? "https://pangpang-one.vercel.app";
 
 const FORWARD_COOKIE_KEYS = ["accessToken", "refreshToken", "JSESSIONID"] as const;
-
 const RETRY_STATUS = new Set([502, 503, 504]);
 
 type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -20,7 +16,6 @@ type CommonOpts = {
   timeoutMs?: number;
   retries?: number;
   retryBackoffBaseMs?: number;
-  devPassthrough?: boolean;
   extraHeaders?: Record<string, string>;
 };
 
@@ -44,10 +39,6 @@ function buildUpstreamURL(req: NextRequest, upstreamPath: string): URL {
 
 function resolveAuthHeader(req: NextRequest): string | undefined {
   let auth = req.headers.get("authorization") || undefined;
-  if (!auth && IS_DEV) {
-    const token = process.env.ACCESS_TOKEN;
-    if (token) auth = `Bearer ${token}`;
-  }
   if (!auth) {
     const token = req.cookies.get("accessToken")?.value;
     if (token && token !== "null") auth = `Bearer ${token}`;
@@ -73,13 +64,11 @@ async function fetchWithRetry(url: string, init: RequestInit, retries: number, b
   while (true) {
     try {
       const res = await fetch(url, init);
-      if (retries > 0 && RETRY_STATUS.has(res.status)) {
-        if (attempt < retries) {
-          attempt++;
-          const delay = backoffBase * Math.pow(2, attempt - 1);
-          await sleep(delay);
-          continue;
-        }
+      if (retries > 0 && RETRY_STATUS.has(res.status) && attempt < retries) {
+        attempt++;
+        const delay = backoffBase * Math.pow(2, attempt - 1);
+        await sleep(delay);
+        continue;
       }
       return res;
     } catch (e) {
@@ -104,7 +93,6 @@ export async function proxyJSON(req: NextRequest, upstreamPath: string, opts?: J
   const timeoutMs = opts?.timeoutMs ?? 12_000;
   const retries = opts?.retries ?? 1;
   const backoffBase = opts?.retryBackoffBaseMs ?? 300;
-  const devPassthrough = opts?.devPassthrough ?? false;
 
   const url = buildUpstreamURL(req, upstreamPath);
   const controller = new AbortController();
@@ -164,15 +152,6 @@ export async function proxyJSON(req: NextRequest, upstreamPath: string, opts?: J
     const resCT = upstream.headers.get("content-type") ?? "";
     const status = upstream.status;
 
-    if (IS_DEV && !devPassthrough) {
-      const raw = await upstream.text();
-      if (resCT.includes("application/json")) {
-        const parsed = raw ? JSON.parse(raw) : {};
-        return NextResponse.json({ upstream: { url: url.toString(), status }, body: parsed }, { status });
-      }
-      return NextResponse.json({ upstream: { url: url.toString(), status }, body: { message: raw } }, { status });
-    }
-
     if (resCT.includes("application/json")) {
       const raw = await upstream.text();
       const parsed = raw ? JSON.parse(raw) : {};
@@ -189,9 +168,6 @@ export async function proxyJSON(req: NextRequest, upstreamPath: string, opts?: J
     return new Response(upstream.body, { status, headers: passHeaders });
   } catch (e: any) {
     clearTimeout(timer);
-    const payload = IS_DEV
-      ? { message: "Upstream request failed", detail: String(e?.message ?? e), url: `${BASE}${upstreamPath}` }
-      : { message: "Internal Server Error" };
-    return NextResponse.json(payload, { status: 500 });
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }

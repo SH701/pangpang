@@ -42,7 +42,6 @@ export async function PUT(req: NextRequest) {
     method: "PUT",
     forwardAuth: false, // 기존 proxyJSON auth 사용 안 함
     forwardCookies: true,
-    devPassthrough: true, // 개발 모드에서도 원본 응답 형식 유지
     extraHeaders,
   });
 }
