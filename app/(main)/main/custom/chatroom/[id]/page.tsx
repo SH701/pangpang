@@ -328,16 +328,20 @@ export default function ChatroomPage() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
-      <div className="bg-white border-b border-blue-200 px-4 py-3 sticky top-0 z-10">
+      <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
         <div className="flex items-center justify-between w-full">
-          <Link href="/main" aria-label="Back">
-            <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <Link href="/main" aria-label="Back" className="text-gray-600 hover:text-gray-900 transition-colors">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </Link>
-          <span className="text-lg font-semibold text-black">{myAI?.name ?? '...'}</span>
-          <button onClick={handleEnd} aria-label="End conversation">
-            <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <span className="text-lg font-semibold text-gray-900 font-pretendard">{myAI?.name ?? '...'}</span>
+          <button 
+            onClick={handleEnd} 
+            aria-label="End conversation"
+            className="text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
             </svg>
           </button>
@@ -346,7 +350,7 @@ export default function ChatroomPage() {
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border-l-4 border-red-400 p-4 mx-4 mt-4">
+        <div className="bg-red-50 border-l-4 border-red-400 p-4 mx-4 mt-4 rounded-r-lg">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -354,10 +358,10 @@ export default function ChatroomPage() {
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-red-700">{error}</p>
+              <p className="text-sm text-red-700 font-pretendard">{error}</p>
             </div>
             <div className="ml-auto pl-3">
-              <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600">
+              <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600 transition-colors">
                 <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
@@ -371,7 +375,7 @@ export default function ChatroomPage() {
       <div className="flex-1 bg-white px-4 py-4 overflow-y-auto">
         {messages.length === 0 && !loading && (
           <div className="text-center text-gray-500 mt-8">
-            <p>대화를 시작해보세요!</p>
+            <p className="font-pretendard text-lg">대화를 시작해보세요!</p>
           </div>
         )}
         
@@ -405,19 +409,19 @@ export default function ChatroomPage() {
 
               {/* 말풍선 */}
               <div className={`max-w-[75%] ${isMine ? 'ml-auto' : ''}`}>
-                <div className="text-sm font-medium text-black/80 mb-1">
+                <div className="text-sm font-medium text-gray-600 mb-1 font-pretendard">
                   {isMine ? '' : (myAI?.name ?? 'AI')}
                 </div>
 
                 <div
                   className={
-                    `p-3 sm:p-4 rounded-2xl border shadow-[0_1px_2px_rgba(0,0,0,.04)] ` +
+                    `p-3 sm:p-4 rounded-2xl border shadow-sm ` +
                     (isMine
-                      ? 'bg-blue-50 text-gray-900 border-blue-200 rounded-br-md'
-                      : 'bg-gray-100 text-black border-gray-200 rounded-tl-sm')
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-gray-50 text-gray-900 border-gray-200')
                   }
                 >
-                  <div className="whitespace-pre-wrap py-2 leading-relaxed text-[15px]">
+                  <div className="whitespace-pre-wrap py-1 leading-relaxed text-[15px] font-pretendard">
                     {m.content}
                   </div>
                 </div>
@@ -437,10 +441,10 @@ export default function ChatroomPage() {
               </div>
             </div>
             <div className="max-w-[75%]">
-              <div className="text-sm font-medium text-black/80 mb-1">
+              <div className="text-sm font-medium text-gray-600 mb-1 font-pretendard">
                 {myAI?.name ?? 'AI'}
               </div>
-              <div className="bg-gray-100 text-black border-gray-200 border rounded-2xl rounded-tl-sm p-3 sm:p-4">
+              <div className="bg-gray-50 text-gray-900 border-gray-200 border rounded-2xl p-3 sm:p-4">
                 <div className="flex items-center space-x-1">
                   <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
                   <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -455,10 +459,10 @@ export default function ChatroomPage() {
       </div>
 
       {/* Bottom bar */}
-      <div className="bg-blue-50 px-4 py-4 border-t border-gray-200">
+      <div className="bg-white px-4 py-4 border-t border-gray-200">
         <div className="flex items-center justify-center space-x-4">
           <button
-            className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm"
+            className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center shadow-sm border border-gray-200 hover:bg-gray-100 transition-colors"
             onClick={fetchMessages}
             aria-label="Refresh messages"
             disabled={loading}
@@ -468,10 +472,10 @@ export default function ChatroomPage() {
             </svg>
           </button>
 
-          <div className="flex items-center bg-white rounded-full shadow-sm px-3 flex-1">
+          <div className="flex items-center bg-white rounded-full shadow-sm px-3 flex-1 border border-gray-200">
             <input
-              className="flex-1 outline-none px-2 py-2 text-sm"
-              placeholder="Enter your message"
+              className="flex-1 outline-none px-2 py-2 text-sm font-pretendard placeholder-gray-400"
+              placeholder="메시지를 입력하세요"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => {
@@ -485,14 +489,14 @@ export default function ChatroomPage() {
             <button
               onClick={sendMessage}
               disabled={loading || !message.trim() || !canCall}
-              className="text-blue-500 font-semibold disabled:opacity-40 text-sm"
+              className="text-blue-600 font-semibold disabled:opacity-40 text-sm font-pretendard hover:text-blue-700 transition-colors"
             >
-              {loading ? 'Sending...' : 'Send'}
+              {loading ? '전송중...' : '전송'}
             </button>
           </div>
 
           <button
-            className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center shadow-lg disabled:opacity-50"
+            className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center shadow-md disabled:opacity-50 hover:bg-blue-700 transition-colors"
             onClick={() => console.log('record')}
             aria-label="Record"
             disabled={loading}
@@ -504,7 +508,7 @@ export default function ChatroomPage() {
         </div>
 
         <div className="flex justify-center mt-2">
-          <div className="w-32 h-1 bg-black rounded-full" />
+          <div className="w-32 h-1 bg-gray-300 rounded-full" />
         </div>
       </div>
     </div>

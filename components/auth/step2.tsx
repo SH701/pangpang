@@ -1,7 +1,6 @@
 'use client';
 export const dynamic = 'force-dynamic'; // ✅ 빌드 시 프리렌더 방지
 
-import { useAuth } from '@/lib/Token';
 import { ChevronLeftIcon } from '@heroicons/react/24/solid';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -9,13 +8,12 @@ import { useState, useEffect } from 'react';
 export default function SignupStep2() {
   const router = useRouter();
   const params = useSearchParams();
-  const { setAccessToken } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [gender, setGender] = useState<'MALE' | 'FEMALE'>('MALE');
-  const [, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const canSubmit = name.trim() !== '' && birthDate !== '';
 
@@ -23,39 +21,41 @@ export default function SignupStep2() {
     setEmail(params.get('email') || '');
     setPassword(params.get('password') || '');
   }, [params]);
-const parseJsonSafe = async (res: Response) => {
-  const ct = res.headers.get('content-type') || ''
-  return ct.includes('application/json') ? res.json() : {}
-}
-const handleSignup = async () => {
-  if (!canSubmit) return;
-  setError(null);
-  try {
-    const res = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, nickname: name, gender, birthDate }),
-    });
 
-    const data = await parseJsonSafe(res);
-    if (!res.ok) {
-      setError(data?.message || 'Signup failed');
-      return;
-    }
-
-    const token = data?.accessToken;
-    if (!token) {
-      setError('토큰이 없습니다. 관리자에게 문의하세요.'); // ❗ 계약 보장 필요
-      return;
-    }
-
-    setAccessToken(token);                 // 메모리/컨텍스트
-    localStorage.setItem('accessToken', token); // 지속성 원하면 (보안 고려)
-    router.push('/after');
-  } catch {
-    setError('Something went wrong');
+  const parseJsonSafe = async (res: Response) => {
+    const ct = res.headers.get('content-type') || ''
+    return ct.includes('application/json') ? res.json() : {}
   }
-};
+
+  const handleSignup = async () => {
+    if (!canSubmit) return;
+    setError(null);
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, nickname: name, gender, birthDate }),
+      });
+
+      const data = await parseJsonSafe(res);
+      if (!res.ok) {
+        setError(data?.message || 'Signup failed');
+        return;
+      }
+
+      const token = data?.accessToken;
+      if (!token) {
+        setError('토큰이 없습니다. 관리자에게 문의하세요.'); // ❗ 계약 보장 필요
+        return;
+      }
+
+      // 로컬 스토리지에 토큰 저장
+      localStorage.setItem('accessToken', token);
+      router.push('/after');
+    } catch {
+      setError('Something went wrong');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white px-4 pt-13">
@@ -118,6 +118,10 @@ const handleSignup = async () => {
             </div>
           </div>
         </div>
+
+        {error && (
+          <p className="text-red-500 text-sm text-center">{error}</p>
+        )}
 
         <div className="mt-auto pt-8">
           <button
