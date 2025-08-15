@@ -7,6 +7,7 @@ import { ChevronLeftIcon } from '@heroicons/react/24/solid'
 import { useAuth } from '@/lib/UserContext'
 import Image from 'next/image'
 import type { Persona } from '@/lib/types'
+import Loading from './chatroom/[id]/loading'
 
 // ✅ 상황 옵션(역할별)
 const situationOptions = {
@@ -63,12 +64,12 @@ export default function PersonaAndRoom() {
 
   const [profileImageUrl, setProfileImageUrl] = useState('')
   const [avatarModalOpen, setAvatarModalOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [showLoading, setShowLoading] = useState(false)
   const [status, setStatus] = useState<'ACTIVE' | 'ENDED'>('ACTIVE')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
+    setShowLoading(true)
     try {
       // 1) 페르소나 생성
       const personaRes = await fetch('/api/personas', {
@@ -103,17 +104,20 @@ export default function PersonaAndRoom() {
       })
       if (!convoRes.ok) throw new Error('방 생성 실패')
       const convo = await convoRes.json()
-
-      router.push(`/main/custom/chatroom/${convo.conversationId}`)
+    setTimeout(()=>{
+     router.push(`/main/custom/chatroom/${convo.conversationId}`)
+    },1500)
     } catch (e: any) {
       alert('생성 실패: ' + (e?.message ?? e))
+       setShowLoading(false)
     } finally {
-      setLoading(false)
     }
   }
-
+   if (showLoading) {
+    return <Loading /> // 여기서 loading.tsx 보여줌
+  }
   return (
-    <div className="w-full max-w-md mx-auto min-h-screen flex flex-col relative overflow-y-scroll bg-white">
+    <div className="w-full max-w-md mx-auto flex flex-col relative overflow-y-scroll bg-white">
       {/* Header */}
       <div className="flex items-center p-4">
         <button onClick={() => router.back()} className="text-black">
@@ -297,10 +301,9 @@ export default function PersonaAndRoom() {
         {/* Submit */}
         <button
           type="submit"
-          className="w-full py-3 bg-blue-500 text-white text-sm font-semibold rounded-lg mt-8 hover:bg-blue-600 transition-colors disabled:opacity-50"
-          disabled={loading}
+          className="w-full py-3 bg-blue-500 text-white text-sm font-semibold rounded-lg mt-8 hover:bg-blue-600 transition-colors disabled:opacity-50 mb-3"
         >
-          {loading ? '로딩중...' : 'Start Chatting'}
+          Start Chatting
         </button>
       </form>
     </div>
