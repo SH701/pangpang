@@ -3,9 +3,9 @@ import { proxyJSON } from "@/app/api/_lib/proxy";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { messageId: string } }
+  context: any // 👈 타입 강제 지정
 ) {
-  const { messageId } = params;
+  const { messageId } = context.params;
 
   return proxyJSON(
     req,
