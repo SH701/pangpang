@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/UserContext';
-import WhiteLogo from '@/components/etc/whitelogo';
+import LottieAnimation from '@/components/etc/LottieAnimation';
+
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,6 +14,20 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [animationData, setAnimationData] = useState<any>(null);
+
+  useEffect(() => {
+    const loadAnimation = async () => {
+      try {
+        const response = await fetch('/lottie/loading.json');
+        const animation = await response.json();
+        setAnimationData(animation);
+      } catch (err) {
+        console.error('로티 로드 중 오류:', err);
+      }
+    };
+    loadAnimation();
+  }, []);
 
   const handleLogin = async () => {
     setError('');
@@ -21,44 +37,32 @@ export default function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-  
       const data = await res.json();
-  
       if (!res.ok) {
         setError(data.message || 'Login failed');
         return;
       }
-  
-      // 토큰이 정상적으로 응답으로 오면
-      const token = data.accessToken;
-      if (!token) {
-        setError('No access token received');
-        return;
-      }
-  
-      setAccessToken(token);
-  
-      // localStorage에 토큰 저장
-      localStorage.setItem('accessToken', token);
-  
-      // 쿠키에 토큰 저장
-      document.cookie = `accessToken=${encodeURIComponent(token)}; path=/; max-age=86400; SameSite=Lax`;
-  
-      // 로그인 후 페이지로 이동
+      setAccessToken(data.accessToken);
       router.push('/after');
     } catch (err) {
       console.error('Login error:', err);
       setError('Something went wrong');
     }
   };
-  
-  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="flex justify-center items-center" >
-         <WhiteLogo/>
+          {animationData && (
+            <LottieAnimation 
+              animationData={animationData} 
+              style={{ width: '360px', height: '360px' }}
+              loop={true}
+              autoplay={true}
+              speed={1}
+            />
+          )}
         </div>
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">

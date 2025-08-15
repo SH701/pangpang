@@ -108,12 +108,12 @@ const goMain = async () => {
       </div>
       
       {/* 메인 콘텐츠 */}
-      <div className="flex-1 flex flex-col">
-        <div className="flex-1 relative h-full">
+      <div className="flex-1 flex flex-col items-center">
+        <div className="flex-1 relative h-full w-[375px] ">
           <Slider ref={sliderRef} {...settings} className="h-full">
             {/* 1. Korean Level Selection */}
             <div className="px-4 pt-4 h-full flex flex-col">
-              <div className="flex-1 flex flex-col items-start">
+              <div className="flex-1 flex flex-col ">
                 <h1 className="text-2xl font-semibold text-gray-900 mb-2 font-pretendard leading-normal mt-4" style={{fontSize: '24px', fontWeight: 600, color: '#111827'}}>
                   Please select your <br /> Korean level
                 </h1>

@@ -390,7 +390,7 @@ const handleHonorific = async (messageId: string, sourceContent: string, aiRole?
               disabled={loading || !message.trim() || !canCall}
               className="text-blue-600 font-semibold disabled:opacity-40 text-sm font-pretendard hover:text-blue-700 transition-colors"
             >
-              {loading ? '전송중...' : '전송'}
+              {loading ? 'Seding...' : 'Send'}
             </button>
           </div>
 

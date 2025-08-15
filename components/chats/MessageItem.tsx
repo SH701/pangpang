@@ -63,7 +63,7 @@ export default function MessageItem({
           )}
 
           <div className="flex justify-between items-center gap-2 flex-col">
-            <div className="whitespace-pre-wrap py-2 flex-1">{m.content}</div>
+            <div className="whitespace-pre-wrap py-2 flex-1 text-black">{m.content}</div>
             {isMine && (
               <>
                 <button
