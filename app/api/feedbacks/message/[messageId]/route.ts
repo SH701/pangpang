@@ -1,12 +1,11 @@
-// app/api/feedbacks/message/[messageId]/route.ts
 import { NextRequest } from "next/server";
 import { proxyJSON } from "@/app/api/_lib/proxy";
 
 export async function POST(
   req: NextRequest,
-  context: { params: { messageId: string } }
+  { params }: { params: { messageId: string } }
 ) {
-  const { messageId } = context.params;
+  const { messageId } = params;
 
   return proxyJSON(
     req,
