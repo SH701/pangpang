@@ -1,11 +1,10 @@
 import { NextRequest } from "next/server";
 import { proxyJSON } from "@/app/api/_lib/proxy";
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { messageId: string } } 
-) {
-  const { messageId } = params;
+type RouteParams = { params: { messageId: string } };
+
+export async function POST(req: NextRequest, context: unknown) {
+  const { messageId } = (context as RouteParams).params;
 
   return proxyJSON(
     req,
