@@ -1,10 +1,11 @@
 'use client'
 
-import { InformationCircleIcon } from '@heroicons/react/24/solid'
+import { ChevronDownIcon, InformationCircleIcon,ChevronUpIcon  } from '@heroicons/react/24/solid'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 export default function Slider() {
-
+  const [showInfo,setShowInfo] = useState(true) 
+  const [showex,setShowex]=useState(false)
   const steps = ['Low', '', 'High'] as const
   const max = steps.length - 1
   const [level, setLevel] = useState(0)
@@ -16,44 +17,146 @@ export default function Slider() {
   const fPercent = (fam / fMax) * 100
 
   const expressions = {
-    ask_eat: [
-      ['밥 먹었어?', '밥은 먹었어?', '밥 먹었지?'],
-      ['밥 먹었어요?', '식사하셨어요?', '식사하셨나요?'],
-      ['식사하셨습니까?', '식사하신 건가요?', '식사는 하셨나요?'],
+   ask_eat: [
+    [
+      {
+        phrase: '이거 먹어',
+        explanation: 'Pure casual Korean! Family members use this direct, warm tone. No formality needed when you’re super close. 🤗'
+      },
+      {
+        phrase: '이거 먹어봐',
+        explanation: 'Adding “봐” softens it slightly while keeping the close relationship. Perfect for friends in public spaces. ☕'
+      },
+      {
+        phrase: '이거 한 번 먹어봐요',
+        explanation: 'Even with closeness, you show respect for the setting. “한 번” adds gentle suggestion rather than command. 🫱'
+      },
     ],
-    greeting: [
-      ['잘 지내?', '요즘 잘 지내?', '잘 지내고 있지?'],
-      ['잘 지내세요?', '요즘 잘 지내세요?', '잘 지내고 계시나요?'],
-      ['안녕하십니까?', '안녕하세요, 잘 지내십니까?', '요즘 안녕하신지요?'],
+    [
+      {
+        phrase: '이것 좀 먹어볼래?',
+        explanation: 'Question form (“~볼래?”) makes it a suggestion, not an order. “좀” adds politeness while staying friendly. 🍪'
+      },
+      {
+        phrase: '이것 좀 드세요',
+        explanation: 'Standard workplace politeness. “드세요” shows respect, “좀” keeps it approachable. Safe for most office situations! 💼'
+      },
+      {
+        phrase: '이것 한 번 드셔보세요',
+        explanation: 'More formal but still natural. Perfect for semi-formal work gatherings where respect matters. 🍽️'
+      },
     ],
-    ask_where: [
-      ['어디 가?', '어디 가는 중이야?', '어디로 가?'],
-      ['어디 가세요?', '어디 가고 계세요?', '어디로 가시는 중인가요?'],
-      ['어디로 가십니까?', '어디로 이동 중이십니까?', '목적지가 어디십니까?'],
+    [
+      {
+        phrase: '이것 좀 드셔보세요',
+        explanation: 'Service industry standard. Polite but approachable — wants to maintain customer friendliness. 🛍️'
+      },
+      {
+        phrase: '이것 드셔보시겠어요?',
+        explanation: 'Professional service tone. The question form gives customer choice while showing proper respect. 🎩'
+      },
+      {
+        phrase: '이것 드시겠습니까?',
+        explanation: 'Top-tier service Korean. Formal but natural — what you’d hear at luxury hotels or formal business meetings. ✨'
+      },
+    ]
+  ],
+   ask_did_you_eat: [
+    // Low Intimacy
+    [
+      {
+        phrase: '밥 먹었어?',
+        explanation: 'Classic Korean greeting! Shows care in the most casual way. This is how Korean families check on each other. 🐥'
+      },
+      {
+        phrase: '밥 먹었어요?',
+        explanation: 'Adding “요” shows basic politeness while maintaining warmth. Perfect for close friends when you want to be slightly more polite. 🌼'
+      },
+      {
+        phrase: '식사 하셨어요?',
+        explanation: '“식사” is more formal than “밥”, and “하셨어요” shows respect. Great when talking to people you’re close to but need to respect. 🙇'
+      },
     ],
-    ask_doing: [
-      ['뭐 해?', '지금 뭐 해?', '뭐 하는 중이야?'],
-      ['뭐 하세요?', '지금 뭐 하고 계세요?', '무엇을 하고 계시나요?'],
-      ['무엇을 하십니까?', '지금 무엇을 하고 계십니까?', '현재 하시는 일은 무엇입니까?'],
+    // Medium Intimacy
+    [
+      {
+        phrase: '밥은 먹었어?',
+        explanation: 'Adding “은” makes it slightly more structured. Common in relaxed workplace conversations during breaks. 🍵'
+      },
+      {
+        phrase: '점심 드셨어요?',
+        explanation: '“점심” specifies the meal, “드셨어요” shows workplace-appropriate respect. Standard office small talk. 💼'
+      },
+      {
+        phrase: '식사는 하셨습니까?',
+        explanation: 'Business-level formality. “습니까” ending shows professional respect. Used when checking on clients or partners. 🗝️'
+      },
     ],
-    ask_day: [
-      ['오늘 하루 어땠어?', '오늘 잘 보냈어?', '오늘 하루 괜찮았지?'],
-      ['오늘 하루 어떠셨어요?', '오늘 하루 잘 보내셨어요?', '오늘 괜찮으셨나요?'],
-      ['오늘 하루 어떠셨습니까?', '오늘 하루 잘 보내셨습니까?', '금일 일정은 어떠셨습니까?'],
+    // High Intimacy
+    [
+      {
+        phrase: '밥 드셨어요?',
+        explanation: 'Casual but respectful service tone. Common in casual restaurants or when vendors check on customers. 🍚'
+      },
+      {
+        phrase: '식사 하셨습니까?',
+        explanation: 'Professional hospitality language. Shows proper respect while maintaining service industry warmth. 🏨'
+      },
+      {
+        phrase: '진지 드셨습니까?',
+        explanation: '“진지” is the highest honorific for meal. Reserved for VIP treatment or very formal dining situations. 🍷'
+      },
+    ]
+  ],
+    apology: [
+    // Low Intimacy
+    [
+      {
+        phrase: '잘못했어',
+        explanation: 'Direct admission among family. No extra formality needed — just honest acknowledgment between close people. 💔'
+      },
+      {
+        phrase: '내가 잘못했어',
+        explanation: 'Adding “내가” (I) takes clear responsibility. Shows sincerity while keeping the casual tone with friends. 🤗'
+      },
+      {
+        phrase: '제가 잘못했어요',
+        explanation: '“제가” is the humble form of “I”, with polite “어요” ending. Shows respect while maintaining some closeness. 🙏'
+      },
     ],
-    ask_weekend: [
-      ['주말 잘 보냈어?', '주말 어땠어?', '주말 재밌었지?'],
-      ['주말 잘 보내셨어요?', '주말 잘 지내셨어요?', '주말은 어떠셨어요?'],
-      ['주말 잘 보내셨습니까?', '주말은 어떠셨습니까?', '주말 일정은 순조로우셨습니까?'],
+    // Medium Intimacy
+    [
+      {
+        phrase: '내 실수야',
+        explanation: '“실수” (mistake) sounds more professional than “잘못”. Good for minor work errors in relaxed settings. 😅'
+      },
+      {
+        phrase: '제가 실수했습니다',
+        explanation: 'Standard workplace apology. “실수했습니다” is professional but not overly dramatic. Safe for most office situations. 💼'
+      },
+      {
+        phrase: '저의 잘못입니다',
+        explanation: '“저의 잘못입니다” is structured and takes clear responsibility. Perfect for formal work apologies. 📖'
+      },
     ],
-    ask_okay: [
-      ['괜찮아?', '좀 괜찮아?', '많이 괜찮아?'],
-      ['괜찮으세요?', '좀 괜찮으세요?', '많이 괜찮으세요?'],
-      ['괜찮으십니까?', '좀 괜찮으십니까?', '건강은 괜찮으십니까?'],
-    ],
-  } as const
+    // High Intimacy
+    [
+      {
+        phrase: '제가 잘못했네요',
+        explanation: '“네요” ending softens the formality while maintaining respect. Common in service industry apologies. 👜'
+      },
+      {
+        phrase: '저의 실수였습니다',
+        explanation: 'Formal but natural business language. “였습니다” shows the mistake is acknowledged and resolved. 🗂️'
+      },
+      {
+        phrase: '저의 부주의였습니다',
+        explanation: '“부주의” (carelessness) shows deep responsibility. Used for serious situations requiring maximum respect and accountability. 📄'
+      },
+    ]
+  ],
+} as const
 
-  // ── 서울 자정 기준 "오늘의 상황" 고정 선택 (하루 1개 키 고정)
   const situationKeys = useMemo(
     () => Object.keys(expressions) as Array<keyof typeof expressions>,
     []
@@ -119,16 +222,35 @@ export default function Slider() {
       <span className="font-semibold text-lg py-2 px-4 mt-3">Today`s honorific expression</span>
 
       {/* 오늘의 문장 */}
-      <div className="w-[296px] bg-gray-100 border border-gray-200 text-center py-3 my-2 mb-4 rounded-xl">
-        <div className="mt-1 text-base">{currentSentence}</div>
-      </div>
-      <div className="flex justify-center mb-4">
+     <div className="w-[296px] bg-gray-100 border border-gray-200 py-3 my-2 mb-4 rounded-xl">
+  <div className=" text-base relative text-center px-8 py-1">
+    <span>{currentSentence.phrase}</span>
+    <button
+      onClick={() => setShowex((prev) => !prev)}
+      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800"
+    >
+      {showex ? (
+        <ChevronUpIcon className="size-5" />
+      ) : (
+        <ChevronDownIcon className="size-5" />
+      )}
+    </button>
+  </div>
+
+  {showex && (
+    <div className="text-[13px] px-2 py-1 text-center border-t border-gray-400 text-gray-700">
+      {currentSentence.explanation}
+    </div>
+  )}
+</div>
+{showInfo && (
+          <div className="flex justify-center mb-4">
           <span className="inline-flex items-center bg-white px-3 py-1 text-xs text-gray-600 rounded-full shadow border">
             <InformationCircleIcon className="w-4 h-4 mr-1 text-blue-600" />
             Move the slider to match your situation
           </span>
         </div>
-
+      )}
       {/* 슬라이더 박스 */}
       <div className="w-[335px] px-4 max-w-md mx-auto border rounded-xl border-blue-400 bg-[#EFF6FF] pb-4">
         <div className='pt-2'>
@@ -161,7 +283,9 @@ export default function Slider() {
             max={max}
             step={1}
             value={level}
-            onChange={(e) => setLevel(Number(e.target.value))}
+            onChange={(e) => {
+              setLevel(Number(e.target.value))  
+              setShowInfo(false)}}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             aria-label="Speech level"
           />
@@ -179,7 +303,7 @@ export default function Slider() {
           
         </div>
          <div className='pb-4'>
-        <span >Formality Levelness</span>
+        <span >Formality Level</span>
         </div>
           
 
@@ -212,7 +336,9 @@ export default function Slider() {
             max={fMax}
             step={1}
             value={fam}
-            onChange={(e) => setFam(Number(e.target.value))}
+            onChange={(e) => {
+              setFam(Number(e.target.value)) 
+              setShowInfo(false)}}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             aria-label="Familiarity level"
           />

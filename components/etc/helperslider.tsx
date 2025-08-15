@@ -4,6 +4,7 @@ import { InformationCircleIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
 
 export default function HelperSlider(){
+  const [showInfo,setShowInfo] = useState(true) 
   const steps = ['Low', '', 'High'] as const
   const max = steps.length - 1
   const [level, setLevel] = useState(0)
@@ -15,15 +16,19 @@ export default function HelperSlider(){
   const fPercent = (fam / fMax) * 100
     return (
         <>
-        <div className="w-[335px] px-4 max-w-md mx-auto border rounded-xl border-blue-400 bg-[#EFF6FF] pb-4">
-        <div className="flex justify-center mb-2 mt-4">
-          <span className="inline-flex items-center bg-white px-3 py-1 text-xs text-gray-600 rounded-full shadow">
+        {showInfo && (
+          <div className="flex justify-center mb-2">
+          <span className="inline-flex items-center bg-white px-3 py-1 text-xs text-gray-600 rounded-full shadow border">
             <InformationCircleIcon className="w-4 h-4 mr-1 text-blue-600" />
-            Choose your speech level
+            Move the slider to match your situation
           </span>
         </div>
-
-        <div className="relative h-2 mb-2">
+      )}
+         <div className="w-[335px] px-4 max-w-md mx-auto border rounded-xl border-blue-400 bg-[#EFF6FF] pb-4">
+        <div className='pt-2'>
+        <span >Intimacy Level</span>
+        </div>
+        <div className="relative h-2 mb-2 mt-6">
           <div className="absolute inset-0 bg-gray-200 rounded-full" />
           {steps.map((_, i) => (
             <div
@@ -50,13 +55,15 @@ export default function HelperSlider(){
             max={max}
             step={1}
             value={level}
-            onChange={(e) => setLevel(Number(e.target.value))}
+            onChange={(e) => {
+              setLevel(Number(e.target.value))  
+              setShowInfo(false)}}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             aria-label="Speech level"
           />
         </div>
-
-        <div className="flex justify-between text-[11px] text-gray-600 mb-0">
+          
+        <div className="flex justify-between text-[11px] text-gray-600 pb-3 mb-2 border-b border-gray-300">
           {steps.map((label, i) => (
             <span
               key={`lvl-label-${i}`}
@@ -65,17 +72,17 @@ export default function HelperSlider(){
               {label}
             </span>
           ))}
+          
         </div>
-
-        <div className="flex justify-center mb-2">
-          <span className="inline-flex items-center bg-white px-3 py-1 text-xs text-gray-600 rounded-full shadow">
-            <InformationCircleIcon className="w-4 h-4 mr-1 text-blue-600" />
-            Choose familiarity
-          </span>
+         <div className='pb-4'>
+        <span >Formality Level</span>
         </div>
+          
 
         <div className="relative h-2 mb-2">
+          
           <div className="absolute inset-0 bg-gray-200 rounded-full" />
+          
           {famSteps.map((_, i) => (
             <div
               key={`fam-tick-${i}`}
@@ -101,7 +108,9 @@ export default function HelperSlider(){
             max={fMax}
             step={1}
             value={fam}
-            onChange={(e) => setFam(Number(e.target.value))}
+            onChange={(e) => {
+              setFam(Number(e.target.value)) 
+              setShowInfo(false)}}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             aria-label="Familiarity level"
           />
