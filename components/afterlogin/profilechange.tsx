@@ -95,15 +95,20 @@ export default function ProfileChange() {
 
       <div
         onClick={handleCircleClick}
-        className="w-25 h-25 rounded-full bg-gray-100 border-2 border-blue-500 overflow-hidden flex items-center justify-center cursor-pointer mb-6"
+        className="rounded-full bg-gray-100 border-2 border-blue-500 overflow-hidden flex items-center justify-center cursor-pointer mb-6"
+        style={{
+          width: '152px',
+          height: '152px',
+          flexShrink: 0
+        }}
         aria-label="프로필 이미지 업로드"
       >
         {selectedFace !== null ? (
           <Image
             src={FACES[selectedFace]}
             alt="avatar"
-            width={100}
-            height={100}
+            width={152}
+            height={152}
             className="object-cover"
             priority
           />
@@ -111,8 +116,8 @@ export default function ProfileChange() {
           <Image
             src={profileImageUrl}
             alt="avatar"
-            width={100}
-            height={100}
+            width={152}
+            height={152}
             className="object-cover"
             priority
           />
@@ -120,6 +125,19 @@ export default function ProfileChange() {
           <span className="text-gray-400 text-center">Click to upload</span>
         )}
       </div>
+      
+      <p 
+        className="text-center font-pretendard"
+        style={{
+          color: '#374151',
+          fontSize: '13px',
+          fontWeight: 500,
+          lineHeight: '140%',
+          paddingTop: '56px'
+        }}
+      >
+        Pick your favorite one!
+      </p>
 
       {/* ✅ 파일 업로드 인풋 */}
       <input
@@ -131,7 +149,7 @@ export default function ProfileChange() {
       />
 
       {/* ✅ 로컬 아바타 그리드 */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-4 mt-4">
         {FACES.map((src, idx) => (
           <button
             key={src}

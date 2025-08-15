@@ -42,17 +42,15 @@ export default function MessageItem({
           )}
         </div>
       )}
-
       <div className={`max-w-[75%] ${isMine ? 'ml-auto' : ''}`}>
         <div className="text-sm font-medium text-black/80 mb-1">{isMine ? '' : myAI?.name ?? 'AI'}</div>
-
         <div
           className={`p-3 sm:p-4 rounded-2xl border shadow relative
             ${isMine
               ? isFeedbackOpen
                 ? 'border-red-500 bg-white'
-                : 'bg-blue-50 border-blue-200'
-              : 'bg-gray-100 border-gray-200'
+                : 'bg-blue-600, text-white border-blue-200'
+              : 'bg-gray-50 border-gray-200'
             }`}
         >
           {isMine && (

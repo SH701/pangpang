@@ -60,19 +60,11 @@ const goMain = async () => {
   setLoading(true);
 
   try {
+    // 헤더 구성 (토큰 있을 때만 Authorization 추가)
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
 
-    
-    // 쿠키에서 토큰 확인
-    const cookies = document.cookie.split(';').map(c => c.trim());
-    const tokenCookie = cookies.find(c => c.startsWith('accessToken='));
-    
-
-
-    const headers: Record<string, string> = { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${accessToken}`
-    };
-  
+    // ✅ res 변수에 담기
     const res = await fetch('/api/users/me/profile', {
       method: 'PUT',
       headers,
@@ -80,33 +72,15 @@ const goMain = async () => {
       body: JSON.stringify({ koreanLevel, profileImageUrl, interests }),
     });
 
-    // 응답 상태 로깅
-   
-    
     // HTML이 내려오는 403/500 대비
     const ct = res.headers.get('content-type') || '';
     const data = ct.includes('application/json') ? await res.json() : await res.text();
-   
 
     if (!res.ok) {
-      const errorMsg = typeof data === 'string' ? data : data?.message || '설정에 실패했습니다.';
-      console.error('[After] API 요청 실패:', errorMsg);
-      setError(errorMsg);
+      setError(typeof data === 'string' ? data : data?.message || '설정에 실패했습니다.');
       return;
     }
 
-    
-    
-    // 토큰이 localStorage에 있는지 한번 더 확인
-    const localToken = localStorage.getItem('accessToken');
-    if (!localToken) {
-      console.warn('[After] localStorage에 토큰이 없습니다. 토큰을 다시 설정합니다.');
-      if (accessToken) {
-        localStorage.setItem('accessToken', accessToken);
-        document.cookie = `accessToken=${encodeURIComponent(accessToken)}; path=/; max-age=86400; SameSite=Lax`;
-      }
-    }
-    
     router.replace('/main');
   } catch (e) {
     console.error(e);
@@ -119,91 +93,135 @@ const goMain = async () => {
 
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
-      <div className="flex-1 relative">
-        <Slider ref={sliderRef} {...settings}>
-          <div className="px-4 pt-8 mt-20">
-            <h1 className=" text-2xl font-semibold">
-              Please select your <br /> Korean level
-            </h1>
-            <p className=" text-gray-500 text-sm mt-2">
-              Tell us how comfortable you are <br /> chatting in Korean!
-            </p>
-
-            <div className="mt-10 space-y-8">
-              {(['BEGINNER','INTERMEDIATE','ADVANCED'] as Level[]).map((lvl) => (
-                <div
-                  key={lvl}
-                  onClick={() => setKoreanLevel(lvl)}
-                  className={`flex items-center px-2 py-4 rounded-xl space-x-4 cursor-pointer
-                    ${koreanLevel === lvl ? 'bg-blue-50 border border-blue-300' : 'bg-gray-50'}
-                  `}
-                >
-                 <div className="flex-shrink-0 w-8 h-8 rounded-full overflow-hidden">
-  <Image
-    src={levelImg[lvl]}
-    alt={`circle-${lvl}`}
-    width={32}
-    height={32}
-    className={koreanLevel === lvl ? '' : 'opacity-50'}
-  />
-</div>
-                  <div className="ml-2">
-                    <h2 className="font-semibold">{lvl.charAt(0) + lvl.slice(1).toLowerCase()}</h2>
-                    <p className="text-[13px] text-gray-600 mt-1">
-                      {lvl === 'BEGINNER' && "I know basic polite words, but I'm not sure when or how to use honorifics."}
-                      {lvl === 'INTERMEDIATE' && "I can use endings, but I'm not confident in formal or respectful language correctly."}
-                      {lvl === 'ADVANCED' && "I understand and use honorifics naturally depending on context or relationship."}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 2. Profile Picker */}
-         <ProfileChange/>
-
-          {/* 3. Interests */}
-          <div className="px-4 pt-8 mt-20 ">
-            <h1 className="text-2xl font-semibold">
-              Please select your <br /> interests
-            </h1>
-
-            <div className="mt-16 grid grid-cols-2 gap-3 ">
-              {(['💬 Daily','💼 Business','✈️ Travel','🎬 K-Drama','🎵 K-Pop','🙇‍♂️ Etiquette','🔥 Internet Slang','🥘 Food','🍜 Ordering','💄 Beauty','👁️‍🗨️ Gathering'] as string[]).map(opt => (
-                <button
-                key={opt}
-  onClick={() => {
-    const next = interests.includes(opt)
-      ? interests.filter(x => x !== opt)
-      : [...interests, opt];
-    setInterests(next);
-  }}
-  className={`flex justify-center items-center px-4 py-2 border rounded-full text-[15px] ${
-                    interests.includes(opt as Interest)
-                      ? 'bg-blue-50 border-blue-600 '
-                      : 'bg-white border-gray-300 '
-                  }`}
->
-  {opt}
-</button>
-              ))}
-            </div>
-          </div>
-        </Slider>
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* 헤더 */}
+      <div className="px-4 pt-4 pb-3 border-b border-gray-200 bg-white">
+        <div className="flex items-center justify-between">
+          <h1 className="text-gray-900 text-xl font-semibold font-pretendard">Profile Setup</h1>
+          <button
+            onClick={() => router.push('/main')}
+            className="text-gray-500 hover:text-gray-700 font-medium text-sm font-pretendard transition-colors duration-200"
+          >
+            Skip
+          </button>
+        </div>
       </div>
-      <footer className="p-4 bg-blue-600">
-        <div className="flex space-x-4">
+      
+      {/* 메인 콘텐츠 */}
+      <div className="flex-1 flex flex-col">
+        <div className="flex-1 relative h-full">
+          <Slider ref={sliderRef} {...settings} className="h-full">
+            {/* 1. Korean Level Selection */}
+            <div className="px-4 pt-4 h-full flex flex-col">
+              <div className="flex-1 flex flex-col items-start">
+                <h1 className="text-2xl font-semibold text-gray-900 mb-2 font-pretendard leading-normal mt-4" style={{fontSize: '24px', fontWeight: 600, color: '#111827'}}>
+                  Please select your <br /> Korean level
+                </h1>
+                <p className="text-gray-400 mb-8 font-pretendard leading-[140%]" style={{fontSize: '14px', fontWeight: 500, color: '#9CA3AF'}}>
+                  Tell us how comfortable you are <br /> chatting in Korean!
+                </p>
+
+                <div className="space-y-4">
+                  {(['BEGINNER','INTERMEDIATE','ADVANCED'] as Level[]).map((lvl) => (
+                    <div
+                      key={lvl}
+                      onClick={() => setKoreanLevel(lvl)}
+                      className={`flex items-center p-4 cursor-pointer transition-all duration-200 border`}
+                      style={{
+                        borderRadius: koreanLevel === lvl ? '12px' : '16px',
+                        border: koreanLevel === lvl ? '1px solid #316CEC' : '1px solid #E5E7EB',
+                        background: koreanLevel === lvl ? '#EFF6FF' : '#F9FAFB'
+                      }}
+                    >
+                     <div className="flex-shrink-0 w-12 h-12 rounded-full overflow-hidden mr-4">
+                      <Image
+                        src={levelImg[lvl]}
+                        alt={`circle-${lvl}`}
+                        width={48}
+                        height={48}
+                        className={koreanLevel === lvl ? '' : 'opacity-60'}
+                      />
+                    </div>
+                      <div className="flex-1">
+                        <h2 className="font-semibold text-lg text-gray-900 font-pretendard">
+                          {lvl.charAt(0) + lvl.slice(1).toLowerCase()}
+                        </h2>
+                        <p className="text-sm text-gray-600 mt-1 font-pretendard">
+                          {lvl === 'BEGINNER' && "I know basic polite words, but I'm not sure when or how to use honorifics."}
+                          {lvl === 'INTERMEDIATE' && "I can use endings, but I'm not confident in formal or respectful language correctly."}
+                          {lvl === 'ADVANCED' && "I understand and use honorifics naturally depending on context or relationship."}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Profile Picker */}
+            <div className="px-4 h-full flex flex-col">
+              <div className="flex-1 flex flex-col items-start">
+                <h1 className="text-2xl font-semibold text-gray-900 mb-2 font-pretendard leading-normal mt-4" style={{fontSize: '24px', fontWeight: 600, color: '#111827'}}>
+                  Choose your profile
+                </h1>
+                <p className="text-gray-400 mb-8 font-pretendard leading-[140%]" style={{fontSize: '14px', fontWeight: 500, color: '#9CA3AF'}}>
+                  Select an avatar that represents you!
+                </p>
+                <ProfileChange/>
+              </div>
+            </div>
+
+            {/* 3. Interests */}
+            <div className="px-4 pt-4 h-full flex flex-col">
+              <div className="flex-1 flex flex-col items-start">
+                <h1 className="text-2xl font-semibold text-gray-900 mb-2 font-pretendard leading-normal mt-4" style={{fontSize: '24px', fontWeight: 600, color: '#111827'}}>
+                  Please select your <br /> interests
+                </h1>
+                <p className="text-gray-400 mb-8 font-pretendard leading-[140%]" style={{fontSize: '14px', fontWeight: 500, color: '#9CA3AF'}}>
+                  Choose topics you`d like to chat about!
+                </p>
+
+                <div className="flex flex-wrap gap-3">
+                  {(['💬 Daily','💼 Business','✈️ Travel','🎬 K-Drama','🎵 K-Pop','🙇‍♂️ Etiquette','🔥 Internet Slang','🥘 Food','🍜 Ordering','💄 Beauty','👁️‍🗨️ Gathering'] as string[]).map(opt => (
+                    <button
+                    key={opt}
+                      onClick={() => {
+                        const next = interests.includes(opt)
+                          ? interests.filter(x => x !== opt)
+                          : [...interests, opt];
+                        setInterests(next);
+                      }}
+                      className={`flex justify-center items-center text-sm font-medium transition-all duration-200 border whitespace-nowrap`}
+                      style={{
+                        borderRadius: interests.includes(opt as Interest) ? '12px' : '16px',
+                        border: interests.includes(opt as Interest) ? '1px solid #316CEC' : '1px solid #E5E7EB',
+                        background: interests.includes(opt as Interest) ? '#EFF6FF' : '#F9FAFB',
+                        color: interests.includes(opt as Interest) ? '#1F2937' : '#6B7280',
+                        padding: '12px'
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Slider>
+        </div>
+      </div>
+      
+      {/* Footer */}
+      <div className="px-4 py-4 bg-white border-t border-gray-200">
+        <div className="max-w-md mx-auto">
           <button
             onClick={onNext}
-            className="flex-1 py-3 bg-blue-600 font-semibold text-white text-lg"
+            className="w-full py-3 bg-blue-600 font-medium text-white text-lg rounded-md hover:bg-gray-900 transition-colors duration-200"
           >
             {current < 2 ? 'Next' : 'Finish'}
           </button>
+          {error && <p className="mt-3 text-center text-red-500 text-sm">{error}</p>}
         </div>
-        {error && <p className="mt-2 text-center text-red-500">{error}</p>}
-      </footer>
+      </div>
     </div>
   );
 }

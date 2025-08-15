@@ -312,16 +312,20 @@ const handleHonorific = async (messageId: string, sourceContent: string, aiRole?
   return (
     <div className="min-h-screen bg-white flex flex-col max-w-[375px]">
       {/* Header */}
-      <div className="bg-white border-b border-blue-200 px-4 py-3 sticky top-0 z-10">
+      <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
         <div className="flex items-center justify-between w-full">
-          <Link href="/main" aria-label="Back">
-            <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <Link href="/main" aria-label="Back" className="text-gray-600 hover:text-gray-900 transition-colors">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </Link>
-          <span className="text-lg font-semibold text-black">{myAI?.name ?? '...'}</span>
-          <button onClick={handleEnd} aria-label="End conversation" className='cursor-pointer'>
-            <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <span className="text-lg font-semibold text-gray-900 font-pretendard">{myAI?.name ?? '...'}</span>
+          <button 
+            onClick={handleEnd} 
+            aria-label="End conversation"
+            className="text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
             </svg>
           </button>
@@ -354,16 +358,56 @@ const handleHonorific = async (messageId: string, sourceContent: string, aiRole?
     </div>
 
       {/* Input */}
-      <div className="bg-blue-50 px-4 py-4 border-t border-gray-200 w-[375px]">
-        <div className="flex items-center bg-white rounded-full px-3 flex-1">
-          <input
-            className="flex-1 outline-none px-2 py-2 text-sm"
-            placeholder="Enter your message"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-          />
-          <button onClick={sendMessage} className="text-blue-500 font-semibold">Send</button>
+       <div className="bg-white px-4 py-4 border-t border-gray-200">
+        <div className="flex items-center justify-center space-x-4">
+          <button
+            className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center shadow-sm border border-gray-200 hover:bg-gray-100 transition-colors"
+            onClick={fetchMessages}
+            aria-label="Refresh messages"
+            disabled={loading}
+          >
+            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+
+          <div className="flex items-center bg-white rounded-full shadow-sm px-3 flex-1 border border-gray-200">
+            <input
+              className="flex-1 outline-none px-2 py-2 text-sm font-pretendard placeholder-gray-400"
+              placeholder="메시지를 입력하세요"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  sendMessage()
+                }
+              }}
+              disabled={loading}
+            />
+            <button
+              onClick={sendMessage}
+              disabled={loading || !message.trim() || !canCall}
+              className="text-blue-600 font-semibold disabled:opacity-40 text-sm font-pretendard hover:text-blue-700 transition-colors"
+            >
+              {loading ? '전송중...' : '전송'}
+            </button>
+          </div>
+
+          <button
+            className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center shadow-md disabled:opacity-50 hover:bg-blue-700 transition-colors"
+            onClick={() => console.log('record')}
+            aria-label="Record"
+            disabled={loading}
+          >
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="flex justify-center mt-2">
+          <div className="w-32 h-1 bg-gray-300 rounded-full" />
         </div>
       </div>
     </div>
