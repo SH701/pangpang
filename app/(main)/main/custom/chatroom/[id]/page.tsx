@@ -89,7 +89,7 @@ export default function ChatroomPage() {
       const data = await res.json()
       const list = (data?.content ?? data ?? []) as any[]
       const mapped: ChatMsg[] = list.map((m) => ({
-        messageId: String(m.messageId ?? `${m.createdAt}-${m.role ?? m.type}`),
+        messageId: String(m.messageId),
         conversationId: m.conversationId,
         role: (m.role ?? m.type) as 'USER' | 'AI',
         content: m.content ?? '',

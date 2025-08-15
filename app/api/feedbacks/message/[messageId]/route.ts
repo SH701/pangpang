@@ -1,12 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest } from "next/server";
 import { proxyJSON } from "@/app/api/_lib/proxy";
 
 export async function POST(
   req: NextRequest,
-  context: any // 👈 타입 강제 지정
+  { params }: { params: { messageId: string } } 
 ) {
-  const { messageId } = context.params;
+  const { messageId } = params;
 
   return proxyJSON(
     req,
