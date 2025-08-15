@@ -1,12 +1,16 @@
-import { NextRequest } from "next/server" 
-import { proxyJSON } from "@/app/api/_lib/proxy"  
-export async function GET(req: NextRequest) {   
-    const { searchParams } = new URL(req.url)   
-    const sourceContent = searchParams.get("sourceContent")   
-    const aiRole = searchParams.get("aiRole")    
-    return proxyJSON(req,     
-        `/api/language/honorific-variations?sourceContent=${encodeURIComponent(sourceContent ?? "")}${
-        aiRole ? `&aiRole=${encodeURIComponent(aiRole)}` : ""     }`,    
-         { method: "GET", forwardAuth: true }   
-        ) 
-    }
+// app/api/feedbacks/message/[messageId]/route.ts
+import { NextRequest } from "next/server";
+import { proxyJSON } from "@/app/api/_lib/proxy";
+
+export async function POST(
+  req: NextRequest,
+  context: { params: { messageId: string } }
+) {
+  const { messageId } = context.params;
+
+  return proxyJSON(
+    req,
+    `/api/feedbacks/message/${messageId}`,
+    { method: "POST", forwardAuth: true }
+  );
+}
