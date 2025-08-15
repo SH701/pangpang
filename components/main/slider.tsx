@@ -1,7 +1,5 @@
 'use client'
 
-// NOTE: 코드 내 주석으로만 설명합니다. (UI는 3×3 조합: 말투 강도 3 × 친숙도 3)
-
 import { InformationCircleIcon } from '@heroicons/react/24/solid'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
@@ -121,20 +119,22 @@ export default function Slider() {
       <span className="font-semibold text-lg py-2 px-4 mt-3">Today`s honorific expression</span>
 
       {/* 오늘의 문장 */}
-      <div className="w-[296px] bg-gray-100 border border-gray-200 text-center py-3 my-2 mb-6 rounded-xl">
+      <div className="w-[296px] bg-gray-100 border border-gray-200 text-center py-3 my-2 mb-4 rounded-xl">
         <div className="mt-1 text-base">{currentSentence}</div>
       </div>
-
-      {/* 슬라이더 박스 */}
-      <div className="w-[335px] px-4 max-w-md mx-auto border rounded-xl border-blue-400 bg-[#EFF6FF] pb-4">
-        <div className="flex justify-center mb-2 mt-4">
-          <span className="inline-flex items-center bg-white px-3 py-1 text-xs text-gray-600 rounded-full shadow">
+      <div className="flex justify-center mb-4">
+          <span className="inline-flex items-center bg-white px-3 py-1 text-xs text-gray-600 rounded-full shadow border">
             <InformationCircleIcon className="w-4 h-4 mr-1 text-blue-600" />
-            Choose your speech level
+            Move the slider to match your situation
           </span>
         </div>
 
-        <div className="relative h-2 mb-2">
+      {/* 슬라이더 박스 */}
+      <div className="w-[335px] px-4 max-w-md mx-auto border rounded-xl border-blue-400 bg-[#EFF6FF] pb-4">
+        <div className='pt-2'>
+        <span >Intimacy Level</span>
+        </div>
+        <div className="relative h-2 mb-2 mt-6">
           <div className="absolute inset-0 bg-gray-200 rounded-full" />
           {steps.map((_, i) => (
             <div
@@ -166,8 +166,8 @@ export default function Slider() {
             aria-label="Speech level"
           />
         </div>
-
-        <div className="flex justify-between text-[11px] text-gray-600 mb-0">
+          
+        <div className="flex justify-between text-[11px] text-gray-600 pb-3 mb-2 border-b border-gray-300">
           {steps.map((label, i) => (
             <span
               key={`lvl-label-${i}`}
@@ -176,17 +176,17 @@ export default function Slider() {
               {label}
             </span>
           ))}
+          
         </div>
-
-        <div className="flex justify-center mb-2">
-          <span className="inline-flex items-center bg-white px-3 py-1 text-xs text-gray-600 rounded-full shadow">
-            <InformationCircleIcon className="w-4 h-4 mr-1 text-blue-600" />
-            Choose familiarity
-          </span>
+         <div className='pb-4'>
+        <span >Formality Levelness</span>
         </div>
+          
 
         <div className="relative h-2 mb-2">
+          
           <div className="absolute inset-0 bg-gray-200 rounded-full" />
+          
           {famSteps.map((_, i) => (
             <div
               key={`fam-tick-${i}`}

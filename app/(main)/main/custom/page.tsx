@@ -134,7 +134,7 @@ export default function PersonaAndRoom() {
       <div className="flex flex-col items-center mb-8">
         <div className="relative">
           <button
-            className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200"
+            className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 cursor-pointer"
             onClick={() => setAvatarModalOpen(true)}
           >
             {profileImageUrl ? (

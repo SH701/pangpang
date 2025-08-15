@@ -69,7 +69,7 @@ export default function Main() {
               </p>
               <Link href="/main/custom">
                 <button className="
-                  mt-2 h-10 px-5
+                  mt-2 h-10 px-5 cursor-pointer
                   flex items-center justify-center gap-2 
                   bg-white text-blue-500 text-sm font-semibold 
                   rounded-lg shadow-md hover:bg-gray-50 transition-colors duration-200
