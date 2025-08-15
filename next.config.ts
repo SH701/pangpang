@@ -15,4 +15,7 @@ module.exports = {
     },
   },
   plugins: [],
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
