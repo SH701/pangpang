@@ -1,163 +1,103 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from "react";
-import HelperSlider from "@/components/etc/helperslider";
-import { ChevronLeftIcon } from "@heroicons/react/24/solid";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+import Face3 from "@/components/character/face3";
+import ChatInputWrapper from "@/components/chat/chatinputwrapper";
+import Logo from "@/components/etc/logo";
+import RoleplaySlider from "@/components/main/Roleplay";
+import Slider from "@/components/main/slider";
 import { useAuth } from "@/lib/UserContext";
+import { ChevronRightIcon } from "@heroicons/react/24/solid";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
-export default function HonorificHelper() {
-  const { accessToken } = useAuth();
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [source, setSource] = useState("");
-  const [result, setResult] = useState("");
-  const [explain, setExplain] = useState("");
-  const [allResults, setAllResults] = useState<any>(null);
-
-  const [formality, setFormality] = useState<
-    "lowFormality" | "mediumFormality" | "highFormality"
-  >("mediumFormality");
-
-  const [intimacy, setIntimacy] = useState<
-    "lowIntimacyExpressions" | "mediumIntimacyExpressions" | "highIntimacyExpressions"
-  >("mediumIntimacyExpressions");
-
-  const handleTranslate = async () => {
-    try {
-      setLoading(true);
-      setExplain("");
-      const res = await fetch(
-        `/api/language/honorific-variations?sourceContent=${encodeURIComponent(source)}`,
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
-      );
-      if (!res.ok) throw new Error("Request failed");
-      const data = await res.json();
-      setAllResults(data);
-      setExplain(data.explain);
-
-      const selected = data[intimacy]?.[formality] ?? "변환 결과 없음";
-      setResult(selected);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+type Profile = {
+  id: number;
+  email: string;
+  nickname: string;
+  gender: string;
+  birthDate: string;
+  role: string;
+  provider: string;
+  koreanLevel: string;
+  profileImageUrl: string;
+  interests: string[];
+};
+export default function Main() {
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [error, setError]     = useState<string | null>(null);
+  const { accessToken }       = useAuth();
+  useEffect(() => {
+      if (!accessToken) {
+        setError('로그인이 필요합니다');
+        return;
+      }
+      fetch('/api/users/me', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+        .then(async (res) => {
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message || `Error ${res.status}`);
+          setProfile(data);
+        })
+        .catch((err) => {
+          console.error(err);
+          setError(err.message);
+        })
+    }, [accessToken]);
+  
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col max-w-[375px] mx-auto">
-      {/* 헤더 */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white">
-        <button
-          onClick={() => router.push("/main")}
-          className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
-        >
-          <ChevronLeftIcon className="w-6 h-6 text-gray-600" />
-        </button>
-        <h1 className="text-xl font-semibold font-pretendard text-gray-800">
-          Honorific helper
-        </h1>
-        <div className="w-10" />
-      </div>
+    <div className="min-h-screen bg-blue-50 flex flex-col max-w-[375px] mx-auto">
+      {/* 메인 콘텐츠 */}
+      <div className="flex-1 flex flex-col">
+        
+        {/* 환영 섹션 */}
+        <div className="w-full px-4 py-8 text-white bg-[#3B6BF0]">
+          <Logo/>
+          <div className="flex justify-between items-start pt-4">
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-16">
+                <div className="flex flex-col gap-4">
+              <h1 className="font-bold text-white text-2xl leading-[130%]">
+                Hi, {profile?.nickname || 'Noonchi'}!
+              </h1>
+              <p className="text-white text-base leading-[130%]">
+                Start a conversation <br />
+                with your partner
+              </p>   
+              </div>            
+              <Face3 className="w-[120px] h-[100px]"/>
+              </div>
+              <Link href="/main/custom">
+                <button className="
+                  mt-2 h-10 px-5 w-[334px]
+                  flex items-center justify-center gap-2 
+                  bg-white text-blue-500 text-sm font-semibold 
+                  rounded-lg shadow-md hover:bg-gray-50 transition-colors duration-200
+                ">
+                  <span>Start Conversation</span>
+                  <ChevronRightIcon className="w-4 h-4" />
+                </button>
+              </Link>
+            </div>
 
-      {/* 메인 컨텐츠 */}
-      <div className="flex-1 px-6 pt-6">
-        <div className="w-[335px] min-h-[495px] flex-shrink-0 rounded-2xl border border-gray-200 bg-white mx-auto mb-6 px-6">
-          {/* 입력 영역 */}
-          <div className="mb-6 pt-6">
-            <textarea
-              className="text-base placeholder:text-gray-400 resize-none w-full h-32 border-none focus:ring-0"
-              placeholder="Type in English..."
-              value={source}
-              onChange={(e) => setSource(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleTranslate();
-                }
-              }}
-            />
+            {/* 오른쪽 캐릭터 */}
+           
           </div>
-
-          {/* 구분선 */}
-          <div className="border-t border-gray-200 mb-6"></div>
-
-          {/* 출력 영역 */}
-          <div className="mb-6">
-            <textarea
-              className="text-base placeholder:text-gray-400 resize-none w-full h-32 border-none focus:ring-0"
-              placeholder="Korean translation..."
-              value={result}
-              readOnly
-            />
-          </div>
-
-          {/* Helper Slider */}
-          <HelperSlider
-            onChange={(i, f) => {
-              setIntimacy(i);
-              setFormality(f);
-              if (allResults) {
-                const selected = allResults[i]?.[f] ?? "결과 없음";
-                setResult(selected);
-              }
-            }}
-          />
         </div>
 
-        {/* Noonchi Coach */}
-        <div className="w-[335px] flex-shrink-0 rounded-2xl border border-gray-200 bg-white mx-auto">
-          <div className="flex items-center gap-3 p-6">
-            <Image
-              src="/circle/circle4.png"
-              alt="Noonchi Coach"
-              width={20}
-              height={20}
-              className="rounded-full"
-            />
-            <h3 className="text-[#111827] font-pretendard text-base font-semibold leading-[130%]">
-              Noonchi Coach
-            </h3>
-          </div>
-          <div className="border-t border-gray-200 mx-6 mb-6"></div>
-          <div className="space-y-3 px-6 pb-6">
-            {loading ? (
-              <div className="flex items-center gap-2 text-gray-500">
-                <svg
-                  className="animate-spin h-5 w-5 text-blue-600"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                  ></path>
-                </svg>
-                <span>Loading...</span>
-              </div>
-            ) : explain ? (
-              <p className="text-sm text-gray-700">{explain}</p>
-            ) : (
-              <p className="text-sm text-gray-400">
-                The conversion has not been run yet.
-              </p>
-            )}
-          </div>
+        {/* 슬라이더 섹션 */}
+        <div className="px-4 py-2">
+          <Slider />
+        </div>
+        
+        {/* 채팅 입력 섹션 */}
+        <div className=" px-4 pb-20">
+          <ChatInputWrapper />
         </div>
       </div>
     </div>
