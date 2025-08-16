@@ -14,6 +14,7 @@ import {
 } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
 type Profile = {
@@ -36,6 +37,7 @@ const FACES = [
 ];
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState<string | null>(null);
@@ -68,6 +70,22 @@ export default function ProfilePage() {
       })
       .finally(() => setLoading(false));
   }, [accessToken]);
+
+  const handleLogout = async () => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      });
+    } catch (err) {
+      console.error('Logout failed:', err);
+    }
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    router.push('/login'); // ✅ 로그아웃 후 로그인 페이지로 이동
+  };
 
   if (loading)       return <p className="text-center mt-10">Loading…</p>;
   if (error)         return <p className="text-red-500 text-center mt-10">Error: {error}</p>;
@@ -142,7 +160,7 @@ export default function ProfilePage() {
       </div>
         <div className="h-[140px]" />
        <button
-        onClick={logout}
+        onClick={handleLogout}
         className="fixed left-1/2 -translate-x-1/2 bottom-[100px] z-50 text-sm text-gray-600 underline"
       >
         Log out

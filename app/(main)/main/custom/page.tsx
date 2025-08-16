@@ -18,13 +18,13 @@ const situationOptions = {
   ],
   GF_PARENTS: [
     { value: 'GF_PARENTS1', label: 'Meeting for the first time' },
-    { value: 'GF_PARENTS2', label: 'Asking for permission' },
-    { value: 'GF_PARENTS3', label: 'Discussing future plans' },
+    { value: 'GF_PARENTS2', label: 'Conversation over dinner' },
+    { value: 'GF_PARENTS3', label: 'Apologizing for breaking a picture frame' },
   ],
   CLERK: [
-    { value: 'CLERK1', label: 'Making a reservation' },
-    { value: 'CLERK2', label: 'Asking for information' },
-    { value: 'CLERK3', label: 'Filing a complaint' },
+    { value: 'CLERK1', label: 'Negotiate prices' },
+    { value: 'CLERK2', label: 'Ask about the origin of the product' },
+    { value: 'CLERK3', label: 'Complaining about incorrect food orders' },
   ],
 } as const
 

@@ -76,7 +76,6 @@ export default function Result() {
         <div className="space-y-3">
           <Score label="Politeness" value={feedback.politenessScore} />
           <Score label="Naturalness" value={feedback.naturalnessScore} />
-          <Score label="Pronunciation" value={feedback.pronunciationScore} />
         </div>
       </div>
 
@@ -113,13 +112,14 @@ export default function Result() {
           />
         ) : (
           <>
-            <Section title="Common Mistake" desc={feedback.improvementPoints} />
+            <Section title="Conversation Summary" desc={feedback.summary} />
             <Section title="What you did well" desc={feedback.goodPoints} />
             <Section
               title="What you can improve"
-              desc={feedback.improvementExamples}
+              desc={feedback.improvementPoints}
               type="highlight"
             />
+            <Section title="Try" desc={feedback.improvementExamples} type='highlight'/>
           </>
         )}
       </div>
