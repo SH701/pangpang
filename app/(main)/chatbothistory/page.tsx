@@ -2,7 +2,6 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import SearchBar from '@/components/bothistory/SearchBar'
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/UserContext';
@@ -10,15 +9,40 @@ import PersonaSlider, { PersonaSlide } from '@/components/bothistory/PersonaSlid
 import PersonaDetailModal from '@/components/persona/PersonaDetailModal';
 import type { Conversation } from '@/lib/types';
 import Link from 'next/link';
-import { ChevronRightIcon } from '@heroicons/react/24/solid';
+import { ChevronRightIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import { AnimatePresence, motion } from 'framer-motion';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
+import FeedbackSection from '@/components/bothistory/Feedbacksections';
 
-const normalizeSrc = (src?: string) =>
-  !src ? '' : src.startsWith('http') || src.startsWith('/') ? src : `/${src}`;
+const situationOptions = {
+  BOSS: [
+    { value: 'BOSS1', label: 'Apologizing for a mistake at work.' },
+    { value: 'BOSS2', label: 'Requesting half-day or annual leave' },
+    { value: 'BOSS3', label: 'Requesting feedback on work' },
+  ],
+  GF_PARENTS: [
+    { value: 'GF_PARENTS1', label: 'Meeting for the first time' },
+    { value: 'GF_PARENTS2', label: 'Asking for permission' },
+    { value: 'GF_PARENTS3', label: 'Discussing future plans' },
+  ],
+  CLERK: [
+    { value: 'CLERK1', label: 'Making a reservation' },
+    { value: 'CLERK2', label: 'Asking for information' },
+    { value: 'CLERK3', label: 'Filing a complaint' },
+  ],
+} as const;
+
+const getSituationLabel = (value?: string) => {
+  if (!value) return '';
+  for (const key in situationOptions) {
+    const found = situationOptions[key as keyof typeof situationOptions].find(
+      (opt) => opt.value === value
+    );
+    if (found) return found.label;
+  }
+  return value;
+};
 
 const getName = (name?: string) => (name && name.trim() ? name : 'Unknown');
-const getInitial = (name?: string) => getName(name).charAt(0);
 const getImg = (url?: string) => (typeof url === 'string' ? url : '');
 
 export default function ChatBothistoryPage() {
@@ -27,19 +51,23 @@ export default function ChatBothistoryPage() {
   const [keyword, setKeyword] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [history, setHistory] = useState<Conversation[]>([]);
-  const [filtered, setFiltered] = useState<Conversation[]>([]); 
+  const [filtered, setFiltered] = useState<Conversation[]>([]);
   const [sliderItems, setSliderItems] = useState<PersonaSlide[]>([{ isAdd: true }]);
   const [openDetail, setOpenDetail] = useState(false);
   const [selectedPersonaId, setSelectedPersonaId] = useState<number | string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<'done' | 'in-progress'>('done');
+  const [expanded, setExpanded] = useState<Record<string | number, boolean>>({}); // ✅ 각 채팅별 열림 상태
+
   const filterMap: Record<'done' | 'in-progress', string> = {
     done: 'ENDED',
     'in-progress': 'ACTIVE',
   };
+
   const normalizeConversations = (arr: any): Conversation[] =>
     (Array.isArray(arr) ? arr : []).filter(Boolean).filter((c) => !!c?.aiPersona);
+
   const loadPersonasFromConversations = useCallback(async () => {
     if (!accessToken) return;
     const headers = { Authorization: `Bearer ${accessToken}` };
@@ -93,7 +121,6 @@ export default function ChatBothistoryPage() {
     loadPersonasFromConversations();
   }, [loadPersonasFromConversations]);
 
-
   useEffect(() => {
     if (!accessToken) return;
     setLoading(true);
@@ -114,7 +141,6 @@ export default function ChatBothistoryPage() {
     setFiltered(history);
   }, [history]);
 
-
   useEffect(() => {
     const q = keyword.trim().toLowerCase();
     if (!q) {
@@ -123,7 +149,6 @@ export default function ChatBothistoryPage() {
     }
     setFiltered(history.filter((c) => (c.aiPersona?.name ?? '').toLowerCase().includes(q)));
   }, [keyword, history]);
-
 
   const handlePersonaDeleted = (deletedId: number | string) => {
     setSliderItems((prev) => {
@@ -138,14 +163,7 @@ export default function ChatBothistoryPage() {
     );
     setOpenDetail(false);
   };
-  const handleSearch = () => {
-    const q = keyword.trim().toLowerCase();
-    if (!q) {
-      setFiltered(history);
-      return;
-    }
-    setFiltered(history.filter((c) => (c.aiPersona?.name ?? '').toLowerCase().includes(q)));
-  };
+
   const toggleSearch = () =>
     setIsSearchOpen((prev) => {
       const next = !prev;
@@ -156,31 +174,35 @@ export default function ChatBothistoryPage() {
       return next;
     });
 
+  const toggleExpand = (id: number | string) => {
+    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
   return (
     <div className="bg-gray-100 w-full flex flex-col pt-10">
-       
-        <div className="flex justify-between items-center space-x-2 relative z-10 px-4">
-           <h1 className="text-xl font-bold z-10">
-        Chatbot History
-      </h1>
-          <SearchBar
-          value={keyword}
-          onChange={setKeyword}
-          onSubmit={handleSearch}
-          isOpen={isSearchOpen}
-          onToggle={() =>
-            setIsSearchOpen((prev) => {
-              const next = !prev
-              if (!next) {
-                setKeyword('')
-                handleSearch() 
-              }
-              return next
-            })
-          }
-          placeholder="Search..."
-        />
-        </div>
+      <div className="flex justify-between items-center space-x-2 relative z-10 px-4">
+        <h1 className="text-xl font-bold z-10">Chatbot History</h1>
+        <AnimatePresence>
+          {isSearchOpen && (
+            <motion.input
+              key="search-input"
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 120, opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && setFiltered(history.filter((c) => (c.aiPersona?.name ?? '').toLowerCase().includes(keyword.trim().toLowerCase())))}
+              className="border p-1 rounded overflow-hidden placeholder:pl-1 my-1"
+              placeholder="Search..."
+              style={{ minWidth: 0 }}
+            />
+          )}
+        </AnimatePresence>
+        <button onClick={toggleSearch} className="cursor-pointer my-2">
+          <MagnifyingGlassIcon className="w-6 h-6 text-gray-700" />
+        </button>
+      </div>
 
       <div className="mb-4 p-6">
         <PersonaSlider
@@ -195,7 +217,6 @@ export default function ChatBothistoryPage() {
           }}
         />
       </div>
-
 
       <PersonaDetailModal
         open={openDetail}
@@ -236,7 +257,6 @@ export default function ChatBothistoryPage() {
           {loading && <p>Loading...</p>}
           {error && <p className="text-red-500">{error}</p>}
 
-          {/* 결과 없음 처리 */}
           {!loading && history.length === 0 && (
             <div className="flex flex-col items-center justify-center mt-20">
               <Image src="/circle/circle4.png" alt="loading" width={81} height={81} />
@@ -250,7 +270,7 @@ export default function ChatBothistoryPage() {
 
           {!loading && history.length > 0 && filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center mt-10">
-              <p className="text-gray-400">검색 결과가 없습니다.</p>
+              <p className="text-gray-400">No search results.</p>
             </div>
           )}
 
@@ -258,31 +278,67 @@ export default function ChatBothistoryPage() {
             const name = getName(chat?.aiPersona?.name);
             const desc = chat?.aiPersona?.description ?? '';
             const img = getImg(chat?.aiPersona?.profileImageUrl);
+            const situationLabel = getSituationLabel((chat as any)?.situation);
+            const isOpen = expanded[chat.conversationId];
+
             return (
-              <div
-                key={chat?.conversationId}
-                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <div className="relative">
-                  {img ? (
-                    <Image
-                      src={normalizeSrc(img)}
-                      width={48}
-                      height={48}
-                      alt={name}
-                      className="w-12 h-12 rounded-full bg-gray-200 object-cover"
-                      unoptimized
-                    />
-                  ) : (
-                    <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center shadow-sm">
-                      <span className="text-gray-600 font-semibold text-sm">{getInitial(name)}</span>
+              <div key={chat.conversationId} className="border-b">
+                <div
+                  className="flex items-center justify-between p-3 hover:bg-gray-50 transition-colors cursor-pointer"
+                  onClick={() => toggleExpand(chat.conversationId)}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="relative">
+                      {img ? (
+                        <Image
+                          src={img}
+                          width={48}
+                          height={48}
+                          alt={name}
+                          className="w-12 h-12 rounded-full bg-gray-200 object-cover"
+                          unoptimized
+                        />
+                      ) : (
+                        <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center shadow-sm">
+                          <span className="text-gray-600 font-semibold text-sm">
+                            {name?.[0] ?? '?'}
+                          </span>
+                        </div>
+                      )}
                     </div>
-                  )}
+
+                    <div className="flex flex-col min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-black text-base truncate">{name}</h3>
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                            chat.status === 'ACTIVE'
+                              ? 'bg-blue-100 text-blue-600'
+                              : 'bg-green-100 text-green-500'
+                          }`}
+                        >
+                          {chat.status === 'ACTIVE' ? 'In progress' : 'Done'}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 truncate">
+                        {situationLabel || desc}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1 text-sm text-gray-500">
+                    <span>
+                      {new Date(chat.createdAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                      })}
+                    </span>
+                    {chat.status === 'ENDED' && <span>{isOpen ? '▲' : '▼'}</span>}
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-black text-base">{name}</h3>
-                  <p className="text-sm text-black truncate">{desc}</p>
-                </div>
+                {isOpen  && chat.status === 'ENDED'&&(
+                  <FeedbackSection id={chat.conversationId}/>
+                )}
               </div>
             );
           })}

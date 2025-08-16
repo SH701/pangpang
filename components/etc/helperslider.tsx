@@ -1,132 +1,160 @@
-"use client"
+"use client";
 
 import { InformationCircleIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
 
-export default function HelperSlider(){
-  const [showInfo,setShowInfo] = useState(true) 
-  const steps = ['Low', '', 'High'] as const
+type Props = {
+  onChange: (intimacy: "lowIntimacyExpressions" | "mediumIntimacyExpressions" | "highIntimacyExpressions",
+             formality: "lowFormality" | "mediumFormality" | "highFormality") => void;
+};
+
+export default function HelperSlider({ onChange }: Props) {
+  const [showInfo, setShowInfo] = useState(true);
+
+
+  const steps = ["Low", "Medium", "High"] as const;
+  const [level, setLevel] = useState(1); 
   const max = steps.length - 1
-  const [level, setLevel] = useState(0)
   const percent = (level / max) * 100
 
-  const famSteps = ['Low', '', 'High'] as const
+
+  const famSteps = ["Low", "Medium", "High"] as const;
+  const [fam, setFam] = useState(1); 
   const fMax = famSteps.length - 1
-  const [fam, setFam] = useState(0) 
   const fPercent = (fam / fMax) * 100
-    return (
-        <>
-        {showInfo && (
-          <div className="flex justify-center mb-2">
-          <span className="inline-flex items-center bg-white px-3 py-1 text-xs text-gray-600 rounded-full shadow border">
-            <InformationCircleIcon className="w-4 h-4 mr-1 text-blue-600" />
-            Move the slider to match your situation
-          </span>
-        </div>
-      )}
-         <div className="w-[335px] px-4 max-w-md mx-auto border rounded-xl border-blue-400 bg-[#EFF6FF] pb-4">
-        <div className='pt-2'>
-        <span >Intimacy Level</span>
-        </div>
-        <div className="relative h-2 mb-2 mt-6">
-          <div className="absolute inset-0 bg-gray-200 rounded-full" />
-          {steps.map((_, i) => (
-            <div
-              key={`lvl-tick-${i}`}
-              className={`absolute top-1/2 z-10 w-3 h-3 rounded-full border-2 transform -translate-x-1/2 -translate-y-1/2 transition-colors ${
-                i <= level ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-300'
-              }`}
-              style={{ left: `${(i / max) * 100}%` }}
-            />
-          ))}
-          <div
-            className="absolute inset-y-0 left-0 bg-blue-600 rounded-full transition-all duration-300 ease-out"
-            style={{ width: `${percent}%` }}
-          />
-          <div
-            className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-out"
-            style={{ left: `${percent}%` }}
-          >
-            <div className="w-6 h-6 bg-white border-2 border-blue-600 rounded-full shadow -translate-x-1/2" />
-          </div>
-          <input
-            type="range"
-            min={0}
-            max={max}
-            step={1}
-            value={level}
-            onChange={(e) => {
-              setLevel(Number(e.target.value))  
-              setShowInfo(false)}}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            aria-label="Speech level"
-          />
-        </div>
-          
-        <div className="flex justify-between text-[11px] text-gray-600 pb-3 mb-2 border-b border-gray-300">
-          {steps.map((label, i) => (
-            <span
-              key={`lvl-label-${i}`}
-              className={`flex-1 ${i === 0 ? 'text-left' : i === steps.length - 1 ? 'text-right' : 'text-center'}`}
-            >
-              {label}
-            </span>
-          ))}
-          
-        </div>
-         <div className='pb-4'>
-        <span >Formality Level</span>
-        </div>
-          
+  const handleUpdate = (newLevel: number, newFam: number) => {
+    const intimacyMap = ["lowIntimacyExpressions", "mediumIntimacyExpressions", "highIntimacyExpressions"] as const;
+    const formalityMap = ["lowFormality", "mediumFormality", "highFormality"] as const;
 
-        <div className="relative h-2 mb-2">
-          
-          <div className="absolute inset-0 bg-gray-200 rounded-full" />
-          
-          {famSteps.map((_, i) => (
-            <div
-              key={`fam-tick-${i}`}
-              className={`absolute top-1/2 z-10 w-3 h-3 rounded-full border-2 transform -translate-x-1/2 -translate-y-1/2 transition-colors ${
-                i <= fam ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-300'
-              }`}
-              style={{ left: `${(i / fMax) * 100}%` }}
-            />
-          ))}
-          <div
-            className="absolute inset-y-0 left-0 bg-blue-600 rounded-full transition-all duration-300 ease-out"
-            style={{ width: `${fPercent}%` }}
-          />
-          <div
-            className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-out"
-            style={{ left: `${fPercent}%` }}
-          >
-            <div className="w-6 h-6 bg-white border-2 border-blue-600 rounded-full shadow -translate-x-1/2" />
-          </div>
-          <input
-            type="range"
-            min={0}
-            max={fMax}
-            step={1}
-            value={fam}
-            onChange={(e) => {
-              setFam(Number(e.target.value)) 
-              setShowInfo(false)}}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            aria-label="Familiarity level"
-          />
-        </div>
+    onChange(intimacyMap[newLevel], formalityMap[newFam]);
+  };
 
-        <div className="flex justify-between text-[11px] text-gray-600">
-          {famSteps.map((label, i) => (
-            <span
-              key={`fam-label-${i}`}
-              className={`flex-1 ${i === 0 ? 'text-left' : i === famSteps.length - 1 ? 'text-right' : 'text-center'}`}
-            >
-              {label}
-            </span>
-          ))}
-        </div>
+  return (
+    <>
+      {showInfo && (
+  <div className="flex justify-center mb-2">
+    <span className="inline-flex items-center bg-white px-3 py-1 text-xs text-gray-600 rounded-full shadow border">
+      <InformationCircleIcon className="w-4 h-4 mr-1 text-blue-600" />
+      Move the slider to match your situation
+    </span>
+  </div>
+)}
+
+<div className="w-[335px] flex flex-col justify-center items-center rounded-xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] mx-auto bg-white mt-5">
+
+  {/* Intimacy Level */}
+  <div className="w-[335px] px-4 max-w-md mx-auto border rounded-xl border-blue-400 bg-[#EFF6FF] pb-4 mt-3">
+    <div className="pt-2">
+      <span>Intimacy Level</span>
+    </div>
+    <div className="relative h-2 mb-2 mt-6">
+      <div className="absolute inset-0 bg-gray-200 rounded-full" />
+      {steps.map((_, i) => (
+        <div
+          key={`lvl-tick-${i}`}
+          className={`absolute top-1/2 z-10 w-3 h-3 rounded-full border-2 transform -translate-x-1/2 -translate-y-1/2 transition-colors ${
+            i <= level ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-300'
+          }`}
+          style={{ left: `${(i / max) * 100}%` }}
+        />
+      ))}
+      <div
+        className="absolute inset-y-0 left-0 bg-blue-600 rounded-full transition-all duration-300 ease-out"
+        style={{ width: `${percent}%` }}
+      />
+      <div
+        className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-out"
+        style={{ left: `${percent}%` }}
+      >
+        <div className="w-6 h-6 bg-white border-2 border-blue-600 rounded-full shadow -translate-x-1/2" />
       </div>
-      </>
-    )
+      <input
+        type="range"
+        min={0}
+        max={max}
+        step={1}
+        value={level}
+        onChange={(e) => {
+          const v = Number(e.target.value);
+          setLevel(v);
+          setShowInfo(false);
+          handleUpdate(v, fam);
+        }}
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        aria-label="Intimacy level"
+      />
+    </div>
+
+    <div className="flex justify-between text-[11px] text-gray-600 pb-3 mb-2 border-b border-gray-300">
+      {steps.map((label, i) => (
+        <span
+          key={`lvl-label-${i}`}
+          className={`flex-1 ${
+            i === 0 ? 'text-left' : i === steps.length - 1 ? 'text-right' : 'text-center'
+          }`}
+        >
+          {label}
+        </span>
+      ))}
+    </div>
+
+    {/* Formality Level */}
+    <div className="pb-4">
+      <span>Formality Level</span>
+    </div>
+
+    <div className="relative h-2 mb-2">
+      <div className="absolute inset-0 bg-gray-200 rounded-full" />
+      {famSteps.map((_, i) => (
+        <div
+          key={`fam-tick-${i}`}
+          className={`absolute top-1/2 z-10 w-3 h-3 rounded-full border-2 transform -translate-x-1/2 -translate-y-1/2 transition-colors ${
+            i <= fam ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-300'
+          }`}
+          style={{ left: `${(i / fMax) * 100}%` }}
+        />
+      ))}
+      <div
+        className="absolute inset-y-0 left-0 bg-blue-600 rounded-full transition-all duration-300 ease-out"
+        style={{ width: `${fPercent}%` }}
+      />
+      <div
+        className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-out"
+        style={{ left: `${fPercent}%` }}
+      >
+        <div className="w-6 h-6 bg-white border-2 border-blue-600 rounded-full shadow -translate-x-1/2" />
+      </div>
+      <input
+        type="range"
+        min={0}
+        max={fMax}
+        step={1}
+        value={fam}
+        onChange={(e) => {
+          const v = Number(e.target.value);
+          setFam(v);
+          setShowInfo(false);
+          handleUpdate(level, v);
+        }}
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        aria-label="Formality level"
+      />
+    </div>
+
+    <div className="flex justify-between text-[11px] text-gray-600">
+      {famSteps.map((label, i) => (
+        <span
+          key={`fam-label-${i}`}
+          className={`flex-1 ${
+            i === 0 ? 'text-left' : i === famSteps.length - 1 ? 'text-right' : 'text-center'
+          }`}
+        >
+          {label}
+        </span>
+      ))}
+    </div>
+  </div>
+</div>
+    </>
+  );
 }

@@ -1,9 +1,24 @@
-export default function Score({ label, value }: { label: string; value: number }) {
+'use client';
+
+export default function Score({
+  label,
+  value,
+}: {
+  label: string;
+  value: number | string 
+}) {
+  const num = Number(value)  
   return (
-    <div>
-      <p className="text-xs text-gray-600 mb-1">{label}</p>
-      <div className="h-2 bg-gray-300 rounded-full">
-        <div className="h-2 bg-gray-800 rounded-full" style={{ width: `${value}%` }} />
+    <div className="flex flex-col gap-1">
+      <div className="flex justify-between text-sm font-medium text-blue-600">
+        <span>{label}</span>
+        <span>{num}%</span>
+      </div>
+      <div className="w-full h-3 bg-blue-200 rounded-full overflow-hidden">
+        <div
+          className="h-3 bg-blue-500 rounded-full transition-all"
+          style={{ width: `${num}%` }}
+        />
       </div>
     </div>
   );

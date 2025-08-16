@@ -91,6 +91,39 @@ export default function PersonaDetailModal({
       setDeleting(false);
     }
   };
+  // 새로운 채팅
+  const handleStartChat = async () => {
+  if (!accessToken || !data) return;
+
+  try {
+    const res = await fetch(`/api/conversations`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        aiPersona: {
+          id: data.id,
+          name: data.name,
+          gender: data.gender,
+          age: data.age,
+          role: data.role,
+          description: data.description,
+          profileImageUrl: data.profileImageUrl,
+        },
+      }),
+    });
+
+    if (!res.ok) throw new Error("Failed to create conversation");
+    const json = await res.json();
+
+    // 응답에 conversationId가 있다고 가정
+    router.push(`/main/custom/chatroom/${json.conversationId}`);
+  } catch (err) {
+    console.error("StartChat error:", err);
+  }
+};
   return (
     <Modal open={open} onClose={onClose}>
       {/* 헤더 */}
@@ -109,7 +142,7 @@ export default function PersonaDetailModal({
         )}
         <div className="min-w-0">
           <div className="font-semibold text-lg truncate">{data?.name ?? '...'}</div>
-          <div className="text-xs text-gray-500 truncate">{data?.role ?? '-'}</div>
+           <div className="font-semibold text-gray-500 text-sm truncate">{data?.role ?? '...'}</div>
         </div>
         <button
           className="ml-auto text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200"
@@ -138,22 +171,13 @@ export default function PersonaDetailModal({
               <span className="text-gray-500">AI’s role</span>
               <span className="font-medium">{data?.role ?? '-'}</span>
             </div>
-
-            {data?.description && (
-              <div className="grid grid-cols-2 gap-y-2 text-sm">
-                <p className=" text-gray-500 text-sm mb-1">Situation</p>
-                <span className=" font-medium">
-                  {data.description}
-                </span>
-              </div>
-            )}
           </>
         )}
       </div>
 
       {/* 푸터 */}
       <div className="p-5 border-t flex items-center gap-3">
-        <button onClick={()=>router.push(`/main/custom/chatroom/${personaId}`)} className="flex-1 h-11 rounded-xl bg-blue-600 text-white font-medium">
+        <button onClick={handleStartChat} className="flex-1 h-11 rounded-xl bg-blue-600 text-white font-medium">
           Start New chatting
         </button>
         <button onClick={handleDelete} className="h-11 px-4 rounded-xl bg-gray-100 text-gray-700">

@@ -7,6 +7,8 @@ import { MyAI } from '@/lib/types'
 import { useAuth } from '@/lib/UserContext'
 import Link from 'next/link'
 import MessageList from '@/components/chats/MessageList'
+import { HonorificResults } from '@/components/chats/HonorificSlider'
+
 
 type ConversationDetail = {
   conversationId: number
@@ -41,14 +43,14 @@ export default function ChatroomPage() {
   const [feedbackOpenId, setFeedbackOpenId] = useState<string | null>(null)
   const router = useRouter()
   const [conversationId, setConversationId] = useState<number | null>(null)
-  const [honorificResults, setHonorificResults] = useState<Record<string, Record<number, string>>>({})
+  const [honorificResults, setHonorificResults] = useState<Record<string, HonorificResults>>({})
   const [sliderValues, setSliderValues] = useState<Record<string, number>>({})
 
 
   // 대화 정보 로드
   useEffect(() => {
     if (!canCall || !id) return
-    ;(async () => {
+    (async () => {
       try {
         const res = await fetch(`/api/conversations/${id}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
@@ -94,7 +96,9 @@ export default function ChatroomPage() {
         role: (m.role ?? m.type) as 'USER' | 'AI',
         content: m.content ?? '',
         createdAt: m.createdAt ?? new Date().toISOString(),
+        
       }))
+      
       setMessages(mapped)
 
       // 첫 메시지에서 conversationId 확보
@@ -147,6 +151,7 @@ export default function ChatroomPage() {
         },
         body: JSON.stringify({ conversationId, content }),
       })
+      
 
       if (!userRes.ok) {
         const errorText = await userRes.text()
@@ -217,17 +222,15 @@ const handleFeedbacks = async (messageId: string) => {
     setError('인증 토큰이 없습니다.')
     return
   }
-
-  // 이미 열려있으면 닫기
   if (feedbackOpenId === messageId) {
     setFeedbackOpenId(null)
     return
   }
-
   try {
-    const res = await fetch(`/api/feedbacks/message/${messageId}`, {
+    const res = await fetch(`/api/messages/${messageId}/feedback`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${accessToken}` },
+      
     })
 
     if (!res.ok) {
@@ -238,19 +241,20 @@ const handleFeedbacks = async (messageId: string) => {
 
     const feedbackData = await res.json()
     setMessages(prev =>
-      prev.map(msg =>
-        msg.messageId === messageId
-          ? { ...msg, feedback: feedbackData.content ?? JSON.stringify(feedbackData) }
-          : msg
-      )
-    )
+  prev.map(msg =>
+    msg.messageId === messageId
+      ? { ...msg, feedback: feedbackData }   // ✅ 그대로 객체 저장
+      : msg
+  )
+)
 
     setFeedbackOpenId(messageId)
   } catch (err) {
     setError('네트워크 오류로 피드백 요청 실패')
   }
 }
-const handleHonorific = async (messageId: string, sourceContent: string, aiRole?: string) => {
+
+const handleHonorific = async (messageId: string) => {
   // 토글: 이미 있으면 제거
   if (honorificResults[messageId]) {
     setHonorificResults(prev => {
@@ -267,15 +271,12 @@ const handleHonorific = async (messageId: string, sourceContent: string, aiRole?
   }
 
   try {
-    const params = new URLSearchParams()
-    params.set('sourceContent', sourceContent)
-    if (aiRole) params.set('aiRole', aiRole)
-
-    const res = await fetch(`/api/language/honorific-variations?${params}`, {
+    // ✅ messageId만 path에 넣음, 쿼리 파라미터 제거
+    const res = await fetch(`/api/messages/${messageId}/honorific-variations`, {
       method: 'GET',
-      headers: { Authorization: `Bearer ${accessToken}` },
+      headers: { Authorization: `Bearer ${accessToken}`, },
     })
-
+    
     if (!res.ok) {
       console.error('존댓말 변환 실패')
       return
@@ -283,19 +284,10 @@ const handleHonorific = async (messageId: string, sourceContent: string, aiRole?
 
     const data = await res.json()
 
-    const levelMap: Record<number, string> = {}
-    Object.entries(data).forEach(([key, value]) => {
-      const match = key.match(/\d+/) // honorificLevel1 → 1
-      if (match) {
-        const levelNum = Number(match[0])
-        levelMap[levelNum] = String(value)
-      }
-    })
-
     // 결과 저장
     setHonorificResults(prev => ({
       ...prev,
-      [messageId]: levelMap,
+      [messageId]: data,
     }))
 
     // 기본 슬라이더 값 1로 설정
@@ -309,8 +301,9 @@ const handleHonorific = async (messageId: string, sourceContent: string, aiRole?
 }
 
 
+
   return (
-    <div className="min-h-screen bg-white flex flex-col max-w-[375px]">
+     <div className="min-h-screen bg-white flex flex-col max-w-[375px]">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
         <div className="flex items-center justify-between w-full">
@@ -358,56 +351,16 @@ const handleHonorific = async (messageId: string, sourceContent: string, aiRole?
     </div>
 
       {/* Input */}
-       <div className="bg-white px-4 py-4 border-t border-gray-200">
-        <div className="flex items-center justify-center space-x-4">
-          <button
-            className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center shadow-sm border border-gray-200 hover:bg-gray-100 transition-colors"
-            onClick={fetchMessages}
-            aria-label="Refresh messages"
-            disabled={loading}
-          >
-            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          </button>
-
-          <div className="flex items-center bg-white rounded-full shadow-sm px-3 flex-1 border border-gray-200">
-            <input
-              className="flex-1 outline-none px-2 py-2 text-sm font-pretendard placeholder-gray-400"
-              placeholder="메시지를 입력하세요"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  sendMessage()
-                }
-              }}
-              disabled={loading}
-            />
-            <button
-              onClick={sendMessage}
-              disabled={loading || !message.trim() || !canCall}
-              className="text-blue-600 font-semibold disabled:opacity-40 text-sm font-pretendard hover:text-blue-700 transition-colors"
-            >
-              {loading ? 'Seding...' : 'Send'}
-            </button>
-          </div>
-
-          <button
-            className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center shadow-md disabled:opacity-50 hover:bg-blue-700 transition-colors"
-            onClick={() => console.log('record')}
-            aria-label="Record"
-            disabled={loading}
-          >
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-            </svg>
-          </button>
-        </div>
-
-        <div className="flex justify-center mt-2">
-          <div className="w-32 h-1 bg-gray-300 rounded-full" />
+      <div className="bg-blue-50 px-4 py-4 border-t border-gray-200 w-[375px]">
+        <div className="flex items-center bg-white rounded-full px-3 flex-1">
+          <input
+            className="flex-1 outline-none px-2 py-2 text-sm"
+            placeholder="Enter your message"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+          />
+          <button onClick={sendMessage} className="text-blue-500 font-semibold">Send</button>
         </div>
       </div>
     </div>

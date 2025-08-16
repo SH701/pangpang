@@ -31,6 +31,8 @@ export type Conversation = {
   }
   status: string
   situation: string
+  createdAt:string
+  feedback?: Feedback | null 
 }
 export type MyAI = {
   personaId: number
@@ -42,4 +44,16 @@ export type MyAI = {
   userRole: string
   description: string
   profileImageUrl: string
+}
+export type Feedback = {
+  feedbackId: number
+  conversationId: number
+  politenessScore: number
+  naturalnessScore: number
+  pronunciationScore: number
+  summary: string
+  goodPoints: string
+  improvementPoints: string
+  improvementExamples: string
+  overallEvaluation: string
 }
