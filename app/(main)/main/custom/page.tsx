@@ -65,8 +65,40 @@ export default function PersonaAndRoom() {
   const [profileImageUrl, setProfileImageUrl] = useState('')
   const [avatarModalOpen, setAvatarModalOpen] = useState(false)
   const [showLoading, setShowLoading] = useState(false)
-  const [status, setStatus] = useState<'ACTIVE' | 'ENDED'>('ACTIVE')
+const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0]
+  if (!file) return
+  const ext = file.name.split('.').pop() || ''
 
+  try {
+    const res = await fetch(`/api/files/presigned-url`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' , Authorization: `Bearer ${accessToken}`,},
+      body: JSON.stringify({
+        fileType: file.type,
+        fileExtension: ext,
+      }),
+    })
+
+    if (!res.ok) throw new Error('Presigned URL 요청 실패')
+    const { url } = await res.json()
+
+    await fetch(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': file.type }, 
+      body: file, 
+    })
+
+    const  publicUrl=url.split('?')[0]
+    setProfileImageUrl(publicUrl)
+    setAvatarModalOpen(false)
+  } catch (err) {
+    console.error('업로드 실패:', err)
+    alert('이미지 업로드 실패')
+  } finally {
+    e.target.value = '' // 같은 파일 다시 선택 가능하도록 초기화
+  }
+}
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setShowLoading(true)
@@ -162,38 +194,55 @@ export default function PersonaAndRoom() {
       </div>
 
       {avatarModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            onClick={() => setAvatarModalOpen(false)}
-          />
-          <div className="relative bg-white rounded-2xl p-6 z-10 shadow-xl flex flex-col items-center gap-4 min-w-[320px]">
-            <h2 className="text-lg font-semibold mb-3">아바타를 선택하세요</h2>
-            <div className="grid grid-cols-3 gap-4">
-              {images.map((img, i) => (
-                <button
-                  key={img}
-                  className={`w-20 h-20 rounded-full overflow-hidden border-4 ${
-                    profileImageUrl === img ? 'border-blue-500' : 'border-transparent'
-                  }`}
-                  onClick={() => {
-                    setProfileImageUrl(img)
-                    setAvatarModalOpen(false)
-                  }}
-                >
-                  <Image src={img} width={80} height={80} alt={`avatar${i + 1}`} />
-                </button>
-              ))}
-            </div>
-            <button
-              className="mt-5 text-gray-400 text-sm underline"
-              onClick={() => setAvatarModalOpen(false)}
-            >
-              닫기
-            </button>
-          </div>
-        </div>
-      )}
+  <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div
+      className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+      onClick={() => setAvatarModalOpen(false)}
+    />
+    <div className="relative bg-white rounded-2xl p-6 z-10 shadow-xl flex flex-col items-center gap-4 min-w-[320px]">
+      <h2 className="text-lg font-semibold mb-3">아바타를 선택하세요</h2>
+
+      <div className="grid grid-cols-3 gap-4">
+        {images.map((img, i) => (
+          <button
+            key={img}
+            className={`w-20 h-20 rounded-full overflow-hidden border-4 ${
+              profileImageUrl === img ? 'border-blue-500' : 'border-transparent'
+            }`}
+            onClick={() => {
+              setProfileImageUrl(img)
+              setAvatarModalOpen(false)
+            }}
+          >
+            <Image src={img} width={80} height={80} alt={`avatar${i + 1}`} />
+          </button>
+        ))}
+      </div>
+
+      {/* ✅ 내 사진 업로드 버튼 */}
+      <button
+        onClick={() => document.getElementById("fileUploadInput")?.click()}
+        className="mt-4 px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600"
+      >
+        내 사진 업로드
+      </button>
+      <input
+        id="fileUploadInput"
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileChange} // presigned-url 로직 연결
+      />
+
+      <button
+        className="mt-5 text-gray-400 text-sm underline"
+        onClick={() => setAvatarModalOpen(false)}
+      >
+        닫기
+      </button>
+    </div>
+  </div>
+)}
 
       <form onSubmit={handleSubmit} className="flex-1 px-4 space-y-6">
         {/* Name */}
