@@ -445,30 +445,30 @@ const setMessageStatus = (messageId: string, status: 'default' | 'error') => {
             </button>
           </div>
         ) : (
-          /* 채팅 입력 필드 */
+                    /* 채팅 입력 필드 */
           <div className="flex items-center justify-center space-x-4">
-            <div className="flex items-center bg-white rounded-full shadow-sm px-3 flex-1 border border-gray-200">
-            <input
+            <div className="flex items-center bg-white rounded-full shadow-sm px-3 w-[280px] border border-gray-200">
+              <input
                 className="flex-1 outline-none px-2 py-2 text-sm font-pretendard placeholder-gray-400"
                 placeholder="메시지를 입력하세요"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  sendMessage()
-                }
-              }}
-              disabled={loading}
-            />
-            <button
-              onClick={sendMessage}
-              disabled={loading || !message.trim() || !canCall}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    sendMessage()
+                  }
+                }}
+                disabled={loading}
+              />
+              <button
+                onClick={sendMessage}
+                disabled={loading || !message.trim() || !canCall}
                 className="text-blue-600 font-semibold disabled:opacity-50 text-sm font-pretendard hover:text-blue-700 transition-colors"
-            >
+              >
                 {loading ? '전송중...' : '전송'}
-            </button>
-          </div>
+              </button>
+            </div>
 
           <button
               className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center shadow-md disabled:opacity-50 hover:bg-blue-700 transition-colors"

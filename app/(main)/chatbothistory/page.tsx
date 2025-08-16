@@ -157,13 +157,11 @@ export default function ChatBothistoryPage() {
     });
 
   return (
-    <div className="bg-gray-100 w-full flex flex-col pt-10">
-       
-        <div className="flex justify-between items-center space-x-2 relative z-10 px-4">
-           <h1 className="text-xl font-bold z-10">
-        Chatbot History
-      </h1>
-          <SearchBar
+    <div className="min-h-screen bg-white flex flex-col max-w-[375px] mx-auto">
+      {/* 헤더 */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white">
+        <h1 className="text-xl font-semibold font-pretendard text-gray-800">Chatbot History</h1>
+        <SearchBar
           value={keyword}
           onChange={setKeyword}
           onSubmit={handleSearch}
@@ -180,9 +178,10 @@ export default function ChatBothistoryPage() {
           }
           placeholder="Search..."
         />
-        </div>
+      </div>
 
-      <div className="mb-4 p-6">
+      {/* Persona Slider */}
+      <div className="px-6 py-6">
         <PersonaSlider
           items={sliderItems}
           onAdd={() => router.push('/main/custom')}
@@ -196,64 +195,67 @@ export default function ChatBothistoryPage() {
         />
       </div>
 
-
-      <PersonaDetailModal
-        open={openDetail}
-        onClose={() => setOpenDetail(false)}
-        personaId={selectedPersonaId}
-        onDeleted={handlePersonaDeleted}
-      />
-
-      <div className="mb-6 px-6">
-        <div className="flex items-center justify-between">
-          <div className="flex space-x-2">
-            <button
-              onClick={() => setSelectedFilter('done')}
-              className={`px-3 py-1 rounded-full border text-xs font-medium transition-colors ${
-                selectedFilter === 'done'
-                  ? 'border-blue-500 text-blue-500 bg-white'
-                  : 'border-gray-300 text-gray-500 bg-white'
-              }`}
-            >
-              Done
-            </button>
-            <button
-              onClick={() => setSelectedFilter('in-progress')}
-              className={`px-4 py-1 rounded-full border text-xs font-medium transition-colors ${
-                selectedFilter === 'in-progress'
-                  ? 'border-blue-500 text-blue-500 bg-white'
-                  : 'border-gray-300 text-gray-500 bg-white'
-              }`}
-            >
-              In progress
-            </button>
-          </div>
+      {/* Filter Buttons */}
+      <div className="px-6 mb-6">
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => setSelectedFilter('done')}
+            className={`px-4 py-2 rounded-lg border text-sm font-medium font-pretendard transition-colors ${
+              selectedFilter === 'done'
+                ? 'border-blue-500 text-blue-500 bg-blue-50'
+                : 'border-gray-200 text-gray-600 bg-white hover:border-gray-300'
+            }`}
+          >
+            Done
+          </button>
+          <button
+            onClick={() => setSelectedFilter('in-progress')}
+            className={`px-4 py-2 rounded-lg border text-sm font-medium font-pretendard transition-colors ${
+              selectedFilter === 'in-progress'
+                ? 'border-blue-500 text-blue-500 bg-blue-50'
+                : 'border-gray-200 text-gray-600 bg-white hover:border-gray-300'
+            }`}
+          >
+            In progress
+          </button>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-24 bg-white p-6 border-t">
-        <div className="space-y-4">
-          {loading && <p>Loading...</p>}
-          {error && <p className="text-red-500">{error}</p>}
+      {/* Chat History List */}
+      <div className="flex-1 px-6 pb-6">
+        <div className="space-y-3">
+          {loading && (
+            <div className="flex items-center justify-center py-8">
+              <p className="text-gray-500 font-pretendard">Loading...</p>
+            </div>
+          )}
+          
+          {error && (
+            <div className="flex items-center justify-center py-8">
+              <p className="text-red-500 font-pretendard">{error}</p>
+            </div>
+          )}
 
           {/* 결과 없음 처리 */}
           {!loading && history.length === 0 && (
-            <div className="flex flex-col items-center justify-center mt-20">
-              <Image src="/circle/circle4.png" alt="loading" width={81} height={81} />
-              <p className="text-gray-400 text-center mt-10">No chat history.</p>
-              <Link href="/main/custom" className="flex items-center text-blue-500 hover:underline text-sm">
+            <div className="flex flex-col items-center justify-center py-20">
+              <Image src="/circle/circle4.png" alt="No history" width={64} height={64} className="mb-4" />
+              <p className="text-gray-500 font-pretendard text-center mb-6">No chat history.</p>
+              <Link href="/main/custom" className="flex items-center text-blue-600 hover:text-blue-700 font-pretendard text-sm transition-colors">
                 Start a conversation with a custom chatbot
-                <ChevronRightIcon className="size-4 pt-1" />
+                <ChevronRightIcon className="w-4 h-4 ml-1" />
               </Link>
             </div>
           )}
 
+          {/* 검색 결과 없음 */}
           {!loading && history.length > 0 && filtered.length === 0 && (
-            <div className="flex flex-col items-center justify-center mt-10">
-              <p className="text-gray-400">검색 결과가 없습니다.</p>
+            <div className="flex flex-col items-center justify-center py-16">
+              <p className="text-gray-500 font-pretendard">검색 결과가 없습니다.</p>
             </div>
           )}
 
+          {/* Chat History Items */}
           {filtered.map((chat) => {
             const name = getName(chat?.aiPersona?.name);
             const desc = chat?.aiPersona?.description ?? '';
@@ -261,7 +263,7 @@ export default function ChatBothistoryPage() {
             return (
               <div
                 key={chat?.conversationId}
-                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-center space-x-3 p-4 rounded-xl border border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer"
               >
                 <div className="relative">
                   {img ? (
@@ -270,24 +272,31 @@ export default function ChatBothistoryPage() {
                       width={48}
                       height={48}
                       alt={name}
-                      className="w-12 h-12 rounded-full bg-gray-200 object-cover"
+                      className="w-12 h-12 rounded-full bg-gray-100 object-cover"
                       unoptimized
                     />
                   ) : (
-                    <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center shadow-sm">
-                      <span className="text-gray-600 font-semibold text-sm">{getInitial(name)}</span>
+                    <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center border border-gray-200">
+                      <span className="text-gray-600 font-semibold font-pretendard text-sm">{getInitial(name)}</span>
                     </div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-black text-base">{name}</h3>
-                  <p className="text-sm text-black truncate">{desc}</p>
+                  <h3 className="font-semibold font-pretendard text-gray-800 text-base mb-1">{name}</h3>
+                  <p className="text-sm font-pretendard text-gray-600 truncate">{desc}</p>
                 </div>
               </div>
             );
           })}
         </div>
       </div>
+
+      <PersonaDetailModal
+        open={openDetail}
+        onClose={() => setOpenDetail(false)}
+        personaId={selectedPersonaId}
+        onDeleted={handlePersonaDeleted}
+      />
     </div>
   );
 }
