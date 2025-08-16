@@ -4,7 +4,6 @@ import Face0 from '@/components/character/face0';
 import Face1 from '@/components/character/face1';
 import Face2 from '@/components/character/face2';
 import Face3 from '@/components/character/face3';
-import { logout } from '@/lib/logout';
 import { useAuth } from '@/lib/UserContext';
 import {
   ChevronRightIcon,
@@ -25,7 +24,8 @@ type Profile = {
   birthDate: string;
   role: string;
   provider: string;
-  koreanLevel: string;
+  klevel: number;
+  sentenceCount:number;
   profileImageUrl: string;
   interests: string[];
 };
@@ -42,8 +42,6 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState<string | null>(null);
   const { accessToken }       = useAuth();
-  const [count, setCount]     = useState(45);
-  const [level, setLevel]     = useState(45);
 
   useEffect(() => {
     if (!accessToken) {
@@ -84,7 +82,7 @@ export default function ProfilePage() {
     }
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
-    router.push('/login'); // ✅ 로그아웃 후 로그인 페이지로 이동
+    router.push('/login'); 
   };
 
   if (loading)       return <p className="text-center mt-10">Loading…</p>;
@@ -127,12 +125,12 @@ export default function ProfilePage() {
       <div className="border border-blue-200 bg-[#EFF6FF] rounded-xl p-4 flex justify-around text-blue-600">
         <div className="flex flex-col items-center w-[50%]">
           <span className="text-sm">Studied Sentence</span>
-          <span className="text-2xl font-bold text-black">{count}</span>
+          <span className="text-2xl font-bold text-black">{profile.sentenceCount}</span>
         </div>
         <div className="w-px bg-blue-200" />
         <div className="flex flex-col items-center w-[50%]">
           <span className="text-sm">K-Level</span>
-          <span className="text-2xl font-bold text-black">{level}</span>
+          <span className="text-2xl font-bold text-black">{profile.klevel}</span>
         </div>
       </div>
     </div>

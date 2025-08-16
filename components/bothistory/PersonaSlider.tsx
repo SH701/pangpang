@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // components/bothistory/PersonaSlider.tsx
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 
@@ -10,7 +11,6 @@ export type PersonaSlide =
   | { isAdd?: false; personaId: number | string; name: string; profileImageUrl?: string };
 
 type Props = {
-  items: PersonaSlide[];                         // 부모에서 공급
   onAdd?: () => void;                            // '+' 클릭
   onItemClick?: (idx: number, it: PersonaSlide) => void; // 아이템 클릭(모달 오픈용)
   itemSize?: number;
@@ -23,7 +23,6 @@ const normalizeSrc = (src?: string) =>
   !src ? '' : src.startsWith('http') || src.startsWith('/') ? src : `/${src}`;
 
 export default function PersonaSlider({
-  items,
   onAdd,
   onItemClick,
   itemSize = 56,
@@ -31,6 +30,35 @@ export default function PersonaSlider({
   visibleCount = 5,
   viewportWidth,
 }: Props) {
+  const [items, setItems] = useState<PersonaSlide[]>([]);
+
+  // ✅ API 호출
+  useEffect(() => {
+    const fetchPersonas = async () => {
+      try {
+        const res = await fetch('/api/personas/my?page=1&size=10', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken') ?? ''}`,
+          },
+        });
+        const data = await res.json();
+
+        const mapped: PersonaSlide[] = data.content.map((p: any) => ({
+          personaId: p.personaId,
+          name: p.name,
+          profileImageUrl: p.profileImageUrl,
+        }));
+
+        // 마지막에 '+' 버튼 추가
+        setItems([ { isAdd: true },...mapped]);
+      } catch (err) {
+        console.error('Persona fetch error', err);
+      }
+    };
+
+    fetchPersonas();
+  }, []);
+
   const viewW = viewportWidth ?? visibleCount * itemSize + (visibleCount - 1) * gap;
   const trackWidth = useMemo(
     () => (items?.length ? items.length * itemSize + (items.length - 1) * gap : 0),
@@ -39,7 +67,7 @@ export default function PersonaSlider({
   const leftLimit = useMemo(() => Math.min(0, viewW - trackWidth), [viewW, trackWidth]);
 
   if (!items || items.length === 0) {
-    // 비어있을 때 '+'만 노출
+    // 로딩 또는 데이터 없음 → '+'만
     return (
       <div className="overflow-hidden" style={{ width: viewW }}>
         <button
@@ -88,7 +116,7 @@ export default function PersonaSlider({
                   height={itemSize}
                   className="rounded-full object-cover bg-gray-200 cursor-pointer"
                   unoptimized
-                  onClick={() => onItemClick?.(i, it)}            // 아이템 클릭 이벤트 전달
+                  onClick={() => onItemClick?.(i, it)}
                 />
               ) : (
                 <div
