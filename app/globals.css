@@ -59,3 +59,71 @@ body {
 .btn:disabled {
   @apply bg-gray-300 text-gray-400 cursor-not-allowed;
 }
+
+/* Custom Slider Styles */
+.slider-blue::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #3B82F6;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.slider-blue::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #3B82F6;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.slider-blue::-webkit-slider-track {
+  background: transparent;
+  border: none;
+}
+
+.slider-blue::-moz-range-track {
+  background: transparent;
+  border: none;
+}
+
+/* Dropdown Animation */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+    max-height: 0;
+    margin-top: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    max-height: 200px;
+    margin-top: 12px;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    max-height: 200px;
+    margin-top: 12px;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+    max-height: 0;
+    margin-top: 0;
+  }
+}
+
+/* Honorific dropdown styles */
+.honorific-dropdown {
+  transform-origin: top;
+}

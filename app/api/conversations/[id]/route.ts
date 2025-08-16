@@ -9,6 +9,28 @@ export async function GET(
 ) {
   const { id } = await params; // ✅ await 필요
 
+  // 개발 환경에서는 mock 응답 제공
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Conversation detail fetch (dev):', id);
+    
+    // mock 대화 상세 정보 반환
+    return NextResponse.json({
+      conversationId: id,
+      status: "ACTIVE",
+      aiPersona: {
+        personaId: "dev-persona-123",
+        name: "Jisoo",
+        gender: "FEMALE",
+        age: 25,
+        relationship: "BOSS",
+        description: "Apologizing for a mistake at work.",
+        profileImageUrl: "/characters/character1.png"
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }, { status: 200 });
+  }
+
   const token = req.headers.get('authorization');
   if (!token) {
     return NextResponse.json({ error: 'Authorization token is missing' }, { status: 401 });

@@ -43,6 +43,21 @@ export default function ChatroomPage() {
   const [conversationId, setConversationId] = useState<number | null>(null)
   const [honorificResults, setHonorificResults] = useState<Record<string, Record<number, string>>>({})
   const [sliderValues, setSliderValues] = useState<Record<string, number>>({})
+  const [messageStatuses, setMessageStatuses] = useState<Record<string, 'default' | 'error'>>({})
+  const [isChatInputOpen, setIsChatInputOpen] = useState(false)
+  
+  // 테스트용: 첫 번째 메시지를 오류 상태로 설정
+  useEffect(() => {
+    if (messages.length > 0) {
+      const firstMessageId = messages[0]?.messageId
+      if (firstMessageId) {
+        setMessageStatuses(prev => ({
+          ...prev,
+          [firstMessageId]: 'error'
+        }))
+      }
+    }
+  }, [messages])
 
 
   // 대화 정보 로드
@@ -123,20 +138,23 @@ export default function ChatroomPage() {
       setError('대화방 ID를 불러올 수 없습니다')
       return
     }
-
+    
     const content = message.trim()
     setLoading(true)
     setError(null)
 
     const optimistic: ChatMsg = {
-      messageId: `user_${Date.now()}`,
+    messageId: `user_${Date.now()}`,
       conversationId,
-      role: 'USER',
-      content,
-      createdAt: new Date().toISOString(),
-    }
-    setMessages(prev => [...prev, optimistic])
-    setMessage('')
+    role: 'USER',
+    content,
+    createdAt: new Date().toISOString(),
+  }
+  setMessages(prev => [...prev, optimistic])
+    
+
+    
+  setMessage('')
 
     try {
       const userRes = await fetch('/api/messages', {
@@ -158,13 +176,32 @@ export default function ChatroomPage() {
 
       const userMsgData = await userRes.json()
       if (userMsgData?.messageId) {
-        setMessages(prev =>
-          prev.map(msg =>
-            msg.messageId === optimistic.messageId
-              ? { ...msg, messageId: String(userMsgData.messageId) }
+        const newMessageId = String(userMsgData.messageId)
+        
+        // 메시지 ID 업데이트
+        setMessages(prev => 
+          prev.map(msg => 
+            msg.messageId === optimistic.messageId 
+              ? { ...msg, messageId: newMessageId }
               : msg
           )
         )
+        
+        // messageStatuses도 함께 업데이트 (오류 상태 유지)
+        if (messageStatuses[optimistic.messageId]) {
+          console.log('상태 마이그레이션:', optimistic.messageId, '->', newMessageId, messageStatuses[optimistic.messageId])
+          setMessageStatuses(prev => ({
+            ...prev,
+            [newMessageId]: prev[optimistic.messageId]
+          }))
+          // 이전 상태 제거
+          setMessageStatuses(prev => {
+            const newStatuses = { ...prev }
+            delete newStatuses[optimistic.messageId]
+            console.log('마이그레이션 후 상태:', newStatuses)
+            return newStatuses
+          })
+        }
       }
 
       const aiRes = await fetch(`/api/messages/ai-reply?conversationId=${conversationId}`, {
@@ -298,14 +335,27 @@ const handleHonorific = async (messageId: string, sourceContent: string, aiRole?
       [messageId]: levelMap,
     }))
 
-    // 기본 슬라이더 값 1로 설정
+    // 기본 슬라이더 값 1로 설정 (3단계 중 중간)
     setSliderValues(prev => ({
       ...prev,
       [messageId]: 1,
     }))
   } catch (err) {
     console.error('handleHonorific error:', err)
+    // 에러 발생 시 메시지 상태를 error로 설정
+    setMessageStatuses(prev => ({
+      ...prev,
+      [messageId]: 'error'
+    }))
   }
+}
+
+// 메시지 상태를 변경하는 함수
+const setMessageStatus = (messageId: string, status: 'default' | 'error') => {
+  setMessageStatuses(prev => ({
+    ...prev,
+    [messageId]: status
+  }))
 }
 
 
@@ -322,11 +372,11 @@ const handleHonorific = async (messageId: string, sourceContent: string, aiRole?
           <span className="text-lg font-semibold text-gray-900 font-pretendard">{myAI?.name ?? '...'}</span>
           <button 
             onClick={handleEnd} 
-            aria-label="End conversation"
+            aria-label="Exit chatroom"
             className="text-gray-600 hover:text-gray-900 transition-colors"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
           </button>
         </div>
@@ -334,16 +384,16 @@ const handleHonorific = async (messageId: string, sourceContent: string, aiRole?
 
       {/* Error */}
       {error && (
-        <div className="bg-red-50 border-l-4 border-red-400 p-4 mx-4 mt-4">
+        <div className="bg-red-50 border-l-4 border-red-400 p-4 mx-4 mt-4 rounded-r-lg">
           <div className="flex justify-between">
-            <p className="text-sm text-red-700">{error}</p>
-            <button onClick={() => setError(null)}>X</button>
+            <p className="text-sm text-red-700 font-pretendard">{error}</p>
+            <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600 transition-colors">X</button>
           </div>
         </div>
       )}
 
       {/* Messages */}
-    <div className="flex-1 bg-white px-4 py-4 overflow-y-auto">
+      <div className="flex-1 bg-white px-4 py-4 overflow-y-auto">
       <MessageList
         messages={messages}
         myAI={myAI}
@@ -353,28 +403,54 @@ const handleHonorific = async (messageId: string, sourceContent: string, aiRole?
         handleFeedbacks={handleFeedbacks}
         handleHonorific={handleHonorific}
         setSliderValues={setSliderValues}
+        messageStatuses={messageStatuses}
       />
-      <div ref={bottomRef} />
-    </div>
+        <div ref={bottomRef} />
+      </div>
 
-      {/* Input */}
-       <div className="bg-white px-4 py-4 border-t border-gray-200">
-        <div className="flex items-center justify-center space-x-4">
+      {/* Bottom Design */}
+      <div className="bg-white px-6 py-6 border-t border-gray-200">
+        {!isChatInputOpen ? (
+          /* 3개 원형 버튼 디자인 */
+          <div className="flex items-center justify-center space-x-8">
+            {/* 왼쪽 버튼 - X 아이콘 (빨간색) */}
+            <button
+              className="w-14 h-14 bg-red-800 rounded-full flex items-center justify-center shadow-lg hover:bg-red-700 transition-colors"
+              onClick={() => console.log('X button clicked')}
+              aria-label="Close"
+            >
+              <span className="text-white text-2xl font-bold">×</span>
+            </button>
+            
+            {/* 중앙 버튼 - 말하기 (파란색) */}
           <button
-            className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center shadow-sm border border-gray-200 hover:bg-gray-100 transition-colors"
-            onClick={fetchMessages}
-            aria-label="Refresh messages"
-            disabled={loading}
-          >
-            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center shadow-lg hover:bg-blue-500 transition-colors"
+              onClick={() => console.log('Voice button clicked')}
+              aria-label="Voice input"
+            >
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
             </svg>
           </button>
 
-          <div className="flex items-center bg-white rounded-full shadow-sm px-3 flex-1 border border-gray-200">
+            {/* 오른쪽 버튼 - 키보드 아이콘 (회색) */}
+            <button
+              className="w-14 h-14 bg-gray-700 rounded-full flex items-center justify-center shadow-lg hover:bg-gray-600 transition-colors"
+              onClick={() => setIsChatInputOpen(true)}
+              aria-label="Open typing input"
+            >
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+        ) : (
+          /* 채팅 입력 필드 */
+          <div className="flex items-center justify-center space-x-4">
+            <div className="flex items-center bg-white rounded-full shadow-sm px-3 flex-1 border border-gray-200">
             <input
-              className="flex-1 outline-none px-2 py-2 text-sm font-pretendard placeholder-gray-400"
-              placeholder="메시지를 입력하세요"
+                className="flex-1 outline-none px-2 py-2 text-sm font-pretendard placeholder-gray-400"
+                placeholder="메시지를 입력하세요"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => {
@@ -388,16 +464,16 @@ const handleHonorific = async (messageId: string, sourceContent: string, aiRole?
             <button
               onClick={sendMessage}
               disabled={loading || !message.trim() || !canCall}
-              className="text-blue-600 font-semibold disabled:opacity-40 text-sm font-pretendard hover:text-blue-700 transition-colors"
+                className="text-blue-600 font-semibold disabled:opacity-50 text-sm font-pretendard hover:text-blue-700 transition-colors"
             >
-              {loading ? 'Seding...' : 'Send'}
+                {loading ? '전송중...' : '전송'}
             </button>
           </div>
 
           <button
-            className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center shadow-md disabled:opacity-50 hover:bg-blue-700 transition-colors"
-            onClick={() => console.log('record')}
-            aria-label="Record"
+              className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center shadow-md disabled:opacity-50 hover:bg-blue-700 transition-colors"
+              onClick={() => setIsChatInputOpen(false)}
+              aria-label="Back to voice input"
             disabled={loading}
           >
             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -405,8 +481,10 @@ const handleHonorific = async (messageId: string, sourceContent: string, aiRole?
             </svg>
           </button>
         </div>
+        )}
 
-        <div className="flex justify-center mt-2">
+        {/* 하단 인디케이터 바 */}
+        <div className="flex justify-center mt-4">
           <div className="w-32 h-1 bg-gray-300 rounded-full" />
         </div>
       </div>

@@ -3,6 +3,28 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
+  // 개발 환경에서는 mock 응답 제공
+  if (process.env.NODE_ENV === 'development') {
+    try {
+      const body = await req.json();
+      console.log('Conversation creation (dev):', body);
+      
+      // mock 대화방 생성 응답 반환
+      return NextResponse.json({
+        conversationId: "dev-conversation-" + Date.now(),
+        personaId: body.personaId,
+        situation: body.situation,
+        status: "ACTIVE",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }, { status: 201 });
+    } catch (error) {
+      return NextResponse.json({ 
+        message: 'Invalid request body' 
+      }, { status: 400 });
+    }
+  }
+
   // 1) 공통 CORS 헤더
   const resHeaders = new Headers({
     'Access-Control-Allow-Origin': '*',
@@ -22,9 +44,9 @@ export async function POST(req: Request) {
   // 3) 백엔드에 대화 생성 요청 프록시
   let upstreamRes: Response
   try {
-    upstreamRes = await fetch(
-      `${process.env.API_URL}/api/conversations`,
-      {
+          upstreamRes = await fetch(
+        `${process.env.API_URL}/api/conversations`,
+        {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
