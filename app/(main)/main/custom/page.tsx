@@ -18,13 +18,13 @@ const situationOptions = {
   ],
   GF_PARENTS: [
     { value: 'GF_PARENTS1', label: 'Meeting for the first time' },
-    { value: 'GF_PARENTS2', label: 'Conversation over dinner' },
-    { value: 'GF_PARENTS3', label: 'Apologizing for breaking a picture frame' },
+    { value: 'GF_PARENTS2', label: 'Asking for permission' },
+    { value: 'GF_PARENTS3', label: 'Discussing future plans' },
   ],
   CLERK: [
-    { value: 'CLERK1', label: 'Negotiate prices' },
-    { value: 'CLERK2', label: 'Ask about the origin of the product' },
-    { value: 'CLERK3', label: 'Complaining about incorrect food orders' },
+    { value: 'CLERK1', label: 'Making a reservation' },
+    { value: 'CLERK2', label: 'Asking for information' },
+    { value: 'CLERK3', label: 'Filing a complaint' },
   ],
 } as const
 
@@ -301,7 +301,7 @@ export default function PersonaAndRoom() {
         {/* Submit */}
         <button
           type="submit"
-          className="w-full py-3 bg-blue-500 text-white text-sm font-semibold rounded-lg mt-8 hover:bg-blue-600 transition-colors disabled:opacity-50 mb-3"
+          className="w-full py-4 bg-blue-600 text-white font-semibold rounded-xl mt-8 hover:bg-blue-700 transition-colors disabled:opacity-50 mb-3 shadow-lg"
         >
           Start Chatting
         </button>

@@ -3,17 +3,17 @@
 
 import MessageItem from './MessageItem'
 import { MyAI } from '@/lib/types'
-import type { HonorificResults } from './HonorificSlider' // ✅ 타입 가져오기
 
 type MessageListProps = {
   messages: any[]
   myAI: MyAI | null
   feedbackOpenId: string | null
-  honorificResults: Record<string, HonorificResults> 
+  honorificResults: Record<string, Record<number, string>>
   sliderValues: Record<string, number>
   handleFeedbacks: (messageId: string) => void
-  handleHonorific: (messageId: string) => void
+  handleHonorific: (messageId: string, content: string, aiRole?: string) => void
   setSliderValues: React.Dispatch<React.SetStateAction<Record<string, number>>>
+  messageStatuses?: Record<string, 'default' | 'error'>
 }
 
 export default function MessageList({
@@ -24,7 +24,8 @@ export default function MessageList({
   sliderValues,
   handleFeedbacks,
   handleHonorific,
-  setSliderValues
+  setSliderValues,
+  messageStatuses = {}
 }: MessageListProps) {
   return (
     <>
@@ -44,6 +45,7 @@ export default function MessageList({
             handleFeedbacks={handleFeedbacks}
             handleHonorific={handleHonorific}
             setSliderValues={setSliderValues}
+            messageStatus={messageStatuses[m.messageId] || 'default'}
           />
         )
       })}
