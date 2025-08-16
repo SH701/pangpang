@@ -60,16 +60,21 @@ export default function Main() {
           <Logo/>
           <div className="flex justify-between items-start pt-4">
             <div className="flex flex-col gap-2">
+              <div className="flex gap-16">
+                <div className="flex flex-col gap-4">
               <h1 className="font-bold text-white text-2xl leading-[130%]">
                 Hi, {profile?.nickname || 'Noonchi'}!
               </h1>
               <p className="text-white text-base leading-[130%]">
                 Start a conversation <br />
                 with your partner
-              </p>
+              </p>   
+              </div>            
+              <Face3 className="w-[120px] h-[100px]"/>
+              </div>
               <Link href="/main/custom">
                 <button className="
-                  mt-2 h-10 px-5 cursor-pointer
+                  mt-2 h-10 px-5 w-[334px]
                   flex items-center justify-center gap-2 
                   bg-white text-blue-500 text-sm font-semibold 
                   rounded-lg shadow-md hover:bg-gray-50 transition-colors duration-200
@@ -81,20 +86,13 @@ export default function Main() {
             </div>
 
             {/* 오른쪽 캐릭터 */}
-            <div className="flex-shrink-0">
-              <Face3 className="w-[100px] h-[80px]"/>
-            </div>
+           
           </div>
         </div>
 
         {/* 슬라이더 섹션 */}
         <div className="px-4 py-2">
           <Slider />
-        </div>
-
-        {/* 롤플레이 섹션 */}
-        <div className="px-4 py-2">
-          <RoleplaySlider />
         </div>
         
         {/* 채팅 입력 섹션 */}
