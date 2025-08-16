@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useState } from "react";
 import WhiteLogo from "@/components/etc/whitelogo";
 
