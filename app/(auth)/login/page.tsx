@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/UserContext';
 import LottieAnimation from '@/components/etc/LottieAnimation';
-
+import Loading from '@/app/after/loading';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,6 +15,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [animationData, setAnimationData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const loadAnimation = async () => {
@@ -43,20 +44,38 @@ export default function LoginPage() {
         return;
       }
       setAccessToken(data.accessToken);
-      router.push('/after');
+
+      const meRes = await fetch('/api/users/me', {
+        headers: { Authorization: `Bearer ${data.accessToken}` },
+      });
+      const me = await meRes.json();
+
+      if (me.koreanLevel === null) {
+        router.replace('/after');
+      } else {
+        setLoading(true); 
+        setTimeout(() => {
+          router.replace('/main');
+        }, 1500);
+      }
     } catch (err) {
       console.error('Login error:', err);
       setError('Something went wrong');
     }
   };
 
+  
+  if (loading) {
+    return <Loading/>
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4">
       <div className="w-full max-w-sm space-y-6">
-        <div className="flex justify-center items-center" >
+        <div className="flex justify-center items-center">
           {animationData && (
-            <LottieAnimation 
-              animationData={animationData} 
+            <LottieAnimation
+              animationData={animationData}
               style={{ width: '360px', height: '360px' }}
               loop={true}
               autoplay={true}

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Slider, { Settings } from 'react-slick';
 import 'slick-carousel/slick/slick.css';
@@ -8,6 +8,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import { useAuth, Level, Interest } from '@/lib/UserContext';
 import ProfileChange from "@/components/afterlogin/profilechange";
 import Image from "next/image"
+import Loading from './loading';
 
 const levelImg: Record<Level, string> = {
   BEGINNER: '/circle/circle1.png',
@@ -17,17 +18,24 @@ const levelImg: Record<Level, string> = {
 
 export default function AfterPage() {
   const router = useRouter();
-  const { 
-    koreanLevel, setKoreanLevel, 
-    profileImageUrl, 
-    interests, setInterests ,
-  } = useAuth();
+  const {koreanLevel, setKoreanLevel, profileImageUrl, interests, setInterests ,} = useAuth();
   const {accessToken}= useAuth();
-
   const sliderRef = useRef<Slider>(null);
   const [current, setCurrent] = useState(0);
   const [error, setError] = useState<string|null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false)
+
+
+   useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1500)
+    return () => clearTimeout(timer)
+  }, [])
+  useEffect(()=>{
+    if(koreanLevel !== null){
+      router.push('/main')
+    }
+  },[koreanLevel,router])
 
   const settings:Settings = {
     dots: false,
@@ -57,30 +65,26 @@ export default function AfterPage() {
 
 const goMain = async () => {
   setError(null);
-  setLoading(true);
-
+  setSubmitting(true)
   try {
-    // 헤더 구성 (토큰 있을 때만 Authorization 추가)
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
-
-    // ✅ res 변수에 담기
     const res = await fetch('/api/users/me/profile', {
       method: 'PUT',
       headers,
-      credentials: 'include', // 쿠키도 함께 전송
+      credentials: 'include',
       body: JSON.stringify({ koreanLevel, profileImageUrl, interests }),
     });
 
-    // HTML이 내려오는 403/500 대비
+    
     const ct = res.headers.get('content-type') || '';
     const data = ct.includes('application/json') ? await res.json() : await res.text();
-
+    
     if (!res.ok) {
       setError(typeof data === 'string' ? data : data?.message || '설정에 실패했습니다.');
       return;
     }
-
+    
     router.replace('/main');
   } catch (e) {
     console.error(e);
@@ -90,7 +94,9 @@ const goMain = async () => {
   }
 };
 
-
+ if (loading || submitting) {
+    return <Loading />
+  }
 
   return (
     <div className="min-h-screen bg-white flex flex-col">

@@ -1,10 +1,11 @@
 'use client';
-export const dynamic = 'force-dynamic'; // ✅ 빌드 시 프리렌더 방지
+export const dynamic = 'force-dynamic';
 
+import Loading from '@/app/after/loading';
 import { useAuth } from '@/lib/Token';
-import { ChevronLeftIcon } from '@heroicons/react/24/solid';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
+
 
 export default function SignupStep2() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function SignupStep2() {
   const [birthDate, setBirthDate] = useState('');
   const [gender, setGender] = useState<'MALE' | 'FEMALE'>('MALE');
   const [, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const canSubmit = name.trim() !== '' && birthDate !== '';
 
@@ -23,45 +25,57 @@ export default function SignupStep2() {
     setEmail(params.get('email') || '');
     setPassword(params.get('password') || '');
   }, [params]);
-const parseJsonSafe = async (res: Response) => {
-  const ct = res.headers.get('content-type') || ''
-  return ct.includes('application/json') ? res.json() : {}
-}
-const handleSignup = async () => {
-  if (!canSubmit) return;
-  setError(null);
-  try {
-    const res = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, nickname: name, gender, birthDate }),
-    });
 
-    const data = await parseJsonSafe(res);
-    if (!res.ok) {
-      setError(data?.message || 'Signup failed');
-      return;
+  const parseJsonSafe = async (res: Response) => {
+    const ct = res.headers.get('content-type') || '';
+    return ct.includes('application/json') ? res.json() : {};
+  };
+
+  const handleSignup = async () => {
+    if (!canSubmit) return;
+    setError(null);
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, nickname: name, gender, birthDate }),
+      });
+
+      const data = await parseJsonSafe(res);
+      if (!res.ok) {
+        setError(data?.message || 'Signup failed');
+        return;
+      }
+
+      const token = data?.accessToken;
+      if (!token) {
+        setError('토큰이 없습니다. 관리자에게 문의하세요.');
+        return;
+      }
+
+      setAccessToken(token);
+      localStorage.setItem('accessToken', token);
+
+      // ✅ 로딩 표시 후 1.5초 뒤 이동
+      setLoading(true);
+      setTimeout(() => {
+        router.push('/after');
+      }, 1500);
+    } catch {
+      setError('Something went wrong');
     }
+  };
 
-    const token = data?.accessToken;
-    if (!token) {
-      setError('토큰이 없습니다. 관리자에게 문의하세요.'); // ❗ 계약 보장 필요
-      return;
-    }
-
-    setAccessToken(token);                 // 메모리/컨텍스트
-    localStorage.setItem('accessToken', token); // 지속성 원하면 (보안 고려)
-    router.push('/after');
-  } catch {
-    setError('Something went wrong');
+  // ✅ 로딩 중일 때 화면
+  if (loading) {
+    return (
+      <Loading/>
+    );
   }
-};
 
   return (
     <div className="min-h-screen bg-white px-4 pt-13">
       <div className="w-full max-w-sm mx-auto flex flex-col h-full space-y-6">
-
-        
         <div className="w-[274px] h-[62px] flex flex-col items-start justify-center">
           <h2 className="font-pretendard text-2xl font-semibold leading-[130%] text-gray-900">
             Enter your details
@@ -81,7 +95,7 @@ const handleSignup = async () => {
               placeholder="Enter your name"
               className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50"
               value={name}
-              onChange={e => setName(e.target.value)}
+              onChange={(e) => setName(e.target.value)}
             />
           </div>
 
@@ -94,7 +108,7 @@ const handleSignup = async () => {
               pattern="\d{4}-\d{2}-\d{2}"
               className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50"
               value={birthDate}
-              onChange={e => setBirthDate(e.target.value)}
+              onChange={(e) => setBirthDate(e.target.value)}
             />
           </div>
 
@@ -102,9 +116,10 @@ const handleSignup = async () => {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
             <div className="flex space-x-4">
-              {(['MALE', 'FEMALE'] as const).map(g => (
+              {(['MALE', 'FEMALE'] as const).map((g) => (
                 <button
                   key={g}
+                  type="button"
                   onClick={() => setGender(g)}
                   className={`flex-1 py-3 rounded-md border font-medium ${
                     gender === g
@@ -124,8 +139,8 @@ const handleSignup = async () => {
             disabled={!canSubmit}
             onClick={handleSignup}
             className={`w-full py-3 font-medium rounded-md transition ${
-              canSubmit 
-                ? 'bg-blue-600 text-white hover:bg-gray-900' 
+              canSubmit
+                ? 'bg-blue-600 text-white hover:bg-gray-900'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
           >
