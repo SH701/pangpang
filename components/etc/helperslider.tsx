@@ -32,7 +32,7 @@ export default function HelperSlider({ onChange }: Props) {
   return (
     <>
       {showInfo && (
-  <div className="flex justify-center mb-2">
+  <div className="flex justify-center">
     <span className="inline-flex items-center bg-white px-3 py-1 text-xs text-gray-600 rounded-full shadow border">
       <InformationCircleIcon className="w-4 h-4 mr-1 text-blue-600" />
       Move the slider to match your situation
@@ -40,10 +40,10 @@ export default function HelperSlider({ onChange }: Props) {
   </div>
 )}
 
-<div className="w-[335px] flex flex-col justify-center items-center rounded-xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] mx-auto bg-white mt-5">
-
+<div className="flex justify-center">
+<div className="w-[335px] flex flex-col justify-center items-center rounded-xl bg-white">
   {/* Intimacy Level */}
-  <div className="w-[335px] px-4 max-w-md mx-auto border rounded-xl border-blue-400 bg-[#EFF6FF] pb-4 mt-3">
+  <div className="w-[335px] px-4 max-w-md border rounded-xl border-blue-400 bg-[#EFF6FF] pb-4 mt-3">
     <div className="pt-2">
       <span>Intimacy Level</span>
     </div>
@@ -154,6 +154,7 @@ export default function HelperSlider({ onChange }: Props) {
       ))}
     </div>
   </div>
+</div>
 </div>
     </>
   );
