@@ -43,10 +43,13 @@ export default function PersonaSlider({
         });
         const data = await res.json();
 
-        const mapped: PersonaSlide[] = data.content.map((p: any) => ({
-          personaId: p.personaId,
+        // data가 배열이면 직접 사용, 아니면 data.content 사용
+        const personas = Array.isArray(data) ? data : (data?.content || []);
+        
+        const mapped: PersonaSlide[] = personas.map((p: any) => ({
+          personaId: p.personaId || p.id,
           name: p.name,
-          profileImageUrl: p.profileImageUrl,
+          profileImageUrl: p.profileImageUrl || p.imageUrl,
         }));
 
         // 마지막에 '+' 버튼 추가
