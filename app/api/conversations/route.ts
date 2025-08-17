@@ -88,39 +88,116 @@ export async function GET(req: NextRequest) {
     const mockConversations = [
       {
         conversationId: "dev-conversation-1",
-        personaId: "dev-persona-1",
-        personaName: "친근한 친구",
-        situation: "일상 대화",
+        userId: 1,
+        aiPersona: {
+          id: 1,
+          personaId: "dev-persona-1",
+          userId: 1,
+          name: "친근한 친구",
+          gender: "FEMALE",
+          age: 25,
+          relationship: "FRIEND",
+          description: "일상적인 대화를 나누는 친구",
+          profileImageUrl: "/avatars/avatar1.png"
+        },
         status: "ENDED",
+        situation: "일상 대화",
         createdAt: new Date(Date.now() - 86400000).toISOString(), // 1일 전
-        endedAt: new Date(Date.now() - 3600000).toISOString(), // 1시간 전
-        lastMessage: "안녕하세요! 오늘 날씨가 정말 좋네요.",
-        politenessScore: 85,
-        naturalnessScore: 90
+        feedback: {
+          feedbackId: 1,
+          conversationId: "dev-conversation-1",
+          politenessScore: 85,
+          naturalnessScore: 90,
+          overallEvaluation: "친근하고 자연스러운 대화였습니다."
+        }
       },
       {
         conversationId: "dev-conversation-2",
-        personaId: "dev-persona-2", 
-        personaName: "비즈니스 파트너",
-        situation: "업무 협의",
+        userId: 1,
+        aiPersona: {
+          id: 2,
+          personaId: "dev-persona-2",
+          userId: 1,
+          name: "비즈니스 파트너",
+          gender: "MALE",
+          age: 35,
+          relationship: "COLLEAGUE",
+          description: "업무 협의를 위한 전문적인 대화",
+          profileImageUrl: "/avatars/avatar2.png"
+        },
         status: "ACTIVE",
+        situation: "업무 협의",
         createdAt: new Date(Date.now() - 7200000).toISOString(), // 2시간 전
-        endedAt: null,
-        lastMessage: "프로젝트 진행 상황에 대해 논의해보겠습니다.",
-        politenessScore: 92,
-        naturalnessScore: 88
+        feedback: null
       },
       {
         conversationId: "dev-conversation-3",
-        personaId: "dev-persona-3",
-        personaName: "가족",
-        situation: "가족 대화",
+        userId: 1,
+        aiPersona: {
+          id: 3,
+          personaId: "dev-persona-3",
+          userId: 1,
+          name: "가족",
+          gender: "FEMALE",
+          age: 50,
+          relationship: "FAMILY",
+          description: "가족과의 따뜻한 대화",
+          profileImageUrl: "/avatars/avatar3.png"
+        },
         status: "ENDED",
+        situation: "가족 대화",
         createdAt: new Date(Date.now() - 172800000).toISOString(), // 2일 전
-        endedAt: new Date(Date.now() - 86400000).toISOString(), // 1일 전
-        lastMessage: "오늘 저녁 메뉴는 뭘로 할까요?",
-        politenessScore: 78,
-        naturalnessScore: 95
+        feedback: {
+          feedbackId: 3,
+          conversationId: "dev-conversation-3",
+          politenessScore: 78,
+          naturalnessScore: 95,
+          overallEvaluation: "가족다운 따뜻한 대화였습니다."
+        }
+      },
+      {
+        conversationId: "dev-conversation-4",
+        userId: 1,
+        aiPersona: {
+          id: 4,
+          personaId: "dev-persona-4",
+          userId: 1,
+          name: "스터디 파트너",
+          gender: "MALE",
+          age: 28,
+          relationship: "STUDY_PARTNER",
+          description: "학습과 성장을 위한 대화",
+          profileImageUrl: "/avatars/avatar4.png"
+        },
+        status: "ACTIVE",
+        situation: "학습 토론",
+        createdAt: new Date(Date.now() - 3600000).toISOString(), // 1시간 전
+        feedback: null
+      },
+      {
+        conversationId: "dev-conversation-5",
+        userId: 1,
+        aiPersona: {
+          id: 5,
+          personaId: "dev-persona-5",
+          userId: 1,
+          name: "취미 친구",
+          gender: "FEMALE",
+          age: 30,
+          relationship: "HOBBY_FRIEND",
+          description: "취미와 관심사를 공유하는 대화",
+          profileImageUrl: "/avatars/avatar5.png"
+        },
+        status: "ENDED",
+        situation: "취미 공유",
+        createdAt: new Date(Date.now() - 259200000).toISOString(), // 3일 전
+        feedback: {
+          feedbackId: 5,
+          conversationId: "dev-conversation-5",
+          politenessScore: 88,
+          naturalnessScore: 92,
+          overallEvaluation: "취미에 대한 열정이 느껴지는 대화였습니다."
+        }
       }
     ];
     
