@@ -63,8 +63,7 @@ export default function LoginPage() {
           src="/etc/logo_login.svg" 
           alt="Logo" 
          width={200}
-         height={42}
-        />
+         height={42}/>
       </div>
       
       {/* 로그인 폼 */}

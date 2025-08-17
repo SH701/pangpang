@@ -61,7 +61,7 @@ export default function Main() {
           <div className="flex justify-between items-start pt-4">
             <div className="flex flex-col gap-2">
               <div className="flex gap-16">
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-3">
               <h1 className="font-bold text-white text-2xl leading-[130%]">
                 Hi, {profile?.nickname || 'Noonchi'}!
               </h1>
