@@ -253,7 +253,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
             value={name}
             onChange={e => setName(e.target.value)}
             className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-black placeholder-gray-400 focus:outline-none focus:border-blue-500"
-            placeholder="Jisoo"
+            placeholder="Enter Name"
           />
         </div>
 
