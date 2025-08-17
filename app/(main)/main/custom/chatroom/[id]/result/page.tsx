@@ -93,25 +93,25 @@ export default function Result() {
             </div>
           </div>
 
-          {/* Tab Section */}
+          {/* Tab Bar */}
           <div className="px-4 pt-6">
-            <div className="flex bg-gray-100 rounded-lg p-1">
+            <div className="flex border-b border-gray-200">
               <button
                 onClick={() => setTab('transcript')}
-                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-200 ${
+                className={`flex-1 py-3 text-sm font-medium transition-all duration-200 border-b-2 text-center ${
                   tab === 'transcript'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'text-blue-600 border-blue-600'
+                    : 'text-gray-500 border-transparent hover:text-gray-700'
                 }`}
               >
                 Transcript
               </button>
               <button
                 onClick={() => setTab('mistakes')}
-                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-200 ${
+                className={`flex-1 py-3 text-sm font-medium transition-all duration-200 border-b-2 text-center ${
                   tab === 'mistakes'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'text-blue-600 border-blue-600'
+                    : 'text-gray-500 border-transparent hover:text-gray-700'
                 }`}
               >
                 Common Mistakes
