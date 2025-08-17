@@ -64,43 +64,83 @@ export default function AccountManage() {
   if (!userInfo) return <p>로딩 중…</p>
 
   return (
-    <div className="p-6 max-w-md mt-10">
-      <div className="relative py-4">
-  <Link href="/profile" className="absolute left-4 top-1/2 transform -translate-y-1/2">
-    <ChevronLeftIcon className="w-6 h-6 text-gray-600" />
-  </Link>
-  <h2 className="text-lg font-semibold text-center">
-    Manage Account
-  </h2>
-</div>
-<p className='text-xl text-left font-semibold my-5'>Edit Details</p>
-      <div className="space-y-3 mb-6  mt-10 bg-[#F3F4F6] rounded-xl p-8">
-        <div className='flex gap-10 mb-5'>
-          <label className="block text-sm text-gray-600">Nickname</label>
-          <p>{userInfo.nickname}</p>
-        </div>
-        <div className='flex gap-10 mb-5'>
-          <label className="block text-sm text-gray-600">Birth</label>
-          <p >{userInfo.birthDate}</p>
-        </div>
-        <div className='flex gap-10 mb-5'>
-          <label className="block text-sm text-gray-600">E-mail</label>
-          <p >{userInfo.email}</p>
-        </div>
-        <div className='flex gap-10 mb-5'>
-          <span className="text-sm font-medium text-gray-600">
-        Password
-      </span>
-      <div className="flex items-center space-x-3">
-        <span className="text-sm tracking-widest text-gray-800">
-          {masked}
-        </span>
-        <button className="px-3 py-1 text-sm font-medium text-blue-500 bg-blue-100  hover:bg-blue-100 transition">
-          Edit
-        </button>
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* 헤더 */}
+      <div className="px-4 pt-4 pb-3 border-b border-gray-200 bg-white">
+        <div className="flex items-center">
+          <Link 
+            href="/profile" 
+            className="mr-3 p-1 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <ChevronLeftIcon className="w-6 h-6 text-gray-600" />
+          </Link>
+          <h1 className="text-gray-900 text-xl font-semibold font-pretendard">Manage Account</h1>
         </div>
       </div>
-    </div>
+
+      {/* 메인 콘텐츠 */}
+      <div className="flex-1 flex flex-col items-center">
+        <div className="flex-1 relative h-full w-[375px]">
+          {/* Edit Details 섹션 */}
+          <div className="px-4 pt-6">
+            <h2 className="text-gray-900 text-xl font-semibold font-pretendard leading-[130%] mb-6">
+              Edit Details
+            </h2>
+          </div>
+
+          {/* 사용자 정보 카드 */}
+          <div className="px-4">
+            <div className="bg-gray-50 rounded-2xl border border-gray-200 p-6">
+              <div className="space-y-6">
+                {/* Nickname */}
+                <div className="flex items-center justify-between">
+                  <label className="text-gray-600 text-sm font-medium font-pretendard leading-[130%]">
+                    Nickname
+                  </label>
+                  <span className="text-gray-900 text-base font-medium font-pretendard leading-[130%]">
+                    {userInfo.nickname}
+                  </span>
+                </div>
+
+                {/* Birth */}
+                <div className="flex items-center justify-between">
+                  <label className="text-gray-600 text-sm font-medium font-pretendard leading-[130%]">
+                    Birth
+                  </label>
+                  <span className="text-gray-900 text-base font-medium font-pretendard leading-[130%]">
+                    {userInfo.birthDate}
+                  </span>
+                </div>
+
+                {/* Email */}
+                <div className="flex items-center justify-between">
+                  <label className="text-gray-600 text-sm font-medium font-pretendard leading-[130%]">
+                    E-mail
+                  </label>
+                  <span className="text-gray-900 text-base font-medium font-pretendard leading-[130%]">
+                    {userInfo.email}
+                  </span>
+                </div>
+
+                {/* Password */}
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600 text-sm font-medium font-pretendard leading-[130%]">
+                    Password
+                  </span>
+                  <div className="flex items-center space-x-3">
+                    <span className="text-gray-900 text-base font-medium font-pretendard leading-[130%] tracking-widest">
+                      {masked}
+                    </span>
+                    <button className="px-4 py-2 text-blue-600 text-sm font-medium font-pretendard leading-[130%] bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                      Edit
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

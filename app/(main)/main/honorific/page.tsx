@@ -71,7 +71,7 @@ export default function HonorificHelper() {
           {/* 입력 영역 */}
           <div className="mb-6 pt-6">
             <textarea
-              className="text-base placeholder:text-gray-400 resize-none w-full h-32 border-none focus:ring-0"
+              className="resize-none w-full h-32 border-none focus:ring-0 font-pretendard"
               placeholder="Type in English..."
               value={source}
               onChange={(e) => setSource(e.target.value)}
@@ -80,6 +80,14 @@ export default function HonorificHelper() {
                   e.preventDefault();
                   handleTranslate();
                 }
+              }}
+              style={{
+                color: 'var(--Natural-cool-gray-400, #9CA3AF)',
+                fontFamily: 'Pretendard',
+                fontSize: '16px',
+                fontStyle: 'normal',
+                fontWeight: '400',
+                lineHeight: 'normal'
               }}
             />
           </div>
@@ -90,10 +98,18 @@ export default function HonorificHelper() {
           {/* 출력 영역 */}
           <div className="mb-6">
             <textarea
-              className="text-base placeholder:text-gray-400 resize-none w-full h-32 border-none focus:ring-0"
+              className="resize-none w-full h-32 border-none focus:ring-0 font-pretendard"
               placeholder="Korean translation..."
               value={result}
               readOnly
+              style={{
+                color: 'var(--Natural-cool-gray-700, #374151)',
+                fontFamily: 'Pretendard',
+                fontSize: '20px',
+                fontStyle: 'normal',
+                fontWeight: '600',
+                lineHeight: 'normal'
+              }}
             />
           </div>
 

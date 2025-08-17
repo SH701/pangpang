@@ -31,11 +31,6 @@ export default function AfterPage() {
     const timer = setTimeout(() => setLoading(false), 1500)
     return () => clearTimeout(timer)
   }, [])
-  useEffect(()=>{
-    if(koreanLevel !== null){
-      router.push('/main')
-    }
-  },[koreanLevel,router])
 
   const settings:Settings = {
     dots: false,

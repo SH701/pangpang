@@ -50,7 +50,7 @@ export default function LoginPage() {
       });
       const me = await meRes.json();
 
-      if (me.koreanLevel === null) {
+      if (me.koreanLevel === null || me.koreanLevel === 'null'||me.koreanLevel === undefined) {
         router.replace('/after');
       } else {
         setLoading(true); 

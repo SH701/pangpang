@@ -66,58 +66,83 @@ export default function LevelSelectPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto p-4 space-y-6 mt-10">
-      <div className="relative py-4">
-  <Link href="/profile" className="absolute left-4 top-1/2 transform -translate-y-1/2">
-    <ChevronLeftIcon className="w-6 h-6 text-gray-600" />
-  </Link>
-  <h2 className="text-lg font-semibold text-center">
-    Difficulty
-  </h2>
-</div>
-<div className='flex flex-col gap-2'>
-      <h1 className="text-xl font-bold">Select your level</h1>
-      <p className="text-sm text-gray-500">
-        Feedback and suggestions will <br /> match your level.
-      </p>
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* 헤더 */}
+      <div className="px-4 pt-4 pb-3 border-b border-gray-200 bg-white">
+        <div className="flex items-center">
+          <Link 
+            href="/profile" 
+            className="mr-3 p-1 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <ChevronLeftIcon className="w-6 h-6 text-gray-600" />
+          </Link>
+          <h1 className="text-gray-900 text-xl font-semibold font-pretendard">Difficulty</h1>
+        </div>
       </div>
 
-      <div className="space-y-4">
-  {LEVELS.map(({ value, title, description }, i) => (
-    <button
-      key={value}
-      onClick={() => setSelected(value)}
-      className={`w-full flex items-center justify-center space-x-4 p-4 border rounded-lg transition ${
-        selected === value
-          ? 'border-blue-600 bg-blue-50'
-          : 'border-gray-200 bg-gray-50'
-      }`}
-    >
-      {/* 동그라미 이미지 */}
-      <Image
-        src={images[i]}
-        width={48}
-        height={48}
-        alt={`level-${value}`}
-        className={`rounded-full flex-shrink-0 border-2 ${
-          selected === value ? 'border-blue-600' : 'border-gray-400'
-        }`}
-      />
-      <div className="text-left">
-        <p className="font-medium">{title}</p>
-        <p className="text-sm text-gray-600">{description}</p>
-      </div>
-    </button>
-  ))}
-</div>
+      {/* 메인 콘텐츠 */}
+      <div className="flex-1 flex flex-col items-center">
+        <div className="flex-1 relative h-full w-[375px]">
+          {/* 제목 섹션 */}
+          <div className="px-4 pt-6">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-2 font-pretendard leading-normal" style={{fontSize: '24px', fontWeight: 600, color: '#111827'}}>
+              Select your level
+            </h2>
+            <p className="text-gray-400 mb-8 font-pretendard leading-[140%]" style={{fontSize: '14px', fontWeight: 500, color: '#9CA3AF'}}>
+              Feedback and suggestions will <br /> match your level.
+            </p>
+          </div>
 
-      <button
-        disabled={loading}
-        onClick={save}
-        className="w-full py-3 bg-blue-600 text-white font-semibold rounded disabled:opacity-50"
-      >
-        {loading ? 'Saving…' : 'Save Level'}
-      </button>
+          {/* 레벨 선택 섹션 */}
+          <div className="px-4">
+            <div className="space-y-4">
+              {LEVELS.map(({ value, title, description }, i) => (
+                <div
+                  key={value}
+                  onClick={() => setSelected(value)}
+                  className={`flex items-center p-4 cursor-pointer transition-all duration-200 border`}
+                  style={{
+                    borderRadius: selected === value ? '12px' : '16px',
+                    border: selected === value ? '1px solid #316CEC' : '1px solid #E5E7EB',
+                    background: selected === value ? '#EFF6FF' : '#F9FAFB'
+                  }}
+                >
+                  <div className="flex-shrink-0 w-12 h-12 rounded-full overflow-hidden mr-4">
+                    <Image
+                      src={images[i]}
+                      alt={`level-${value}`}
+                      width={48}
+                      height={48}
+                      className={selected === value ? '' : 'opacity-60'}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg text-gray-900 font-pretendard">
+                      {title}
+                    </h3>
+                    <p className="text-sm text-gray-600 mt-1 font-pretendard">
+                      {description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Button */}
+      <div className="px-4 py-4 bg-white border-t border-gray-200">
+        <div className="max-w-md mx-auto">
+          <button
+            disabled={loading}
+            onClick={save}
+            className="w-full py-3 bg-blue-600 font-medium text-white text-lg rounded-md hover:bg-gray-900 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Saving…' : 'Save Level'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
