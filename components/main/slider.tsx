@@ -222,27 +222,54 @@ export default function Slider() {
       <span className="font-semibold text-lg py-2 px-4 mt-3">Today`s honorific expression</span>
 
       {/* 오늘의 문장 */}
-     <div className="w-[296px] bg-gray-100 border border-gray-200 py-3 my-2 mb-4 rounded-xl">
-  <div className=" text-base relative text-center px-8 py-1">
+     <div 
+       className="relative"
+       style={{
+         width: '296px',
+         display: 'flex',
+         padding: '12px 16px',
+         justifyContent: 'center',
+         alignItems: 'center',
+         borderRadius: '8px',
+         border: '1px solid var(--Natural-cool-gray-200, #E5E7EB)',
+         background: 'var(--Natural-cool-gray-50, #F9FAFB)',
+         marginTop: '16px',
+         marginBottom: showex ? '0px' : '16px'
+       }}
+     >
+  <div className="text-base text-center" style={{ padding: 0 }}>
     <span>{currentSentence.phrase}</span>
-    <button
-      onClick={() => setShowex((prev) => !prev)}
-      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800"
-    >
-      {showex ? (
-        <ChevronUpIcon className="size-5" />
-      ) : (
-        <ChevronDownIcon className="size-5" />
-      )}
-    </button>
   </div>
+  <button
+    onClick={() => setShowex((prev) => !prev)}
+    className="absolute top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800"
+    style={{ right: '12px' }}
+  >
+    {showex ? (
+      <ChevronUpIcon className="size-5" />
+    ) : (
+      <ChevronDownIcon className="size-5" />
+    )}
+  </button>
+</div>
 
-  {showex && (
-    <div className="text-[13px] px-2 py-1 text-center border-t border-gray-400 text-gray-700">
+{showex && (
+  <div 
+    className="mb-4"
+    style={{
+      width: '296px',
+      padding: '12px 16px',
+      borderRadius: '8px',
+      border: '1px solid var(--Natural-cool-gray-200, #E5E7EB)',
+      background: 'var(--Natural-cool-gray-50, #F9FAFB)',
+      marginTop: '8px'
+    }}
+  >
+    <div className="text-[13px] text-center text-gray-700">
       {currentSentence.explanation}
     </div>
-  )}
-</div>
+  </div>
+)}
 {showInfo && (
           <div className="flex justify-center mb-4">
           <span className="inline-flex items-center bg-white px-3 py-1 text-xs text-gray-600 rounded-full shadow border">
@@ -252,7 +279,7 @@ export default function Slider() {
         </div>
       )}
       {/* 슬라이더 박스 */}
-      <div className="w-[335px] px-6 max-w-md mx-auto border rounded-xl border-blue-400 bg-[#EFF6FF] pb-6">
+      <div className="w-[335px] px-6 max-w-md mx-auto border rounded-xl border-blue-400 bg-[#EFF6FF]" style={{ marginTop: '10px' }}>
         <div className='pt-4'>
           <span 
             className="font-pretendard"
@@ -268,7 +295,7 @@ export default function Slider() {
             Intimacy Level
           </span>
         </div>
-        <div className="relative mb-4 mt-4" style={{ height: '16px', width: '100%' }}>
+        <div className="relative mb-4" style={{ height: '16px', width: '100%', marginTop: '10px' }}>
           <div className="absolute inset-0 bg-gray-200 rounded-full" style={{ height: '16px', width: '100%' }} />
           {steps.map((_, i) => (
             <div
@@ -335,7 +362,7 @@ export default function Slider() {
           ))}
           
         </div>
-         <div className='pb-6 pt-6'>
+         <div>
           <span 
             className="font-pretendard"
             style={{
@@ -352,7 +379,7 @@ export default function Slider() {
         </div>
           
 
-        <div className="relative mb-4" style={{ height: '16px', width: '100%' }}>
+        <div className="relative mb-4" style={{ height: '16px', width: '100%', marginTop: '10px' }}>
           
           <div className="absolute inset-0 bg-gray-200 rounded-full" style={{ height: '16px', width: '100%' }} />
           
@@ -410,7 +437,7 @@ export default function Slider() {
           />
         </div>
 
-        <div className="flex justify-between text-[11px] text-gray-600 pb-2">
+        <div className="flex justify-between text-[11px] text-gray-600 pb-4">
           {famSteps.map((label, i) => (
             <span
               key={`fam-label-${i}`}
