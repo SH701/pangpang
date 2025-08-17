@@ -80,7 +80,10 @@ export default function ProfileEditPage() {
   const ext = file.name.split('.').pop()!;
   const presignRes = await fetch('/api/files/presigned-url', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
     body: JSON.stringify({ fileType: file.type, fileExtension: ext,fileName: file.name }),
   })
   const { url: uploadUrl } = await presignRes.json();
@@ -91,6 +94,7 @@ export default function ProfileEditPage() {
     headers: { 'Content-Type': file.type },
     body: file,
   });
+  console.log(uploadRes)
   if (!uploadRes.ok) throw new Error('S3 업로드 실패');
 
 
@@ -110,6 +114,7 @@ export default function ProfileEditPage() {
     const err = await apiRes.json().catch(() => ({}));
     console.error('Update Failed:', err.message || apiRes.status);
   } else {
+    console.log('Update Success.');
   }
 };
 
@@ -190,9 +195,9 @@ export default function ProfileEditPage() {
             />
           ) : profileImageUrl ? (
             (() => {
-              // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-              const C = FACES.find(f => f.id === profileImageUrl)?.Component!;
-              return <C className="w-full h-full" />;
+              
+             const C = FACES.find(f => f.id === profileImageUrl)?.Component;
+return C ? <C className="w-full h-full" /> : <div className="w-full h-full bg-blue-100" />;
             })()
           ) : (
             <div className="w-full h-full bg-blue-100" />
