@@ -31,11 +31,12 @@ export default function AfterPage() {
     const timer = setTimeout(() => setLoading(false), 1500)
     return () => clearTimeout(timer)
   }, [])
+  // 한국어 레벨이 이미 설정되어 있으면 메인으로 이동 (최초 방문 시에만)
   useEffect(()=>{
-    if(koreanLevel !== null){
+    if(koreanLevel !== null && profileImageUrl && interests.length > 0){
       router.push('/main')
     }
-  },[koreanLevel,router])
+  },[koreanLevel, profileImageUrl, interests, router])
 
   const settings:Settings = {
     dots: false,

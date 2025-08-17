@@ -12,9 +12,9 @@ export async function GET(req: NextRequest) {
       id: "dev-user-123",
       email: "dev@example.com",
       nickname: "개발자",
-      koreanLevel: "INTERMEDIATE",
-      profileImageUrl: "/characters/character1.png",
-      interests: ["💬 Daily", "🎵 K-Pop", "🔥 Internet Slang"],
+      koreanLevel: null,
+      profileImageUrl: "",
+      interests: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }, { status: 200 });

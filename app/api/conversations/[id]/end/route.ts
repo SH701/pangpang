@@ -13,6 +13,14 @@ export async function PUT(
     return NextResponse.json({ error: 'Authorization token is missing' }, { status: 401 });
   }
 
+  // 개발 환경에서는 mock 응답 제공
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Conversation end (dev):', id);
+    
+    // mock 응답: 대화 종료 성공
+    return new NextResponse(null, { status: 200 });
+  }
+
   try {
     const upstream = await fetch(`${API}/api/conversations/${id}/end`, {
       method: 'PUT',
