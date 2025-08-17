@@ -41,7 +41,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 70vh;
+  min-height: 60vh;
 }
 .btn {
   @apply  text-black px-4 py-2 rounded-md text-sm font-medium   cursor-pointer bg-white border border-gray-300;

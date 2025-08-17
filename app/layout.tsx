@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko" className="overflow-auto">
+    <html lang="ko" className="h-screen w-screen overflow-hidden">
       <body className="h-full antialiased">
           <div className="flex flex-col h-full">
             <main className="flex-grow w-full">
