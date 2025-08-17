@@ -5,23 +5,12 @@ const API = process.env.API_URL ?? 'http://localhost:8080';
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> } // Next 15 호환
 ) {
   const { id } = await params;
   const token = req.headers.get('authorization');
   if (!token) {
     return NextResponse.json({ error: 'Authorization token is missing' }, { status: 401 });
-  }
-
-  // 개발 환경에서는 mock 응답
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`Mock: 대화 ${id} 종료 성공`)
-    return NextResponse.json({
-      success: true,
-      message: '대화가 성공적으로 종료되었습니다',
-      conversationId: parseInt(id),
-      endedAt: new Date().toISOString()
-    }, { status: 200 })
   }
 
   try {
@@ -31,6 +20,7 @@ export async function PUT(
       cache: 'no-store',
     });
 
+    // 보통 200 OK (바디가 없거나 짧은 문자열)
     const text = await upstream.text().catch(() => '');
     return new NextResponse(text || null, {
       status: upstream.status,
@@ -41,6 +31,8 @@ export async function PUT(
     });
   } catch (e) {
     console.error('Error in PUT /api/conversations/[id]/end:', e);
+    // 여기선 500 숨기고 200으로 처리하고 싶으면 아래 줄을:
+    // return new NextResponse(null, { status: 200 });
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
