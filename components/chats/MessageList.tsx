@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
+import { HonorificResults } from './HonorificSlider'
 import MessageItem from './MessageItem'
 import { MyAI } from '@/lib/types'
 
@@ -8,10 +9,10 @@ type MessageListProps = {
   messages: any[]
   myAI: MyAI | null
   feedbackOpenId: string | null
-  honorificResults: Record<string, Record<number, string>>
+  honorificResults: Record<string, Record<number, HonorificResults>>
   sliderValues: Record<string, number>
   handleFeedbacks: (messageId: string) => void
-  handleHonorific: (messageId: string, content: string, aiRole?: string) => void
+ handleHonorific: (messageId: string, content: string, aiRole?: string) => Promise<void>
   setSliderValues: React.Dispatch<React.SetStateAction<Record<string, number>>>
   messageStatuses?: Record<string, 'default' | 'error'>
 }
@@ -25,7 +26,7 @@ export default function MessageList({
   handleFeedbacks,
   handleHonorific,
   setSliderValues,
-  messageStatuses = {}
+  messageStatuses = {},
 }: MessageListProps) {
   return (
     <>

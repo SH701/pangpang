@@ -8,6 +8,7 @@ import { useAuth } from '@/lib/UserContext'
 import Link from 'next/link'
 import MessageList from '@/components/chats/MessageList'
 import { HonorificResults } from '@/components/chats/HonorificSlider'
+import Image from "next/image"
 
 
 type ConversationDetail = {
@@ -28,6 +29,7 @@ type ChatMsg = {
   content: string
   createdAt: string
   feedback?: string
+  isLoading?: boolean
 }
 
 export default function ChatroomPage() {
@@ -45,6 +47,9 @@ export default function ChatroomPage() {
   const [conversationId, setConversationId] = useState<number | null>(null)
   const [honorificResults, setHonorificResults] = useState<Record<string, HonorificResults>>({})
   const [sliderValues, setSliderValues] = useState<Record<string, number>>({})
+  const [hidden, setHidden] = useState(false)
+  const [endModalOpen, setEndModalOpen] = useState(false)
+
 
 
   // 대화 정보 로드
@@ -121,84 +126,101 @@ export default function ChatroomPage() {
   }, [messages])
 
   // 메시지 전송
-  const sendMessage = async () => {
-    if (!canCall || !message.trim() || loading) return
-    if (!conversationId) {
-      setError('대화방 ID를 불러올 수 없습니다')
+const sendMessage = async () => {
+  if (!canCall || !message.trim() || loading) return
+  if (!conversationId) {
+    setError('대화방 ID를 불러올 수 없습니다')
+    return
+  }
+
+  const content = message.trim()
+  setLoading(true)
+  setError(null)
+
+  const optimistic: ChatMsg = {
+    messageId: `user_${Date.now()}`,
+    conversationId,
+    role: 'USER',
+    content,
+    createdAt: new Date().toISOString(),
+  }
+  setMessages(prev => [...prev, optimistic])
+  setMessage('')
+
+  try {
+    // 유저 메시지 POST
+    const userRes = await fetch('/api/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ conversationId, content }),
+    })
+
+    if (!userRes.ok) {
+      const errorText = await userRes.text()
+      setError(`메시지 전송 실패: ${userRes.status} ${errorText}`)
+      setMessages(prev => prev.filter(msg => msg.messageId !== optimistic.messageId))
+      setMessage(content)
       return
     }
 
-    const content = message.trim()
-    setLoading(true)
-    setError(null)
-
-    const optimistic: ChatMsg = {
-      messageId: `user_${Date.now()}`,
-      conversationId,
-      role: 'USER',
-      content,
-      createdAt: new Date().toISOString(),
-    }
-    setMessages(prev => [...prev, optimistic])
-    setMessage('')
-
-    try {
-      const userRes = await fetch('/api/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({ conversationId, content }),
-      })
-      
-
-      if (!userRes.ok) {
-        const errorText = await userRes.text()
-        setError(`메시지 전송 실패: ${userRes.status} ${errorText}`)
-        setMessages(prev => prev.filter(msg => msg.messageId !== optimistic.messageId))
-        setMessage(content)
-        return
-      }
-
-      const userMsgData = await userRes.json()
-      if (userMsgData?.messageId) {
-        setMessages(prev =>
-          prev.map(msg =>
-            msg.messageId === optimistic.messageId
-              ? { ...msg, messageId: String(userMsgData.messageId) }
-              : msg
-          )
+    const userMsgData = await userRes.json()
+    if (userMsgData?.messageId) {
+      setMessages(prev =>
+        prev.map(msg =>
+          msg.messageId === optimistic.messageId
+            ? { ...msg, messageId: String(userMsgData.messageId) }
+            : msg
         )
-      }
-
-      const aiRes = await fetch(`/api/messages/ai-reply?conversationId=${conversationId}`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${accessToken}` },
-      })
-      if (!aiRes.ok) return
-
-      const aiData = await aiRes.json()
-      if (aiData?.content?.trim()) {
-        setMessages(prev => [
-          ...prev,
-          {
-            messageId: String(aiData.messageId ?? `ai_${Date.now()}`),
-            conversationId,
-            role: 'AI',
-            content: aiData.content,
-            createdAt: aiData.createdAt ?? new Date().toISOString(),
-          },
-        ])
-      }
-    } catch (e) {
-      setError('네트워크 오류로 메시지를 전송할 수 없습니다')
-      setMessages(prev => prev.filter(msg => msg.messageId !== optimistic.messageId))
-      setMessage(content)
-    } finally {
-      setLoading(false)
+      )
     }
+
+    // 여기서 AI 로딩용 메시지를 미리 넣음
+    const aiLoadingMsg: ChatMsg = {
+      messageId: `ai_loading_${Date.now()}`,
+      conversationId,
+      role: 'AI',
+      content: '...', // placeholder
+      createdAt: new Date().toISOString(),
+      isLoading: true, // 👈 플래그
+    }
+    setMessages(prev => [...prev, aiLoadingMsg])
+
+    // AI reply 요청
+    const aiRes = await fetch(`/api/messages/ai-reply?conversationId=${conversationId}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+    if (!aiRes.ok) return
+
+    const aiData = await aiRes.json()
+    if (aiData?.content?.trim()) {
+      setMessages(prev =>
+        prev.map(msg =>
+          msg.messageId === aiLoadingMsg.messageId
+            ? {
+                messageId: String(aiData.messageId ?? `ai_${Date.now()}`),
+                conversationId,
+                role: 'AI',
+                content: aiData.content,
+                createdAt: aiData.createdAt ?? new Date().toISOString(),
+                isLoading: false,
+              }
+            : msg
+        )
+      )
+    }
+  } catch (e) {
+    setError('네트워크 오류로 메시지를 전송할 수 없습니다')
+    setMessages(prev => prev.filter(msg => msg.messageId !== optimistic.messageId))
+    setMessage(content)
+  } finally {
+    setLoading(false)
   }
+}
+
 
   // 대화 종료
   const handleEnd = async () => {
@@ -302,8 +324,9 @@ const handleHonorific = async (messageId: string) => {
 
 
 
-  return (
-     <div className="min-h-screen bg-white flex flex-col max-w-[375px]">
+ return (
+  <>
+    <div className="min-h-screen bg-white flex flex-col max-w-[375px]">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
         <div className="flex items-center justify-between w-full">
@@ -312,17 +335,22 @@ const handleHonorific = async (messageId: string) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </Link>
-          <span className="text-lg font-semibold text-gray-900 font-pretendard">{myAI?.name ?? '...'}</span>
-          <button 
-            onClick={handleEnd} 
+          <span className="text-lg font-semibold text-gray-900 font-pretendard">
+            {myAI?.name ?? "..."}
+          </span>
+          <button
+            onClick={() => setEndModalOpen(true)} // 모달 열기
             aria-label="End conversation"
-            className="text-gray-600 hover:text-gray-900 transition-colors"
+            className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-            </svg>
+            <Image src="/etc/exit_to_app.svg" alt="exit" width={24} height={24} />
           </button>
         </div>
+        {!hidden && (
+          <button className="absolute right-3" onClick={() => setHidden(true)}>
+            <Image src="/etc/exit2.png" alt="exit" width={84} height={33} />
+          </button>
+        )}
       </div>
 
       {/* Error */}
@@ -336,19 +364,19 @@ const handleHonorific = async (messageId: string) => {
       )}
 
       {/* Messages */}
-    <div className="flex-1 bg-white px-4 py-4 overflow-y-auto">
-      <MessageList
-        messages={messages}
-        myAI={myAI}
-        feedbackOpenId={feedbackOpenId}
-        honorificResults={honorificResults}
-        sliderValues={sliderValues}
-        handleFeedbacks={handleFeedbacks}
-        handleHonorific={handleHonorific}
-        setSliderValues={setSliderValues}
-      />
-      <div ref={bottomRef} />
-    </div>
+      <div className="flex-1 bg-white px-4 py-4 overflow-y-auto">
+        <MessageList
+          messages={messages}
+          myAI={myAI}
+          feedbackOpenId={feedbackOpenId}
+          honorificResults={honorificResults}
+          sliderValues={sliderValues}
+          handleFeedbacks={handleFeedbacks}
+          handleHonorific={handleHonorific}
+          setSliderValues={setSliderValues}
+        />
+        <div ref={bottomRef} />
+      </div>
 
       {/* Input */}
       <div className="bg-blue-50 px-4 py-4 border-t border-gray-200 w-[375px]">
@@ -358,11 +386,46 @@ const handleHonorific = async (messageId: string) => {
             placeholder="Enter your message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           />
-          <button onClick={sendMessage} className="text-blue-500 font-semibold">Send</button>
+          <button onClick={sendMessage} className="text-blue-500 font-semibold">
+            Send
+          </button>
         </div>
       </div>
     </div>
-  )
+
+    {/* End Modal */}
+    {endModalOpen && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div
+          className="absolute inset-0 bg-black/40"
+          onClick={() => setEndModalOpen(false)}
+        />
+        <div className="relative bg-white rounded-2xl p-6 w-[320px] shadow-lg z-10 flex flex-col items-center text-center">
+          <Image src='/etc/exitchar.svg' alt="exit" width={118} height={94} className='my-5'/>
+
+          <p className="text-lg font-semibold mb-2">
+            Would you like to end the conversation
+          </p>
+          <p className="text-sm text-gray-600 mb-6">and receive feedback?</p>
+
+          <button
+            className="w-full bg-blue-500 text-white py-3 rounded-xl font-semibold hover:bg-blue-600 transition-colors cursor-pointer"
+            onClick={handleEnd} 
+          >
+            Get Feedback
+          </button>
+
+          <button
+            className="w-full mt-2 bg-gray-100 text-gray-600 py-3 rounded-xl font-semibold cursor-pointer"
+            onClick={() => setEndModalOpen(false)}
+          >
+            Keep Conversation
+          </button>
+        </div>
+      </div>
+    )}
+  </>
+  )  
 }
