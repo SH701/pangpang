@@ -157,7 +157,7 @@ export default function Result() {
       {/* 완료 버튼 */}
       <div className="px-6 py-6 border-t border-gray-200">
         <button 
-          className="w-full bg-blue-600 text-white py-4 rounded-xl font-semibold font-pretendard hover:bg-blue-700 transition-colors shadow-lg" 
+          className="w-full py-3 bg-blue-600 font-medium text-white text-lg rounded-md hover:bg-gray-900 transition-colors duration-200" 
           onClick={() => router.push("/main")}
         >
           Complete
