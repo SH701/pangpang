@@ -69,7 +69,7 @@ export default function Result() {
           <div className="px-4 pt-6 pb-4 bg-[#EFF6FF] rounded-b-3xl">
             <div className="flex items-center gap-3 mb-3">
               <Image
-                src="/Noonchicoach.svg"
+                src="/characters/Noonchicoach.svg"
                 width={34}
                 height={34}
                 alt="Noonchi coach"
