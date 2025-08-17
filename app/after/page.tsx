@@ -25,6 +25,7 @@ export default function AfterPage() {
   const [error, setError] = useState<string|null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false)
+  const canSubmit = current < 2 || (koreanLevel && profileImageUrl && interests.length > 0);
 
 
    useEffect(() => {
@@ -96,7 +97,7 @@ const goMain = async () => {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* 헤더 */}
-      <div className="px-4 pt-4 pb-3 border-b border-gray-200 bg-white">
+      <div className="px-4 pt-4 pb-3  bg-white">
         <div className="flex items-center justify-between">
           <h1 className="text-gray-900 text-xl font-semibold font-pretendard">Profile Setup</h1>
           <button
@@ -192,12 +193,12 @@ const goMain = async () => {
                           : [...interests, opt];
                         setInterests(next);
                       }}
-                      className={`flex justify-center items-center text-sm font-medium transition-all duration-200 border whitespace-nowrap`}
+                      className={`flex justify-center items-center text-sm font-medium transition-all duration-200 border whitespace-nowrap cursor-pointer`}
                       style={{
-                        borderRadius: interests.includes(opt as Interest) ? '12px' : '16px',
+                        borderRadius: interests.includes(opt as Interest) ? '99px' : '99px',
                         border: interests.includes(opt as Interest) ? '1px solid #316CEC' : '1px solid #E5E7EB',
-                        background: interests.includes(opt as Interest) ? '#EFF6FF' : '#F9FAFB',
-                        color: interests.includes(opt as Interest) ? '#1F2937' : '#6B7280',
+                        background: interests.includes(opt as Interest) ? '#EFF6FF' : '#FFFFFF',
+                        color: interests.includes(opt as Interest) ? '#000000' : '#000000',
                         padding: '12px'
                       }}
                     >
@@ -212,17 +213,22 @@ const goMain = async () => {
       </div>
       
       {/* Footer */}
-      <div className="px-4 py-4 bg-white border-t border-gray-200">
-        <div className="max-w-md mx-auto">
-          <button
-            onClick={onNext}
-            className="w-full py-3 bg-blue-600 font-medium text-white text-lg rounded-md hover:bg-gray-900 transition-colors duration-200"
-          >
-            {current < 2 ? 'Next' : 'Finish'}
-          </button>
-          {error && <p className="mt-3 text-center text-red-500 text-sm">{error}</p>}
-        </div>
-      </div>
-    </div>
+     <div className="fixed bottom-0 left-0 right-0 bg-white">
+  <button
+    disabled={!canSubmit}
+    onClick={onNext} // ✅ handleSignup 대신 onNext
+    className={`w-full h-[92px] py-4 font-semibold text-lg rounded-none font-pretendard ${
+      canSubmit
+        ? 'bg-blue-600 text-white hover:bg-blue-700'
+        : 'bg-[#BFDBFE] text-[#EFF6FF] cursor-not-allowed'
+    }`}
+    style={{
+      paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)", // iOS 홈바 피하기
+    }}
+  >
+    Next
+  </button>
+</div>
+</div>
   );
 }
