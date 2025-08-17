@@ -11,7 +11,8 @@ import type { Conversation } from '@/lib/types';
 import Link from 'next/link';
 import { ChevronRightIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import { AnimatePresence, motion } from 'framer-motion';
-import FeedbackSection from '@/components/bothistory/Feedbacksection';
+import FeedbackSection from '@/components/bothistory/Feedbacksections';
+
 
 
 type Filter = 'done' | 'in-progress';
