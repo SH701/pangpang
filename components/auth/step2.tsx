@@ -76,7 +76,7 @@ export default function SignupStep2() {
   return (
     <div className="flex flex-col min-h-screen bg-white max-w-[375px] mx-auto">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200 bg-white">
+      <div className="px-6 py-4 bg-white mt-8">
         <h2 className="text-xl font-semibold font-pretendard text-gray-800 text-center">
           Enter your details
         </h2>
@@ -135,7 +135,7 @@ export default function SignupStep2() {
       </div>
 
       {/* Footer Button */}
-      <div className="px-6 py-6 border-t border-gray-200 bg-white">
+      <div className="px-6 py-6  border-gray-200 bg-white">
         <button
           disabled={!canSubmit}
           onClick={handleSignup}

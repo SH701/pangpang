@@ -25,12 +25,18 @@ export default function SignupStep1() {
   return (
     <div className="flex flex-col min-h-screen bg-white max-w-[375px] mx-auto">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200 bg-white">
-        <button onClick={() => router.back()} className="text-gray-600 hover:text-gray-800 transition-colors">
-          <ChevronLeftIcon className="w-6 h-6" />
-        </button>
-        <h1 className="text-center text-xl font-semibold font-pretendard text-gray-800 mt-2">Create account</h1>
-      </div>
+      <div className="px-6 pt-4 pb-10  bg-white flex items-center justify-between relative mt-10">
+  <button
+    onClick={() => router.back()}
+    className="text-gray-600 hover:text-gray-800 transition-colors"
+  >
+    <ChevronLeftIcon className="w-6 h-6" />
+  </button>
+
+  <h1 className="absolute left-1/2 transform -translate-x-1/2 text-xl font-semibold font-pretendard text-gray-800">
+    Create account
+  </h1>
+</div>
 
       {/* Main Content */}
       <div className="flex-1 px-6 py-8 space-y-8">
@@ -73,7 +79,7 @@ export default function SignupStep1() {
             onChange={e => setAgree(e.target.checked)}
             className="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
           />
-          <span className="text-sm text-gray-700 font-pretendard leading-relaxed">
+          <span className="sm:text-sm text-gray-700 font-pretendard leading-relaxed text-[13.5px]">
             Agree with{' '}
             <a href="#" className="text-blue-600 hover:text-blue-700 underline">Terms of use</a> and our{' '}
             <a href="#" className="text-blue-600 hover:text-blue-700 underline">privacy policy</a>
@@ -82,7 +88,7 @@ export default function SignupStep1() {
       </div>
 
       {/* Footer Button */}
-      <div className="px-6 py-6 border-t border-gray-200 bg-white">
+      <div className="px-6 py-6  bg-white">
         <button
           disabled={!canNext}
           onClick={goNext}

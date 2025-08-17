@@ -79,34 +79,35 @@ const handleSkip = () => {
               )}
             </div>
 
-            <div className="w-[274px] h-[62px] flex flex-col items-center justify-center text-center mx-auto">
-              <h2
-                className={`text-center font-pretendard text-2xl font-semibold leading-[130%] text-gray-900 ${
-                  slide.id === 3 ? "tracking-tight" : ""
-                }`}
-              >
-                {slide.title}
-              </h2>
-            </div>
-            <div
-              className={`w-full flex flex-col items-center text-center mx-auto ${
-                slide.id === 4 ? "max-w-[350px]" : "max-w-[300px]"
-              }`}
-            >
-              <p className="text-gray-600 mt-5 text-sm leading-7 mb-5">
-                {slide.desc}
-              </p>
-            </div>
+           <div className="w-[274px] flex flex-col items-center justify-center text-center mx-auto mt-10">
+  <h2
+    className={`text-center font-pretendard text-2xl font-semibold leading-tight text-[#111827] ${
+      slide.id === 3 ? "tracking-tight" : ""
+    }`}
+  >
+    {slide.title}
+  </h2>
+</div>
+<div
+  className={`w-full flex flex-col items-center text-center mx-auto ${
+    slide.id === 4 ? "max-w-[350px]" : "max-w-[300px]"
+  }`}
+>
+  <p className="text-[#9CA3AF] mt-5 text-sm leading-snug">
+    {slide.desc}
+  </p>
+</div>
+
           </div>
         ))}
       </Slider>
     </div>
 
     {/* 버튼/로그인 영역 */}
-    <div className="px-4">
+    <div className="px-4 pb-6">
       <button
         onClick={handleNext}
-        className="w-full py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-gray-900 transition"
+        className="w-[334px] max-h-[52px] py-3 mx-auto bg-blue-600 rounded-lg text-white font-medium  hover:bg-gray-900 transition"
       >
         {currentSlide === slides.length - 1 ? "Continue" : "Next"}
       </button>
