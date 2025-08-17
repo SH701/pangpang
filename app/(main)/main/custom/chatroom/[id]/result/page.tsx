@@ -80,18 +80,14 @@ export default function Result() {
               </h2>
             </div>
             <div className="bg-white rounded-2xl border border-gray-200 p-4">
-              <p className="text-gray-900 text-base font-medium font-pretendard leading-[130%]">
+              <p className="text-gray-900 text-base font-medium font-pretendard leading-[130%] mb-4">
                 {feedback.overallEvaluation ||
                   'You responded appropriately to the situation, but the tone could be more polite.'}
               </p>
-            </div>
-          </div>
-
-          {/* Score Section */}
-          <div className="px-4 pt-6">
-            <div className="space-y-3">
-              <Score label="Politeness" value={feedback.politenessScore} />
-              <Score label="Naturalness" value={feedback.naturalnessScore} />
+              <div className="space-y-3">
+                <Score label="Politeness" value={feedback.politenessScore} />
+                <Score label="Naturalness" value={feedback.naturalnessScore} />
+              </div>
             </div>
           </div>
 
