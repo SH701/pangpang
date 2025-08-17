@@ -9,6 +9,8 @@ import Link from 'next/link'
 import MessageList from '@/components/chats/MessageList'
 import { HonorificResults } from '@/components/chats/HonorificSlider'
 import Image from "next/image"
+import LoadingModal from '@/components/chats/LoadingModal'
+
 
 
 type ConversationDetail = {
@@ -49,7 +51,7 @@ export default function ChatroomPage() {
   const [sliderValues, setSliderValues] = useState<Record<string, number>>({})
   const [hidden, setHidden] = useState(false)
   const [endModalOpen, setEndModalOpen] = useState(false)
-
+const [loadingModalOpen, setLoadingModalOpen] = useState(false);
 
 
   // 대화 정보 로드
@@ -224,6 +226,8 @@ const sendMessage = async () => {
 
   // 대화 종료
   const handleEnd = async () => {
+    setEndModalOpen(false);   
+  setLoadingModalOpen(true);
     try {
       const res = await fetch(`/api/conversations/${id}/end`, {
         method: 'PUT',
@@ -236,6 +240,8 @@ const sendMessage = async () => {
       router.push(`/main/custom/chatroom/${id}/result`)
     } catch (error) {
       setError('대화 종료 중 오류가 발생했습니다')
+    }finally{
+      setLoadingModalOpen(false)
     }
   }
 
@@ -426,6 +432,9 @@ const handleHonorific = async (messageId: string) => {
         </div>
       </div>
     )}
+    {loadingModalOpen && (
+       <LoadingModal open={loadingModalOpen}/>
+      )}
   </>
   )  
 }
