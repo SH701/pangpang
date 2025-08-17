@@ -133,21 +133,23 @@ export default function SignupStep2() {
           </div>
         </div>
       </div>
-
-      {/* Footer Button */}
-      <div className="px-6 py-6  border-gray-200 bg-white">
-        <button
-          disabled={!canSubmit}
-          onClick={handleSignup}
-          className={`w-full py-4 font-semibold text-lg rounded-xl transition-all duration-200 font-pretendard ${
-            canSubmit
-              ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg'
-              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-          }`}
-        >
-          Next
-        </button>
-      </div>
+{/* Footer Button */}
+<div className="fixed bottom-0 left-0 right-0 bg-white">
+  <button
+    disabled={!canSubmit}
+    onClick={handleSignup}
+    className={`w-full h-[92px] py-4 font-semibold text-lg rounded-none font-pretendard ${
+      canSubmit
+        ? 'bg-blue-600 text-white hover:bg-blue-700'
+        : 'bg-[#BFDBFE] text-[#EFF6FF] cursor-not-allowed'
+    }`}
+    style={{
+      paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)", // iOS 홈바 피하기
+    }}
+  >
+    Next
+  </button>
+</div>
     </div>
   );
 }

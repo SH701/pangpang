@@ -67,7 +67,7 @@ export default function SignupStep1() {
             value={pw2}
             onChange={e => setPw2(e.target.value)}
           />
-          <p className="text-xs text-gray-500 font-pretendard">
+          <p className="text-sm text-[#316CEC] font-pretendard">
             8–16 characters, include letters & numbers
           </p>
         </div>
@@ -81,26 +81,28 @@ export default function SignupStep1() {
           />
           <span className="sm:text-sm text-gray-700 font-pretendard leading-relaxed text-[13.5px]">
             Agree with{' '}
-            <a href="#" className="text-blue-600 hover:text-blue-700 underline">Terms of use</a> and our{' '}
-            <a href="#" className="text-blue-600 hover:text-blue-700 underline">privacy policy</a>
+            <a href="#" className="text-black underline">Terms of use</a> and our{' '}
+            <a href="#" className="text-black underline">privacy policy</a>
           </span>
         </label>
       </div>
 
       {/* Footer Button */}
-      <div className="px-6 py-6  bg-white">
-        <button
-          disabled={!canNext}
-          onClick={goNext}
-          className={`w-full py-4 font-semibold text-lg rounded-xl transition-all duration-200 font-pretendard ${
-            canNext 
-              ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg' 
-              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-          }`}
-        >
-          Next
-        </button>
-      </div>
+        <div className="fixed bottom-0 left-0 right-0 bg-white">
+  <button
+    disabled={!canNext}
+    onClick={goNext}
+    className={`w-full h-[92px] py-4 font-semibold text-lg rounded-none font-pretendard ${
+      canNext
+         ? 'bg-blue-600 text-white hover:bg-blue-700'
+        : 'bg-[#BFDBFE] text-[#EFF6FF] cursor-not-allowed' }`}
+    style={{
+      paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)", 
+    }}
+  >
+    Next
+  </button>
+</div>
     </div>
   );
 }

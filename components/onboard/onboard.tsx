@@ -50,7 +50,7 @@ const handleSkip = () => {
 
     return (
  <div className="h-screen w-full bg-white flex items-center justify-center overflow-hidden">
-  <div className="w-full max-w-[375px] h-full flex flex-col mx-auto relative">
+  <div className="w-full h-full flex flex-col mx-auto relative">
     {/* 👇 flex-col + justify-between으로 슬라이더 영역과 버튼 영역을 위/아래로 분리 */}
     <div className="flex-grow">
       <Slider
@@ -93,7 +93,7 @@ const handleSkip = () => {
     slide.id === 4 ? "max-w-[350px]" : "max-w-[300px]"
   }`}
 >
-  <p className="text-[#9CA3AF] mt-5 text-sm leading-snug">
+  <p className="text-[#9CA3AF] mt-2 mb-3 text-sm leading-snug">
     {slide.desc}
   </p>
 </div>
