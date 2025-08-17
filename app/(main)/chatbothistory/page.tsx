@@ -79,7 +79,7 @@ useEffect(() => {
 
   let query = "/api/conversations?sortBy=CREATED_AT_DESC&page=1&size=1000";
   if (selectedFilter === "done" || selectedFilter === "in-progress") {
-    query += `?status=${filterMap[selectedFilter]}`;
+    query += `&status=${filterMap[selectedFilter]}`;
   }
 
   fetch(query, {
