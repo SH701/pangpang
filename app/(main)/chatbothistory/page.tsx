@@ -11,8 +11,7 @@ import type { Conversation } from '@/lib/types';
 import Link from 'next/link';
 import { ChevronRightIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import { AnimatePresence, motion } from 'framer-motion';
-import FeedbackSection from '@/components/bothistory/Feedbacksections';
-
+import FeedbackSection from '@/components/bothistory/Feedbacksection';
 
 
 type Filter = 'done' | 'in-progress';
@@ -71,85 +70,38 @@ export default function ChatBothistoryPage() {
   const normalizeConversations = (arr: any): Conversation[] =>
     (Array.isArray(arr) ? arr : []).filter(Boolean).filter((c) => !!c?.aiPersona);
 
-  // const loadPersonasFromConversations = useCallback(async () => {
-  //   if (!accessToken) return;
-  //   const headers = { Authorization: `Bearer ${accessToken}` };
-
-  //   const toSlides = (convos: Conversation[]): PersonaSlide[] => {
-  //     const map = new Map<string | number, PersonaSlide>();
-  //     for (const c of convos) {
-  //       const ai: any = c?.aiPersona;
-  //       if (!ai) continue;
-  //       const id = ai.id ?? ai.personaId ?? ai.name;
-  //       if (id == null || map.has(id)) continue;
-  //       map.set(id, {
-  //         personaId: id,
-  //         name: ai.name || 'Unknown',
-  //         profileImageUrl: typeof ai.profileImageUrl === 'string' ? ai.profileImageUrl : '',
-  //       });
-  //     }
-  //     return Array.from(map.values());
-  //   };
-
-  //   try {
-  //     const allRes = await fetch(`/api/conversations?page=1&size=200`, { headers, cache: 'no-store' });
-  //     if (allRes.ok) {
-  //       const allData = await allRes.json();
-  //       const slides = toSlides(normalizeConversations(allData?.content));
-  //       setSliderItems(([{ isAdd: true }, ...slides] as PersonaSlide[]));
-  //       return;
-  //     }
-
-  //     // fallback: ENDED + ACTIVE
-  //     const [endedRes, activeRes] = await Promise.all([
-  //       fetch(`/api/conversations?status=ENDED&page=1&size=200`, { headers, cache: 'no-store' }),
-  //       fetch(`/api/conversations?status=ACTIVE&page=1&size=200`, { headers, cache: 'no-store' }),
-  //     ]);
-
-  //     const [endedJson, activeJson] = await Promise.all([
-  //       endedRes.ok ? endedRes.json() : { content: [] },
-  //       activeRes.ok ? activeRes.json() : { content: [] },
-  //     ]);
-
-  //     const ended = normalizeConversations(endedJson?.content);
-  //     const active = normalizeConversations(activeJson?.content);
-  //     const slides = toSlides([...active, ...ended]);
-  //     setSliderItems(([{ isAdd: true }, ...slides] as PersonaSlide[]));
-  //   } catch {
-  //     setSliderItems([{ isAdd: true }]);
-  //   }
-  // }, [accessToken]);
-
-  // useEffect(() => {
-  //   loadPersonasFromConversations();
-  // }, [loadPersonasFromConversations]);
-
 useEffect(() => {
   if (!accessToken) return;
 
   setLoading(true);
   setError(null);
 
-  // ✅ selectedFilter에 따라 엔드포인트 다르게
- let query = `/api/conversations`; // ✅ 파라미터 빼기
-if (selectedFilter === 'done' || selectedFilter === 'in-progress') {
-  query = `/api/conversations?status=${filterMap[selectedFilter]}`; // 상태만 붙이기
-}
+  let query = "/api/conversations?sortBy=CREATED_AT_DESC&page=1&size=1000";
+  if (selectedFilter === "done" || selectedFilter === "in-progress") {
+    query += `?status=${filterMap[selectedFilter]}`;
+  }
+
   fetch(query, {
     headers: { Authorization: `Bearer ${accessToken}` },
-    cache: 'no-store',
   })
     .then(async (res) => {
-      if (!res.ok) throw new Error('API 실패');
-      const data = await res.json();
-       const sorted = normalizeConversations(data?.content).sort(
+  if (!res.ok) {
+    const errText = await res.text(); // 서버가 보낸 에러 body
+    throw new Error(`${res.status} ${res.statusText}: ${errText}`);
+  }
+  return res.json();
+})
+.then((data) => {
+  const sorted = normalizeConversations(data?.content).sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
-      // ✅ history만 세팅
-      setHistory(normalizeConversations(sorted));
-    })
-    .catch(() => setError('불러오기 실패'))
-    .finally(() => setLoading(false));
+  setHistory(sorted);
+})
+.catch((err) => {
+  console.error("API 호출 에러:", err);
+  setError(err.message);
+})
+.finally(() => setLoading(false));
 }, [accessToken, selectedFilter]);
 
   useEffect(() => {
