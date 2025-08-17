@@ -84,9 +84,11 @@ export default function Result() {
                 {feedback.overallEvaluation ||
                   'You responded appropriately to the situation, but the tone could be more polite.'}
               </p>
-              <div className="space-y-3">
-                <Score label="Politeness" value={feedback.politenessScore} />
-                <Score label="Naturalness" value={feedback.naturalnessScore} />
+              <div className="border-t border-gray-200 pt-4">
+                <div className="space-y-3">
+                  <Score label="Politeness" value={feedback.politenessScore} />
+                  <Score label="Naturalness" value={feedback.naturalnessScore} />
+                </div>
               </div>
             </div>
           </div>
