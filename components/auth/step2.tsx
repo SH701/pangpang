@@ -77,10 +77,10 @@ export default function SignupStep2() {
     <div className="flex flex-col min-h-screen bg-white max-w-[375px] mx-auto">
       {/* Header */}
       <div className="px-6 py-4 bg-white mt-8">
-        <h2 className="text-xl font-semibold font-pretendard text-gray-800 text-center">
+        <h2 className="text-xl font-semibold font-pretendard text-gray-800 text-left">
           Enter your details
         </h2>
-        <p className="text-sm font-normal font-pretendard text-gray-500 text-center mt-2 leading-[140%]">
+        <p className="text-sm font-normal font-pretendard text-gray-500 text-left mt-2 leading-[140%]">
           Enter it exactly as shown on your ID
         </p>
       </div>
