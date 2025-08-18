@@ -33,7 +33,7 @@ export default function HelperSlider({ onChange }: Props) {
   return (
     <>
       {showInfo && (
-        <div className="flex justify-center ">
+        <div className="flex justify-center mb-4">
           <span className="inline-flex items-center bg-white px-3 py-1 text-xs text-gray-600 rounded-full shadow border">
             <InformationCircleIcon className="w-4 h-4 mr-1 text-blue-600" />
             Move the slider to match your situation
@@ -87,7 +87,7 @@ export default function HelperSlider({ onChange }: Props) {
               />
               <div
                 className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-out"
-                style={{ left: `${percent}%` }}
+                style={{ left: `${percent}%` ,zIndex:20}}
               >
                 <div 
                   className="rounded-full shadow"
@@ -176,7 +176,7 @@ export default function HelperSlider({ onChange }: Props) {
               />
               <div
                 className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-out"
-                style={{ left: `${fPercent}%` }}
+                style={{ left: `${fPercent}%`,zIndex:20 }}
               >
                 <div 
                   className="rounded-full shadow"

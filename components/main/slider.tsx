@@ -222,232 +222,206 @@ export default function Slider() {
       <span className="font-semibold text-lg py-2 px-4 mt-3">Today`s honorific expression</span>
 
       {/* 오늘의 문장 */}
-     <div 
-       className="relative"
-       style={{
-         width: '296px',
-         display: 'flex',
-         padding: '12px 16px',
-         justifyContent: 'center',
-         alignItems: 'center',
-         borderRadius: '8px',
-         border: '1px solid var(--Natural-cool-gray-200, #E5E7EB)',
-         background: 'var(--Natural-cool-gray-50, #F9FAFB)',
-         marginTop: '16px',
-         marginBottom: showex ? '0px' : '16px'
-       }}
-     >
-  <div className="text-base text-center" style={{ padding: 0 }}>
+     <div className="w-[296px] bg-gray-100 border border-gray-200 py-3 my-2 mb-3 rounded-xl">
+  <div className=" text-base relative text-center px-8 py-1">
     <span>{currentSentence.phrase}</span>
+    <button
+      onClick={() => setShowex((prev) => !prev)}
+      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800"
+    >
+      {showex ? (
+        <ChevronUpIcon className="size-5" />
+      ) : (
+        <ChevronDownIcon className="size-5" />
+      )}
+    </button>
   </div>
-  <button
-    onClick={() => setShowex((prev) => !prev)}
-    className="absolute top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800"
-    style={{ right: '12px' }}
-  >
-    {showex ? (
-      <ChevronUpIcon className="size-5" />
-    ) : (
-      <ChevronDownIcon className="size-5" />
-    )}
-  </button>
 </div>
-
-{showex && (
-  <div 
-    className="mb-4"
-    style={{
-      width: '296px',
-      padding: '12px 16px',
-      borderRadius: '8px',
-      border: '1px solid var(--Natural-cool-gray-200, #E5E7EB)',
-      background: 'var(--Natural-cool-gray-50, #F9FAFB)',
-      marginTop: '8px'
-    }}
-  >
-    <div className="text-[13px] text-center text-gray-700">
+  {showex && (
+    <div className="text-[13px] w-[296px] px-2 py-3 rounded-lg mb-6 border-gray-200 border bg-gray-100 text-center   text-gray-700">
       {currentSentence.explanation}
     </div>
+  )}
+{showInfo && (
+  <div className="flex justify-center mb-4">
+    <span className="inline-flex items-center bg-white px-3 py-1 text-xs text-gray-600 rounded-full shadow border">
+      <InformationCircleIcon className="w-4 h-4 mr-1 text-blue-600" />
+      Move the slider to match your situation
+    </span>
   </div>
 )}
-{showInfo && (
-          <div className="flex justify-center mb-4">
-          <span className="inline-flex items-center bg-white px-3 py-1 text-xs text-gray-600 rounded-full shadow border">
-            <InformationCircleIcon className="w-4 h-4 mr-1 text-blue-600" />
-            Move the slider to match your situation
-          </span>
-        </div>
-      )}
-      {/* 슬라이더 박스 */}
-      <div className="w-[335px] px-6 max-w-md mx-auto border rounded-xl border-blue-400 bg-[#EFF6FF]" style={{ marginTop: '10px' }}>
-        <div className='pt-4'>
-          <span 
-            className="font-pretendard"
-            style={{
-              color: 'var(--Natural-cool-gray-700, #374151)',
-              fontFamily: 'Pretendard',
-              fontSize: '16px',
-              fontStyle: 'normal',
-              fontWeight: '500',
-              lineHeight: '130%'
-            }}
-          >
-            Intimacy Level
-          </span>
-        </div>
-        <div className="relative mb-4" style={{ height: '16px', width: '100%', marginTop: '10px' }}>
-          <div className="absolute inset-0 bg-gray-200 rounded-full" style={{ height: '16px', width: '100%' }} />
-          {steps.map((_, i) => (
-            <div
-              key={`lvl-tick-${i}`}
-              className="absolute top-1/2 z-10 transform -translate-x-1/2 -translate-y-1/2 transition-colors"
-              style={{ 
-                left: `${(i / max) * 100}%`,
-                width: '8px',
-                height: '8px',
-                flexShrink: 0,
-                aspectRatio: '1/1',
-                backgroundColor: 'var(--Color-Blue-200, #BFDBFE)',
-                borderRadius: '50%',
-                marginLeft: i === 0 ? '4px' : i === max ? '-4px' : '0px'
-              }}
-            />
-          ))}
-          <div
-            className="absolute inset-y-0 left-0 bg-blue-600 rounded-full transition-all duration-300 ease-out"
-            style={{ 
-              width: `${percent}%`,
-              height: '16px'
-            }}
-          />
-          <div
-            className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-out"
-            style={{ left: `${percent}%` }}
-          >
-            <div 
-              className="rounded-full shadow"
-              style={{
-                width: '28px',
-                height: '28px',
-                flexShrink: 0,
-                backgroundColor: '#FFF',
-                border: '1px solid var(--Color-Blue-700, #1D4ED8)',
-                filter: 'drop-shadow(0 4px 4px rgba(59, 107, 240, 0.10))',
-                transform: 'translateX(-50%)'
-              }}
-            />
-          </div>
-          <input
-            type="range"
-            min={0}
-            max={max}
-            step={1}
-            value={level}
-            onChange={(e) => {
-              setLevel(Number(e.target.value))  
-              setShowInfo(false)}}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            aria-label="Speech level"
-          />
-        </div>
-          
-        <div className="flex justify-between text-[11px] text-gray-600 pb-4 mb-4 border-b border-gray-300">
-          {steps.map((label, i) => (
-            <span
-              key={`lvl-label-${i}`}
-              className={`flex-1 ${i === 0 ? 'text-left' : i === steps.length - 1 ? 'text-right' : 'text-center'}`}
-            >
-              {label}
-            </span>
-          ))}
-          
-        </div>
-         <div>
-          <span 
-            className="font-pretendard"
-            style={{
-              color: 'var(--Natural-cool-gray-700, #374151)',
-              fontFamily: 'Pretendard',
-              fontSize: '16px',
-              fontStyle: 'normal',
-              fontWeight: '500',
-              lineHeight: '130%'
-            }}
-          >
-            Formality Level
-          </span>
-        </div>
-          
-
-        <div className="relative mb-4" style={{ height: '16px', width: '100%', marginTop: '10px' }}>
-          
-          <div className="absolute inset-0 bg-gray-200 rounded-full" style={{ height: '16px', width: '100%' }} />
-          
-          {famSteps.map((_, i) => (
-            <div
-              key={`fam-tick-${i}`}
-              className="absolute top-1/2 z-10 transform -translate-x-1/2 -translate-y-1/2 transition-colors"
-              style={{ 
-                left: `${(i / fMax) * 100}%`,
-                width: '8px',
-                height: '8px',
-                flexShrink: 0,
-                aspectRatio: '1/1',
-                backgroundColor: 'var(--Color-Blue-200, #BFDBFE)',
-                borderRadius: '50%',
-                marginLeft: i === 0 ? '4px' : i === fMax ? '-4px' : '0px'
-              }}
-            />
-          ))}
-          <div
-            className="absolute inset-y-0 left-0 bg-blue-600 rounded-full transition-all duration-300 ease-out"
-            style={{ 
-              width: `${fPercent}%`,
-              height: '16px'
-            }}
-          />
-          <div
-            className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-out"
-            style={{ left: `${fPercent}%` }}
-          >
-            <div 
-              className="rounded-full shadow"
-              style={{
-                width: '28px',
-                height: '28px',
-                flexShrink: 0,
-                backgroundColor: '#FFF',
-                border: '1px solid var(--Color-Blue-700, #1D4ED8)',
-                filter: 'drop-shadow(0 4px 4px rgba(59, 107, 240, 0.10))',
-                transform: 'translateX(-50%)'
-              }}
-            />
-          </div>
-          <input
-            type="range"
-            min={0}
-            max={fMax}
-            step={1}
-            value={fam}
-            onChange={(e) => {
-              setFam(Number(e.target.value)) 
-              setShowInfo(false)}}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            aria-label="Familiarity level"
-          />
-        </div>
-
-        <div className="flex justify-between text-[11px] text-gray-600 pb-4">
-          {famSteps.map((label, i) => (
-            <span
-              key={`fam-label-${i}`}
-              className={`flex-1 ${i === 0 ? 'text-left' : i === famSteps.length - 1 ? 'text-right' : 'text-center'}`}
-            >
-              {label}
-            </span>
-          ))}
-        </div>
-      </div>
+  {/* 슬라이더 박스 */}
+  <div className="w-[335px] px-6 max-w-md mx-auto border rounded-xl border-blue-400 bg-[#EFF6FF] pb-6">
+    <div className="pt-4">
+      <span
+        className="font-pretendard"
+        style={{
+          color: 'var(--Natural-cool-gray-700, #374151)',
+          fontFamily: 'Pretendard',
+          fontSize: '16px',
+          fontStyle: 'normal',
+          fontWeight: '500',
+          lineHeight: '130%',
+        }}
+      >
+        Intimacy Level
+      </span>
     </div>
+    <div className="relative mb-2 mt-4" style={{ height: '16px', width: '100%' }}>
+      <div className="absolute inset-0 bg-gray-200 rounded-full" style={{ height: '16px', width: '100%' }} />
+      {steps.map((_, i) => (
+        <div
+          key={`lvl-tick-${i}`}
+          className="absolute top-1/2 z-10 transform -translate-x-1/2 -translate-y-1/2 transition-colors "
+          style={{
+            left: `${(i / max) * 100}%`,
+            width: '8px',
+            height: '8px',
+            flexShrink: 0,
+            aspectRatio: '1/1',
+            backgroundColor: 'var(--Color-Blue-200, #BFDBFE)',
+            borderRadius: '50%',
+            marginLeft: i === 0 ? '4px' : i === max ? '-4px' : '0px',
+          }}
+        />
+      ))}
+      <div
+        className="absolute inset-y-0 left-0 bg-blue-600 rounded-full transition-all duration-300 ease-out"
+        style={{
+          width: `${percent}%`,
+          height: '16px',
+        }}
+      />
+      <div
+        className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-out"
+        style={{ left: `${percent}%`,zIndex:20 }}
+      >
+        <div
+          className="rounded-full shadow "
+          style={{
+            width: '28px',
+            height: '28px',
+            flexShrink: 0,
+            backgroundColor: '#FFF',
+            border: '1px solid var(--Color-Blue-700, #1D4ED8)',
+            filter: 'drop-shadow(0 4px 4px rgba(59, 107, 240, 0.10))',
+            transform: 'translateX(-50%)',
+          }}
+        />
+      </div>
+      <input
+        type="range"
+        min={0}
+        max={max}
+        step={1}
+        value={level}
+        onChange={(e) => {
+          setLevel(Number(e.target.value));
+          setShowInfo(false);
+        }}
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        aria-label="Speech level"
+      />
+    </div>
+
+    <div className="flex justify-between text-[11px] text-gray-600 pb-4 mb-2 border-b border-gray-300">
+      {steps.map((label, i) => (
+        <span
+          key={`lvl-label-${i}`}
+          className={`flex-1 ${i === 0 ? 'text-left' : i === steps.length - 1 ? 'text-right' : 'text-center'}`}
+        >
+          {label}
+        </span>
+      ))}
+    </div>
+
+    <div className="pb-6">
+      <span
+        className="font-pretendard"
+        style={{
+          color: 'var(--Natural-cool-gray-700, #374151)',
+          fontFamily: 'Pretendard',
+          fontSize: '16px',
+          fontStyle: 'normal',
+          fontWeight: '500',
+          lineHeight: '130%',
+        }}
+      >
+        Formality Level
+      </span>
+    </div>
+
+    <div className="relative mb-2" style={{ height: '16px', width: '100%' }}>
+      <div className="absolute inset-0 bg-gray-200 rounded-full" style={{ height: '16px', width: '100%' }} />
+
+      {famSteps.map((_, i) => (
+        <div
+          key={`fam-tick-${i}`}
+          className="absolute top-1/2 z-10 transform -translate-x-1/2 -translate-y-1/2 transition-colors"
+          style={{
+            left: `${(i / fMax) * 100}%`,
+            width: '8px',
+            height: '8px',
+            flexShrink: 0,
+            aspectRatio: '1/1',
+            backgroundColor: 'var(--Color-Blue-200, #BFDBFE)',
+            borderRadius: '50%',
+            marginLeft: i === 0 ? '4px' : i === fMax ? '-4px' : '0px',
+          }}
+        />
+      ))}
+      <div
+        className="absolute inset-y-0  not-[]:left-0 bg-blue-600 rounded-full transition-all duration-300 ease-out"
+        style={{
+          width: `${fPercent}%`,
+          height: '16px',
+        }}
+      />
+      <div
+        className="absolute top-1/2 transform  -translate-y-1/2 transition-all duration-300 ease-out"
+        style={{ left: `${fPercent}%`,zIndex:20 }}
+      >
+        <div
+          className="rounded-full shadow z-11"
+          style={{
+            width: '28px',
+            height: '28px',
+            flexShrink: 0,
+            backgroundColor: '#FFF',
+            border: '1px solid var(--Color-Blue-700, #1D4ED8)',
+            filter: 'drop-shadow(0 4px 4px rgba(59, 107, 240, 0.10))',
+            transform: 'translateX(-50%)',
+           
+          }}
+        />
+      </div>
+      <input
+        type="range"
+        min={0}
+        max={fMax}
+        step={1}
+        value={fam}
+        onChange={(e) => {
+          setFam(Number(e.target.value));
+          setShowInfo(false);
+        }}
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        aria-label="Familiarity level"
+      />
+    </div>
+
+    <div className="flex justify-between text-[11px] text-gray-600">
+      {famSteps.map((label, i) => (
+        <span
+          key={`fam-label-${i}`}
+          className={`flex-1 ${i === 0 ? 'text-left' : i === famSteps.length - 1 ? 'text-right' : 'text-center'}`}
+        >
+          {label}
+        </span>
+      ))}
+    </div>
+  </div>
+</div>
+
   )
 }

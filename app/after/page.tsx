@@ -9,6 +9,7 @@ import { useAuth, Level, Interest } from '@/lib/UserContext';
 import ProfileChange from "@/components/afterlogin/profilechange";
 import Image from "next/image"
 import Loading from './loading';
+import { slides } from '@/lib/setting';
 
 const levelImg: Record<Level, string> = {
   BEGINNER: '/circle/circle1.png',
@@ -216,17 +217,17 @@ const goMain = async () => {
      <div className="fixed bottom-0 left-0 right-0 bg-white">
   <button
     disabled={!canSubmit}
-    onClick={onNext} // ✅ handleSignup 대신 onNext
+    onClick={onNext} 
     className={`w-full h-[92px] py-4 font-semibold text-lg rounded-none font-pretendard ${
       canSubmit
         ? 'bg-blue-600 text-white hover:bg-blue-700'
         : 'bg-[#BFDBFE] text-[#EFF6FF] cursor-not-allowed'
     }`}
     style={{
-      paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)", // iOS 홈바 피하기
+      paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)",
     }}
   >
-    Next
+    {current === slides.length-3 ? "Start":"Next"}
   </button>
 </div>
 </div>

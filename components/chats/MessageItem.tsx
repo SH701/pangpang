@@ -72,18 +72,7 @@ export default function MessageItem({
         <div className="text-sm font-medium text-gray-600 mb-1 font-pretendard">
           {isMine ? '' : myAI?.name ?? 'AI'}
         </div>
-
         <div className="flex items-center gap-1.5">
-          {/* 오류 상태일 때 info 아이콘 */}
-          {isMine && messageStatus === 'error' && (
-            <button
-              onClick={() => setIsErrorOpen(!isErrorOpen)}
-              className="w-[18px] h-[18px] border-2 border-red-500 rounded-full flex items-center justify-center shadow-sm flex-shrink-0 bg-transparent hover:bg-red-50 transition-colors cursor-pointer"
-            >
-              <span className="text-red-500 text-xs font-bold leading-none">i</span>
-            </button>
-          )}
-
           {/* 메시지 풍선 */}
 <div
   className={`p-3 sm:p-4 rounded-2xl border shadow-sm w-full
@@ -107,29 +96,17 @@ export default function MessageItem({
               {isMine && (
                 <div className="flex items-center justify-between gap-2">
                   <button
-  className="w-5 h-5 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
-  onClick={handleFeedbackClick}
-  disabled={loadingFeedbacks[m.messageId]}
->
+              onClick={handleFeedbackClick}
+              disabled={loadingFeedbacks[m.messageId]}
+              className="w-[18px] h-[18px] border-2 border-red-500 rounded-full flex items-center justify-center shadow-sm flex-shrink-0 bg-transparent hover:bg-red-50 transition-colors cursor-pointer"
+              >
   {loadingFeedbacks[m.messageId] ? (
     <svg className="animate-spin w-3 h-3 text-gray-600" viewBox="0 0 24 24">
       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
     </svg>
   ) : (
-    <svg
-      className="w-3 h-3 text-gray-600"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-      />
-    </svg>
+    <span className="text-red-500 text-xs font-bold leading-none">i</span>
   )}
 </button>
 
