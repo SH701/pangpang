@@ -50,7 +50,7 @@ export default function HonorificHelper() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col max-w-[375px] mx-auto">
+    <div className="h-screen bg-gray-50 flex flex-col max-w-[375px] mx-auto overflow-y-auto">
       {/* 헤더 */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white">
         <button
@@ -66,12 +66,12 @@ export default function HonorificHelper() {
       </div>
 
       {/* 메인 컨텐츠 */}
-      <div className="flex-1 px-6 pt-6">
-        <div className="w-[335px] min-h-[495px] flex-shrink-0 rounded-2xl border border-gray-200 bg-white mx-auto mb-6 px-6">
+      <div className="flex-1 px-6 pt-6 ">
+        <div className="w-[335px] flex-shrink-0 rounded-2xl border border-gray-200 bg-white mx-auto mb-6 px-6">
           {/* 입력 영역 */}
-          <div className="mb-6 pt-6">
+          <div className="mb-3 pt-6">
             <textarea
-              className="resize-none w-full h-32 border-none focus:ring-0 font-pretendard"
+              className="resize-none w-full h-22 border-none focus:ring-0 font-pretendard focus:outline-none"
               placeholder="Type in English..."
               value={source}
               onChange={(e) => setSource(e.target.value)}
@@ -82,7 +82,7 @@ export default function HonorificHelper() {
                 }
               }}
               style={{
-                color: 'var(--Natural-cool-gray-400, #9CA3AF)',
+                color: 'var(--Natural-cool-gray-400, #374151)',
                 fontFamily: 'Pretendard',
                 fontSize: '16px',
                 fontStyle: 'normal',
@@ -90,29 +90,62 @@ export default function HonorificHelper() {
                 lineHeight: 'normal'
               }}
             />
+            <div className="flex justify-end">
+    <button
+      onClick={handleTranslate}
+      className="mt-2 bg-blue-500 text-white text-sm px-3 py-1 rounded-md hover:bg-blue-600"
+    >
+      Submit
+    </button>
+  </div>
           </div>
 
           {/* 구분선 */}
           <div className="border-t border-gray-200 mb-6"></div>
 
           {/* 출력 영역 */}
-          <div className="mb-6">
-            <textarea
-              className="resize-none w-full h-32 border-none focus:ring-0 font-pretendard"
-              placeholder="Korean translation..."
-              value={result}
-              readOnly
-              style={{
-                color: 'var(--Natural-cool-gray-700, #374151)',
-                fontFamily: 'Pretendard',
-                fontSize: '20px',
-                fontStyle: 'normal',
-                fontWeight: '600',
-                lineHeight: 'normal'
-              }}
-            />
-          </div>
-
+          <div className="mb-3">
+           {loading ? (
+    <div className="flex items-center gap-2 text-gray-500 h-32 justify-center">
+      <svg
+        className="animate-spin h-5 w-5 text-blue-600"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          className="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="4"
+        ></circle>
+        <path
+          className="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+        ></path>
+      </svg>
+      <span>Loading...</span>
+    </div>
+  ) : (
+    <textarea
+      className="resize-none w-full h-24 border-none focus:ring-0 font-pretendard"
+      placeholder="Korean translation..."
+      value={result}
+      readOnly
+      style={{
+        color: 'var(--Natural-cool-gray-700, #374151)',
+        fontFamily: 'Pretendard',
+        fontSize: '16px',
+        fontStyle: 'normal',
+        fontWeight: '400',
+        lineHeight: 'normal'
+      }}
+    />
+  )}
+</div>
           {/* Helper Slider */}
           <HelperSlider
             onChange={(i, f) => {

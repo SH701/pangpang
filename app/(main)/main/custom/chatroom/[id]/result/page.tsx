@@ -28,7 +28,7 @@ export default function Result() {
   const [tab, setTab] = useState<'transcript' | 'mistakes'>('transcript')
   const [feedback, setFeedback] = useState<Feedback | null>(null)
   const [messages, setMessages] = useState<ChatMsg[]>([])
-  const [aiName, setAiName] = useState('AI') // 👈 aiPersona 이름 저장
+  const [aiName, setAiName] = useState('AI')
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

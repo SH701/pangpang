@@ -178,8 +178,8 @@ useEffect(() => {
       <div className="mb-4 p-6">
         <PersonaSlider
           onAdd={() => router.push('/main/custom')}
-          visibleCount={5}
-          itemSize={56}
+          visibleCount={4}
+          itemSize={72}
           onItemClick={(_, it) => {
             if ('isAdd' in it) return;
             setSelectedPersonaId(it.personaId);
