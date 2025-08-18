@@ -1,9 +1,8 @@
 "use client";
 
-import Face3 from "@/components/character/face3";
 import ChatInputWrapper from "@/components/chat/chatinputwrapper";
 import Logo from "@/components/etc/logo";
-import RoleplaySlider from "@/components/main/Roleplay";
+import Image from "next/image"
 import Slider from "@/components/main/slider";
 import { useAuth } from "@/lib/UserContext";
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
@@ -61,7 +60,7 @@ export default function Main() {
           <div className="flex justify-between items-start pt-4">
             <div className="flex flex-col gap-2">
               <div className="flex gap-16">
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-4">
               <h1 className="font-bold text-white text-2xl leading-[130%]">
                 Hi, {profile?.nickname || 'Noonchi'}!
               </h1>
@@ -70,7 +69,7 @@ export default function Main() {
                 with your partner
               </p>   
               </div>            
-              <Face3 className="w-[120px] h-[100px]"/>
+              <Image src="/characters/main.svg" alt="main char" width={120} height={100}/>
               </div>
               <Link href="/main/custom">
                 <button className="
@@ -84,9 +83,6 @@ export default function Main() {
                 </button>
               </Link>
             </div>
-
-            {/* 오른쪽 캐릭터 */}
-           
           </div>
         </div>
 
