@@ -16,9 +16,8 @@ import FeedbackSection from '@/components/bothistory/Feedbacksections';
 
 
 
-
 type Filter = 'done' | 'in-progress';
-export const situationOptions = {
+ const situationOptions = {
   BOSS: [
     { value: 'BOSS1', label: 'Apologizing for a mistake at work.' },
     { value: 'BOSS2', label: 'Requesting half-day or annual leave' },
@@ -312,20 +311,18 @@ const handleDeleteChat = async (conversationId: string | number) => {
                           {chat.status === 'ACTIVE' ? 'In progress' : 'Done'}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600 truncate">
+                      <p className="text-[13px] text-gray-600 truncate">
                         {situationLabel || desc}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1 text-sm text-gray-500">
-                    <span>
-                      {new Date(chat.createdAt).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                      })}
+                  <div className="flex items-center gap-2 text-gray-500 flex-col">
+                    <span className="flex text-xs gap-1">
+                      <span>{new Date(chat.createdAt).toLocaleDateString('en-US', { month: 'short' })}</span> {/* Aug */}
+                      <span>{new Date(chat.createdAt).toLocaleDateString('en-US', { day: 'numeric' })}</span> {/* 19 */}
                     </span>
-                    <span>{isOpen ? '▲' : '▼'}</span>
+                    <span className='text-xs'>{isOpen ? '▲' : '▼'}</span>
                   </div>
                 </div>
                  {isOpen && chat.status === 'ACTIVE' && (
