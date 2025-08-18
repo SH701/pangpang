@@ -1,4 +1,4 @@
-// components/persona/PersonaDetailModal.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -12,8 +12,8 @@ type PersonaDetail = {
   name: string;
   gender?: string;
   age?: number;
-  role?: string;             // Boss 등
-  description?: string;      // Situation 등
+  role?: string; // Boss 등
+  description?: string; // Situation 등
   profileImageUrl?: string;
 };
 
@@ -29,13 +29,14 @@ export default function PersonaDetailModal({
   open: boolean;
   onClose: () => void;
   personaId: number | string | null;
-  onDeleted:(id:number|string)=>void
+  onDeleted: (id: number | string) => void;
 }) {
   const { accessToken } = useAuth();
   const router = useRouter();
   const [data, setData] = useState<PersonaDetail | null>(null);
   const [loading, setLoading] = useState(false);
-  const [deleting,setDeleting] = useState(false)
+  const [deleting, setDeleting] = useState(false);
+
 
   // 상세 조회 API: GET /api/personas/{personaId}
   useEffect(() => {
@@ -48,6 +49,7 @@ export default function PersonaDetailModal({
           cache: 'no-store',
         });
         const json = await res.json();
+        console.log("persona json:", json);
         setData({
           id: json.id ?? personaId,
           name: json.name ?? 'Unknown',
@@ -67,7 +69,7 @@ export default function PersonaDetailModal({
   }, [open, personaId, accessToken]);
 
   // 삭제 핸들러
- const handleDelete = async () => {
+  const handleDelete = async () => {
     if (!personaId || !accessToken) return;
     if (!confirm('Delete This AI?.')) return;
     setDeleting(true);
@@ -91,39 +93,39 @@ export default function PersonaDetailModal({
       setDeleting(false);
     }
   };
+
+
+
   // 새로운 채팅
   const handleStartChat = async () => {
-  if (!accessToken || !data) return;
-
-  try {
-    const res = await fetch(`/api/conversations`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify({
-        aiPersona: {
-          id: data.id,
-          name: data.name,
-          gender: data.gender,
-          age: data.age,
-          role: data.role,
-          description: data.description,
-          profileImageUrl: data.profileImageUrl,
+    if (!accessToken || !data) return;
+    try {
+      const res = await fetch(`/api/conversations`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
-      }),
-    });
+        body: JSON.stringify({
+          personaId: data.id,
+          situation: data.description, // sitdata에서 상황을 전달
+        }),
+      });
 
-    if (!res.ok) throw new Error("Failed to create conversation");
-    const json = await res.json();
+      if (!res.ok) throw new Error("Failed to create conversation");
+      const json = await res.json();
 
-    // 응답에 conversationId가 있다고 가정
-    router.push(`/main/custom/chatroom/${json.conversationId}`);
-  } catch (err) {
-    console.error("StartChat error:", err);
-  }
-};
+      const conversationId =
+        json.conversationId ?? json.id ?? json.conversation?.id;
+
+      if (!conversationId) throw new Error("No conversationId in response");
+
+      router.push(`/main/custom/chatroom/${conversationId}`);
+    } catch (err) {
+      console.error("StartChat error:", err);
+    }
+  };
+
   return (
     <Modal open={open} onClose={onClose}>
       {/* 헤더 */}
@@ -142,7 +144,7 @@ export default function PersonaDetailModal({
         )}
         <div className="min-w-0">
           <div className="font-semibold text-lg truncate">{data?.name ?? '...'}</div>
-           <div className="font-semibold text-gray-500 text-sm truncate">{data?.role ?? '...'}</div>
+          <div className="font-semibold text-gray-500 text-sm truncate">{data?.role ?? '...'}</div>
         </div>
         <button
           className="ml-auto text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200"

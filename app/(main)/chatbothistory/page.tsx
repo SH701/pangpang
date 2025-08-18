@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import {  useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/UserContext';
@@ -86,10 +86,6 @@ useEffect(() => {
     headers: { Authorization: `Bearer ${accessToken}` },
   })
     .then(async (res) => {
-  if (!res.ok) {
-    const errText = await res.text(); // 서버가 보낸 에러 body
-    throw new Error(`${res.status} ${res.statusText}: ${errText}`);
-  }
   return res.json();
 })
 .then((data) => {
