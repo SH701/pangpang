@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import {  useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/UserContext';
@@ -15,8 +15,10 @@ import FeedbackSection from '@/components/bothistory/Feedbacksections';
 
 
 
+
+
 type Filter = 'done' | 'in-progress';
-const situationOptions = {
+export const situationOptions = {
   BOSS: [
     { value: 'BOSS1', label: 'Apologizing for a mistake at work.' },
     { value: 'BOSS2', label: 'Requesting half-day or annual leave' },
@@ -86,6 +88,10 @@ useEffect(() => {
     headers: { Authorization: `Bearer ${accessToken}` },
   })
     .then(async (res) => {
+  if (!res.ok) {
+    const errText = await res.text(); // 서버가 보낸 에러 body
+    throw new Error(`${res.status} ${res.statusText}: ${errText}`);
+  }
   return res.json();
 })
 .then((data) => {
@@ -143,6 +149,26 @@ useEffect(() => {
   };
  const handleFilterClick = (filter: Filter) => {
   setSelectedFilter((prev) => (prev === filter ? null : filter));
+};
+const handleOpenChat = (conversationId: string | number) => {
+  router.push(`/main/custom/chatroom/${conversationId}`);
+};
+const handleDeleteChat = async (conversationId: string | number) => {
+  try {
+    const res = await fetch(`/api/conversations/${conversationId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    if (!res.ok) {
+      throw new Error('Failed to delete chat');
+    }
+
+    // 상태에서 해당 채팅을 제거
+    setHistory((prev) => prev.filter((chat) => chat.conversationId !== conversationId));
+  } catch (err) {
+    console.error('Delete chat error:', err);
+  }
 };
 
   return (
@@ -299,9 +325,15 @@ useEffect(() => {
                         day: 'numeric',
                       })}
                     </span>
-                    {chat.status === 'ENDED' && <span>{isOpen ? '▲' : '▼'}</span>}
+                    <span>{isOpen ? '▲' : '▼'}</span>
                   </div>
                 </div>
+                 {isOpen && chat.status === 'ACTIVE' && (
+                  <div className="p-3 space-y-3">
+                    <button onClick={()=>handleOpenChat(chat.conversationId)} className="w-full py-2 bg-blue-600 text-white rounded-xl">Open Chat</button>
+                    <button onClick={()=>handleDeleteChat(chat.conversationId)} className="w-full py-2 bg-gray-300 text-gray-700 rounded-xl">Delete</button>
+                  </div>
+                )}
                 {isOpen  && chat.status === 'ENDED'&&(
                   <FeedbackSection id={chat.conversationId}/>
                 )}
