@@ -149,7 +149,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     return <Loading /> // 여기서 loading.tsx 보여줌
   }
   return (
-    <div className="w-full max-w-md mx-auto flex flex-col relative overflow-y-scroll bg-white">
+    <div className="w-full max-w-md mx-auto flex flex-col relative overflow-y-auto bg-white">
       {/* Header */}
       <div className="flex items-center p-4">
         <button onClick={() => router.back()} className="text-black">
@@ -187,9 +187,6 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
               </div>
             )}
           </button>
-          <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-            <span className="text-white text-lg font-bold">+</span>
-          </div>
         </div>
       </div>
 
@@ -253,7 +250,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
             value={name}
             onChange={e => setName(e.target.value)}
             className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-black placeholder-gray-400 focus:outline-none focus:border-blue-500"
-            placeholder="Enter Name"
+            placeholder="Enter name"
           />
         </div>
 
@@ -270,7 +267,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                   onClick={() => setGender(value)}
                   className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium cursor-pointer transition-colors ${
                     isSelected
-                      ? 'bg-blue-500 text-white border-2 border-blue-500'
+                       ? 'bg-blue-100 text-blue-600 border-2 border-blue-500'
                       : 'bg-white text-gray-500 border border-gray-300 hover:border-gray-400'
                   }`}
                 >
@@ -280,19 +277,6 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
             })}
           </div>
         </div>
-
-        {/* Age */}
-        <div>
-          <label className="block text-sm font-medium text-black mb-2">Age</label>
-          <input
-            type="number"
-            value={age}
-            onChange={e => setAge(e.target.value === '' ? '' : Number(e.target.value))}
-            className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-black placeholder-gray-400 focus:outline-none focus:border-blue-500"
-            placeholder="0"
-          />
-        </div>
-
         {/* AI's Role */}
         <div>
           <label className="block text-sm font-medium text-black mb-2">AI`s role</label>
