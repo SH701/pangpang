@@ -17,6 +17,7 @@ type Props = {
   gap?: number;
   visibleCount?: number;
   viewportWidth?: number;
+  className:string
 };
 
 const normalizeSrc = (src?: string) =>
@@ -29,6 +30,7 @@ export default function PersonaSlider({
   gap = 12,
   visibleCount = 5,
   viewportWidth,
+  className
 }: Props) {
   const [items, setItems] = useState<PersonaSlide[]>([]);
 
@@ -99,7 +101,7 @@ export default function PersonaSlider({
             <button
               key={`add-${i}`}
               onClick={onAdd}
-              className="rounded-full bg-blue-500 text-white flex items-center justify-center text-2xl shrink-0"
+              className="rounded-full bg-blue-500 text-white flex items-center justify-center text-3xl shrink-0"
               style={{ width: itemSize, height: itemSize }}
               aria-label="Add persona"
             >
@@ -109,7 +111,7 @@ export default function PersonaSlider({
             <div
               key={`${it.personaId}-${i}`}
               className="flex flex-col items-center shrink-0"
-              style={{ width: itemSize }}
+              style={{ width: itemSize,height: itemSize}}
             >
               {it.profileImageUrl ? (
                 <Image
@@ -117,7 +119,7 @@ export default function PersonaSlider({
                   alt={it.name}
                   width={itemSize}
                   height={itemSize}
-                  className="rounded-full object-cover bg-gray-200 cursor-pointer"
+                   className="w-[72px] h-[72px] rounded-full object-cover object-top bg-gray-200 cursor-pointer"
                   unoptimized
                   onClick={() => onItemClick?.(i, it)}
                 />
