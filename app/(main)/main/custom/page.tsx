@@ -113,7 +113,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         body: JSON.stringify({
           name,
           gender,
-          age: age === '' ? 0 : age,
+          age: age === '' ? 20 : age,
           relationship,
           description,
           profileImageUrl,
