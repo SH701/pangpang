@@ -1,68 +1,51 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // app/api/conversations/[id]/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { proxyJSON } from '@/app/api/_lib/proxy';
-
-const API = process.env.API_URL ?? 'http://localhost:8080';
+import { NextRequest } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  const { id } = await params; // ✅ await 필요
+  // 개발 환경에서는 모킹 데이터 반환
+  if (process.env.NODE_ENV === 'development') {
+    const mockPersona = {
+      id: params.id,
+      personaId: params.id,
+      name: '김부장님',
+      gender: 'MALE',
+      age: 45,
+      role: 'BOSS',
+      aiRole: 'BOSS',
+      description: '회사에서 실수했을 때 사과하는 상황',
+      profileImageUrl: '/characters/character1.png',
+      relationship: 'BOSS',
+      createdAt: new Date().toISOString()
+    };
 
-  const token = req.headers.get('authorization');
-  if (!token) {
-    return NextResponse.json({ error: 'Authorization token is missing' }, { status: 401 });
+    return Response.json(mockPersona);
   }
 
-  try {
-    const upstream = await fetch(`${API}/api/personas/${id}`, {
-      headers: { authorization: token },
-      cache: 'no-store',
-    });
-
-    const body = await upstream.text();
-    return new NextResponse(body, {
-      status: upstream.status,
-      headers: {
-        'content-type': upstream.headers.get('content-type') ?? 'application/json',
-      },
-    });
-  } catch (e) {
-    console.error('Error in GET /api/personas/[id]:', e);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-  }
+  // 백엔드 연결 시 프록시 사용
+  const { proxyJSON } = await import("@/app/api/_lib/proxy");
+  return proxyJSON(req, `/api/personas/${params.id}`, {
+    method: "GET",
+    forwardAuth: true,
+  });
 }
-
-
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  const { id } = await params; // ✅ GET과 동일하게 await
-  const token = req.headers.get('authorization');
-  if (!token) {
-    return NextResponse.json({ error: 'Authorization token is missing' }, { status: 401 });
+  // 개발 환경에서는 성공 응답 반환
+  if (process.env.NODE_ENV === 'development') {
+    return Response.json({ message: 'Persona deleted successfully' });
   }
 
-  try {
-    const upstream = await fetch(`${API}/api/personas/${id}`, {
-      method: 'DELETE',
-      headers: { authorization: token },
-      cache: 'no-store',
-    });
-
-     if (upstream.ok || upstream.status === 404) {
-      return new NextResponse(null, { status: 204 });
-    }
-
-    const text = await upstream.text();
-    return new NextResponse(text || 'Upstream error', { status: upstream.status });
-  } catch (e) {
-    // 여기 오면 대부분 params / API_URL / fetch 예외
-    console.error('Error in DELETE /api/personas/[id]:', e);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-  }
+  // 백엔드 연결 시 프록시 사용
+  const { proxyJSON } = await import("@/app/api/_lib/proxy");
+  return proxyJSON(req, `/api/personas/${params.id}`, {
+    method: "DELETE",
+    forwardAuth: true,
+  });
 }

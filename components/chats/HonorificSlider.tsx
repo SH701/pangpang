@@ -20,8 +20,9 @@ export default function HonorificSlider({ results, value, onChange }: HonorificS
   ]
 
   return (
-    <div className="honorific-dropdown p-4 bg-gray-600 rounded-xl shadow-sm -mt-6">
-      <p className="mb-3 text-white font-pretendard text-sm mt-3">{mapped[value]}</p>
+    <div className="honorific-dropdown p-4 bg-gray-600 rounded-xl shadow-sm w-full" style={{ display: 'block', width: '100%' }}>
+      <h3 className="text-sm font-semibold text-white mb-3 font-pretendard">Formality Level</h3>
+      <p className="mb-3 text-white font-pretendard text-sm">{mapped[value]}</p>
 
       <div className="relative">
         <input

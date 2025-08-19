@@ -334,7 +334,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         {/* Submit */}
         <button
           type="submit"
-          className="w-full py-3 bg-blue-500 text-white text-sm font-semibold rounded-lg mt-8 hover:bg-blue-600 transition-colors disabled:opacity-50 mb-3"
+          className="w-full h-12 px-5 bg-blue-600 text-white text-base font-medium rounded-lg mt-8 hover:bg-blue-700 transition-colors disabled:opacity-50 mb-3"
         >
           Start Chatting
         </button>
