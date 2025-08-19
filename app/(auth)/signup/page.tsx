@@ -88,21 +88,19 @@ export default function SignupStep1() {
       </div>
 
       {/* Footer Button */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white">
-  <button
-    disabled={!canNext}
-    onClick={goNext}
-    className={`w-full h-[92px] py-4 font-semibold text-lg rounded-none font-pretendard ${
-      canNext
-         ? 'bg-blue-600 text-white hover:bg-blue-700'
-        : 'bg-[#BFDBFE] text-[#EFF6FF] cursor-not-allowed' }`}
-    style={{
-      paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)", 
-    }}
-  >
-    Next
-  </button>
-</div>
+      <div className="px-4 pb-6">
+        <button
+          disabled={!canNext}
+          onClick={goNext}
+          className={`w-full max-h-[52px] py-3 mx-auto rounded-lg font-medium transition font-pretendard ${
+            canNext
+              ? 'bg-blue-600 text-white hover:bg-gray-900'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          }`}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }
