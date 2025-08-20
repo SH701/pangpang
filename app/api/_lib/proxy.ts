@@ -4,7 +4,11 @@ import { NextRequest, NextResponse } from "next/server";
 const BASE = process.env.API_URL;
 const PUBLIC_URL = process.env.PUBLIC_URL ?? "https://pangpang-one.vercel.app";
 
-const FORWARD_COOKIE_KEYS = ["accessToken", "refreshToken", "JSESSIONID"] as const;
+const FORWARD_COOKIE_KEYS = [
+  "accessToken",
+  "refreshToken",
+  "JSESSIONID",
+] as const;
 const RETRY_STATUS = new Set([502, 503, 504]);
 
 type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -25,7 +29,10 @@ type JSONOpts = CommonOpts & {
 
 function assertBase() {
   if (!BASE || !/^https?:\/\//.test(BASE)) {
-    return NextResponse.json({ message: "API_URL is missing or invalid" }, { status: 500 });
+    return NextResponse.json(
+      { message: "API_URL is missing or invalid" },
+      { status: 500 }
+    );
   }
   return null;
 }
@@ -59,7 +66,12 @@ function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-async function fetchWithRetry(url: string, init: RequestInit, retries: number, backoffBase: number): Promise<Response> {
+async function fetchWithRetry(
+  url: string,
+  init: RequestInit,
+  retries: number,
+  backoffBase: number
+): Promise<Response> {
   let attempt = 0;
   while (true) {
     try {
@@ -83,7 +95,11 @@ async function fetchWithRetry(url: string, init: RequestInit, retries: number, b
   }
 }
 
-export async function proxyJSON(req: NextRequest, upstreamPath: string, opts?: JSONOpts) {
+export async function proxyJSON(
+  req: NextRequest,
+  upstreamPath: string,
+  opts?: JSONOpts
+) {
   const envError = assertBase();
   if (envError) return envError;
 
@@ -105,6 +121,7 @@ export async function proxyJSON(req: NextRequest, upstreamPath: string, opts?: J
   });
 
   let upstreamBody: RequestInit["body"] | undefined;
+
   if (method !== "GET" && method !== "DELETE") {
     if (Object.prototype.hasOwnProperty.call(opts ?? {}, "bodyJSON")) {
       headers.set("Content-Type", "application/json");
@@ -114,10 +131,10 @@ export async function proxyJSON(req: NextRequest, upstreamPath: string, opts?: J
       if (ct.includes("application/json")) {
         headers.set("Content-Type", "application/json");
         try {
-          const json = await req.json();
-          upstreamBody = JSON.stringify(json ?? {});
+          const text = await req.text(); // body를 raw string으로 받음
+          upstreamBody = text.length > 0 ? text : undefined; // 비어 있으면 undefined
         } catch {
-          upstreamBody = JSON.stringify({});
+          upstreamBody = undefined; // body 없으면 아예 안 붙임
         }
       } else if (ct) {
         headers.set("Content-Type", ct);
@@ -146,7 +163,12 @@ export async function proxyJSON(req: NextRequest, upstreamPath: string, opts?: J
   };
 
   try {
-    const upstream = await fetchWithRetry(url.toString(), fetchInit, upstreamBody ? 0 : retries, backoffBase);
+    const upstream = await fetchWithRetry(
+      url.toString(),
+      fetchInit,
+      upstreamBody ? 0 : retries,
+      backoffBase
+    );
     clearTimeout(timer);
 
     const resCT = upstream.headers.get("content-type") ?? "";
@@ -168,6 +190,9 @@ export async function proxyJSON(req: NextRequest, upstreamPath: string, opts?: J
     return new Response(upstream.body, { status, headers: passHeaders });
   } catch (e: any) {
     clearTimeout(timer);
-    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

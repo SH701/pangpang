@@ -76,9 +76,7 @@ export default function MessageItem({
           Authorization: `Bearer ${accessToken}`,
         },
       });
-
       if (!res.ok) throw new Error(`Translation API failed: ${res.status}`);
-
       const data = await res.text();
       setTranslated(data);
     } catch (err) {
