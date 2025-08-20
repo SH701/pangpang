@@ -1,405 +1,544 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState } from "react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { MyAI } from "@/lib/types";
 import { useAuth } from "@/lib/UserContext";
-import PersonaSlider, {
-  PersonaSlide,
-} from "@/components/bothistory/PersonaSlider";
-import PersonaDetailModal from "@/components/persona/PersonaDetailModal";
-import type { Conversation } from "@/lib/types";
 import Link from "next/link";
-import {
-  ChevronRightIcon,
-  MagnifyingGlassIcon,
-} from "@heroicons/react/24/solid";
-import { AnimatePresence, motion } from "framer-motion";
-import FeedbackSection from "@/components/bothistory/Feedbacksections";
+import MessageList from "@/components/chats/MessageList";
+import { HonorificResults } from "@/components/chats/HonorificSlider";
+import Image from "next/image";
+import LoadingModal from "@/components/chats/LoadingModal";
 
-type Filter = "done" | "in-progress";
-const situationOptions = {
-  BOSS: [
-    { value: "BOSS1", label: "Apologizing for a mistake at work." },
-    { value: "BOSS2", label: "Requesting half-day or annual leave" },
-    { value: "BOSS3", label: "Requesting feedback on work" },
-  ],
-  GF_PARENTS: [
-    { value: "GF_PARENTS1", label: "Meeting for the first time" },
-    { value: "GF_PARENTS2", label: "Asking for permission" },
-    { value: "GF_PARENTS3", label: "Discussing future plans" },
-  ],
-  CLERK: [
-    { value: "CLERK1", label: "Making a reservation" },
-    { value: "CLERK2", label: "Asking for information" },
-    { value: "CLERK3", label: "Filing a complaint" },
-  ],
-} as const;
-
-const getSituationLabel = (value?: string) => {
-  if (!value) return "";
-  for (const key in situationOptions) {
-    const found = situationOptions[key as keyof typeof situationOptions].find(
-      (opt) => opt.value === value
-    );
-    if (found) return found.label;
-  }
-  return value;
+type ConversationDetail = {
+  conversationId: number;
+  userId: number;
+  aiPersona: MyAI;
+  status: "ACTIVE" | "ENDED";
+  situation: string;
+  chatNodeId: string;
+  createdAt: string;
+  endedAt: string | null;
 };
 
-const getName = (name?: string) => (name && name.trim() ? name : "Unknown");
-const getImg = (url?: string) => (typeof url === "string" ? url : "");
+type ChatMsg = {
+  messageId: string;
+  conversationId: number;
+  role: "USER" | "AI";
+  content: string;
+  createdAt: string;
+  feedback?: string;
+  isLoading?: boolean;
+  politenessScore?: number;
+  naturalnessScore?: number;
+};
 
-export default function ChatBothistoryPage() {
-  const router = useRouter();
+export default function ChatroomPage() {
+  const { id } = useParams<{ id: string }>();
   const { accessToken } = useAuth();
-  const [keyword, setKeyword] = useState("");
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [history, setHistory] = useState<Conversation[]>([]);
-  const [filtered, setFiltered] = useState<Conversation[]>([]);
-  const [sliderItems, setSliderItems] = useState<PersonaSlide[]>([
-    { isAdd: true },
-  ]);
-  const [refreshKey, setRefreshKey] = useState(0);
-  const [openDetail, setOpenDetail] = useState(false);
-  const [selectedPersonaId, setSelectedPersonaId] = useState<
-    number | string | null
-  >(null);
-  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [messages, setMessages] = useState<ChatMsg[]>([]);
+  const [myAI, setMyAI] = useState<MyAI | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selectedFilter, setSelectedFilter] = useState<Filter | null>(null);
-  const [expanded, setExpanded] = useState<Record<string | number, boolean>>(
-    {}
-  ); // ✅ 각 채팅별 열림 상태
+  const canCall = Boolean(accessToken);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const [feedbackOpenId, setFeedbackOpenId] = useState<string | null>(null);
+  const router = useRouter();
+  const [conversationId, setConversationId] = useState<number | null>(null);
+  const [honorificResults, setHonorificResults] = useState<
+    Record<string, HonorificResults>
+  >({});
+  const [sliderValues, setSliderValues] = useState<Record<string, number>>({});
+  const [hidden, setHidden] = useState(false);
+  const [endModalOpen, setEndModalOpen] = useState(false);
+  const [loadingModalOpen, setLoadingModalOpen] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
-  const filterMap: Record<"done" | "in-progress", string> = {
-    done: "ENDED",
-    "in-progress": "ACTIVE",
+  const handleMicClick = () => {
+    setIsRecording((prev) => !prev);
+  };
+  const handleKeyboardClick = () => {
+    setIsTyping((prev) => !prev);
+  };
+  // 대화 정보 로드
+  useEffect(() => {
+    if (!canCall || !id) return;
+    (async () => {
+      try {
+        const res = await fetch(`/api/conversations/${id}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+          cache: "no-store",
+        });
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error("대화 정보 조회 실패:", res.status, errorText);
+          setError(`대화 정보를 불러올 수 없습니다: ${res.status}`);
+          return;
+        }
+        const data: ConversationDetail = await res.json();
+        setMyAI(data.aiPersona);
+        setConversationId(data.conversationId);
+        setError(null);
+      } catch (err) {
+        console.error("대화 정보 조회 오류:", err);
+        setError("네트워크 오류가 발생했습니다");
+      }
+    })();
+  }, [accessToken, id, canCall]);
+
+  // 메시지 목록 로드
+  const fetchMessages = async () => {
+    if (!canCall) return;
+    try {
+      setError(null);
+      const res = await fetch(
+        `/api/messages?conversationId=${id}&page=1&size=20`,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+          cache: "no-store",
+        }
+      );
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("메시지 조회 실패:", res.status, errorText);
+        setError(`메시지를 불러올 수 없습니다: ${res.status}`);
+        return;
+      }
+      const data = await res.json();
+      const list = (data?.content ?? data ?? []) as any[];
+      const mapped: ChatMsg[] = list.map((m) => ({
+        messageId: String(m.messageId),
+        conversationId: m.conversationId,
+        role: (m.role ?? m.type) as "USER" | "AI",
+        content: m.content ?? "",
+        createdAt: m.createdAt ?? new Date().toISOString(),
+        politenessScore: m.politenessScore ?? -1,
+        naturalnessScore: m.naturalnessScore ?? -1,
+      }));
+
+      setMessages(mapped);
+
+      // 첫 메시지에서 conversationId 확보
+      if (!conversationId && list.length > 0 && list[0].conversationId) {
+        setConversationId(list[0].conversationId);
+      }
+    } catch (err) {
+      console.error("메시지 조회 오류:", err);
+      setError("메시지를 불러오는 중 오류가 발생했습니다");
+    }
   };
 
-  const normalizeConversations = (arr: any): Conversation[] =>
-    (Array.isArray(arr) ? arr : [])
-      .filter(Boolean)
-      .filter((c) => !!c?.aiPersona);
+  useEffect(() => {
+    fetchMessages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accessToken, id]);
 
   useEffect(() => {
-    if (!accessToken) return;
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
+  // 메시지 전송
+  const sendMessage = async () => {
+    if (!canCall || !message.trim() || loading) return;
+    if (!conversationId) {
+      setError("대화방 ID를 불러올 수 없습니다");
+      return;
+    }
+
+    const content = message.trim();
     setLoading(true);
     setError(null);
 
-    let query = "/api/conversations?sortBy=CREATED_AT_DESC&page=1&size=1000";
-    if (selectedFilter === "done" || selectedFilter === "in-progress") {
-      query += `&status=${filterMap[selectedFilter]}`;
-    }
+    const optimistic: ChatMsg = {
+      messageId: `user_${Date.now()}`,
+      conversationId,
+      role: "USER",
+      content,
+      createdAt: new Date().toISOString(),
+      politenessScore: -1, // 아직 없음
+      naturalnessScore: -1,
+    };
+    setMessages((prev) => [...prev, optimistic]);
+    setMessage("");
 
-    fetch(query, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          const errText = await res.text(); // 서버가 보낸 에러 body
-          throw new Error(`${res.status} ${res.statusText}: ${errText}`);
-        }
-        return res.json();
-      })
-      .then((data) => {
-        const sorted = normalizeConversations(data?.content).sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    try {
+      // 유저 메시지 POST
+      const userRes = await fetch("/api/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ conversationId, content }),
+      });
+
+      if (!userRes.ok) {
+        const errorText = await userRes.text();
+        setError(`메시지 전송 실패: ${userRes.status} ${errorText}`);
+        setMessages((prev) =>
+          prev.filter((msg) => msg.messageId !== optimistic.messageId)
         );
-        setHistory(sorted);
-      })
-      .catch((err) => {
-        console.error("API 호출 에러:", err);
-        setError(err.message);
-      })
-      .finally(() => setLoading(false));
-  }, [accessToken, selectedFilter]);
+        setMessage(content);
+        return;
+      }
 
-  useEffect(() => {
-    setFiltered(history);
-  }, [history]);
+      const userMsgData = await userRes.json();
+      if (userMsgData?.messageId) {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.messageId === optimistic.messageId
+              ? {
+                  ...msg,
+                  messageId: String(userMsgData.messageId),
+                  politenessScore: userMsgData.politenessScore ?? -1,
+                  naturalnessScore: userMsgData.naturalnessScore ?? -1,
+                }
+              : msg
+          )
+        );
+      }
 
-  useEffect(() => {
-    const q = keyword.trim().toLowerCase();
-    if (!q) {
-      setFiltered(history);
+      // 여기서 AI 로딩용 메시지를 미리 넣음
+      const aiLoadingMsg: ChatMsg = {
+        messageId: `ai_loading_${Date.now()}`,
+        conversationId,
+        role: "AI",
+        content: "...", // placeholder
+        createdAt: new Date().toISOString(),
+        isLoading: true, // 👈 플래그
+      };
+      setMessages((prev) => [...prev, aiLoadingMsg]);
+
+      // AI reply 요청
+      const aiRes = await fetch(
+        `/api/messages/ai-reply?conversationId=${conversationId}`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+      if (!aiRes.ok) return;
+
+      const aiData = await aiRes.json();
+      if (aiData?.content?.trim()) {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.messageId === aiLoadingMsg.messageId
+              ? {
+                  messageId: String(aiData.messageId ?? `ai_${Date.now()}`),
+                  conversationId,
+                  role: "AI",
+                  content: aiData.content,
+                  createdAt: aiData.createdAt ?? new Date().toISOString(),
+                  isLoading: false,
+                }
+              : msg
+          )
+        );
+      }
+    } catch (e) {
+      setError("네트워크 오류로 메시지를 전송할 수 없습니다");
+      setMessages((prev) =>
+        prev.filter((msg) => msg.messageId !== optimistic.messageId)
+      );
+      setMessage(content);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 대화 종료
+  const handleEnd = async () => {
+    setEndModalOpen(false);
+    setLoadingModalOpen(true);
+    try {
+      const res = await fetch(`/api/conversations/${id}/end`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (!res.ok) {
+        setError("대화를 종료할 수 없습니다");
+        return;
+      }
+      router.push(`/main/custom/chatroom/${id}/result`);
+    } catch (error) {
+      setError("대화 종료 중 오류가 발생했습니다");
+    } finally {
+      setLoadingModalOpen(false);
+    }
+  };
+
+  const handleFeedbacks = async (messageId: string) => {
+    if (!accessToken) {
+      setError("인증 토큰이 없습니다.");
       return;
     }
-    setFiltered(
-      history.filter((c) => (c.aiPersona?.name ?? "").toLowerCase().includes(q))
-    );
-  }, [keyword, history]);
-
-  const toggleSearch = () =>
-    setIsSearchOpen((prev) => {
-      const next = !prev;
-      if (!next) {
-        setKeyword("");
-        setFiltered(history);
-      }
-      return next;
-    });
-
-  const toggleExpand = (id: number | string) => {
-    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
-  const handleFilterClick = (filter: Filter) => {
-    setSelectedFilter((prev) => (prev === filter ? null : filter));
-  };
-  const handleOpenChat = (conversationId: string | number) => {
-    router.push(`/main/custom/chatroom/${conversationId}`);
-  };
-  const handleDeleteChat = async (conversationId: string | number) => {
+    if (feedbackOpenId === messageId) {
+      setFeedbackOpenId(null);
+      return;
+    }
     try {
-      const res = await fetch(`/api/conversations/${conversationId}`, {
-        method: "DELETE",
+      const res = await fetch(`/api/messages/${messageId}/feedback`, {
+        method: "POST",
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
       if (!res.ok) {
-        throw new Error("Failed to delete chat");
+        const errText = await res.text();
+        setError(`피드백 요청 실패: ${res.status} ${errText}`);
+        return;
       }
-      setHistory((prev) =>
-        prev.filter((chat) => chat.conversationId !== conversationId)
+
+      const feedbackData = await res.json();
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.messageId === messageId
+            ? { ...msg, feedback: feedbackData } // ✅ 그대로 객체 저장
+            : msg
+        )
       );
+
+      setFeedbackOpenId(messageId);
     } catch (err) {
-      console.error("Delete chat error:", err);
+      setError("네트워크 오류로 피드백 요청 실패");
+    }
+  };
+
+  const handleHonorific = async (messageId: string) => {
+    // 토글: 이미 있으면 제거
+    if (honorificResults[messageId]) {
+      setHonorificResults((prev) => {
+        const copy = { ...prev };
+        delete copy[messageId];
+        return copy;
+      });
+      setSliderValues((prev) => {
+        const copy = { ...prev };
+        delete copy[messageId];
+        return copy;
+      });
+      return;
+    }
+
+    try {
+      // ✅ messageId만 path에 넣음, 쿼리 파라미터 제거
+      const res = await fetch(
+        `/api/messages/${messageId}/honorific-variations`,
+        {
+          method: "GET",
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+
+      if (!res.ok) {
+        console.error("존댓말 변환 실패");
+        return;
+      }
+
+      const data = await res.json();
+
+      // 결과 저장
+      setHonorificResults((prev) => ({
+        ...prev,
+        [messageId]: data,
+      }));
+
+      // 기본 슬라이더 값 1로 설정
+      setSliderValues((prev) => ({
+        ...prev,
+        [messageId]: 1,
+      }));
+    } catch (err) {
+      console.error("handleHonorific error:", err);
     }
   };
 
   return (
-    <div className="bg-gray-100 w-full flex flex-col pt-10">
-      <div className="flex justify-between items-center space-x-2 relative z-10 px-4">
-        <h1 className="text-xl font-bold z-10">Chatbot History</h1>
-        <AnimatePresence>
-          {isSearchOpen && (
-            <motion.input
-              key="search-input"
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: 120, opacity: 1 }}
-              exit={{ width: 0, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              onKeyDown={(e) =>
-                e.key === "Enter" &&
-                setFiltered(
-                  history.filter((c) =>
-                    (c.aiPersona?.name ?? "")
-                      .toLowerCase()
-                      .includes(keyword.trim().toLowerCase())
-                  )
-                )
-              }
-              className="border p-1 rounded overflow-hidden placeholder:pl-1 my-1"
-              placeholder="Search..."
-              style={{ minWidth: 0 }}
-            />
-          )}
-        </AnimatePresence>
-        <button onClick={toggleSearch} className="cursor-pointer my-2">
-          <MagnifyingGlassIcon className="w-6 h-6 text-gray-700" />
-        </button>
-      </div>
-
-      <div className="mb-4 p-6">
-        <PersonaSlider
-          onAdd={() => router.push("/main/custom")}
-          refreshKey={refreshKey}
-          visibleCount={4}
-          itemSize={72}
-          className="object-cover"
-          onItemClick={(_, it) => {
-            if ("isAdd" in it) return;
-            setSelectedPersonaId(it.personaId);
-            setOpenDetail(true);
-          }}
-        />
-      </div>
-
-      <PersonaDetailModal
-        open={openDetail}
-        onClose={() => setOpenDetail(false)}
-        personaId={selectedPersonaId}
-        onDeleted={() => {
-          setRefreshKey((v) => v + 1); // ✅ 삭제 → PersonaSlider 다시 fetch
-          setOpenDetail(false);
-        }}
-      />
-
-      <div className="mb-6 px-6">
-        <div className="flex items-center justify-between">
-          <div className="flex space-x-2">
-            <button
-              onClick={() => handleFilterClick("done")}
-              className={`px-3 py-1 rounded-full border text-xs font-medium transition-colors cursor-pointer ${
-                selectedFilter === "done"
-                  ? "border-blue-500 text-blue-500 bg-white"
-                  : "border-gray-300 text-gray-500 bg-white"
-              }`}
+    <>
+      <div className="min-h-screen bg-white flex flex-col max-w-[375px]">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
+          <div className="flex items-center justify-between w-full">
+            <Link
+              href="/main"
+              aria-label="Back"
+              className="text-gray-600 hover:text-gray-900 transition-colors"
             >
-              Done
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </Link>
+            <span className="text-lg font-semibold text-gray-900 font-pretendard">
+              {myAI?.name ?? "..."}
+            </span>
+            <button
+              onClick={() => setEndModalOpen(true)} // 모달 열기
+              aria-label="End conversation"
+              className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
+            >
+              <Image
+                src="/etc/exit_to_app.svg"
+                alt="exit"
+                width={24}
+                height={24}
+              />
             </button>
+          </div>
+          {!hidden && (
             <button
-              onClick={() => handleFilterClick("in-progress")}
-              className={`px-4 py-1 rounded-full border text-xs font-medium transition-colors cursor-pointer ${
-                selectedFilter === "in-progress"
-                  ? "border-blue-500 text-blue-500 bg-white"
-                  : "border-gray-300 text-gray-500 bg-white"
-              }`}
+              className="absolute right-3"
+              onClick={() => setHidden(true)}
             >
-              In progress
+              <Image src="/etc/exit2.png" alt="exit" width={84} height={33} />
+            </button>
+          )}
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-400 p-4 mx-4 mt-4">
+            <div className="flex justify-between">
+              <p className="text-sm text-red-700">{error}</p>
+              <button onClick={() => setError(null)}>X</button>
+            </div>
+          </div>
+        )}
+
+        {/* Messages */}
+        <div className="flex-1 bg-white px-4 py-4 overflow-y-auto mb-[139px]">
+          {" "}
+          {/* 여기서 입력란의 높이 만큼 마진을 주어 겹치지 않도록 */}
+          <MessageList
+            messages={messages}
+            myAI={myAI}
+            feedbackOpenId={feedbackOpenId}
+            honorificResults={honorificResults}
+            sliderValues={sliderValues}
+            handleFeedbacks={handleFeedbacks}
+            handleHonorific={handleHonorific}
+            setSliderValues={setSliderValues}
+          />
+          <div ref={bottomRef} />
+        </div>
+
+        {/* Input - Fixed at bottom */}
+        <div className="bg-blue-50 py-4 h-[139px] border-t border-gray-200 w-[375px] flex justify-center items-center gap-4 fixed bottom-0 z-50">
+          {!isTyping && (
+            <>
+              <button className="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:bg-gray-100">
+                <Image
+                  src="/chatroom/refresh.png"
+                  alt="Refresh"
+                  width={24}
+                  height={24}
+                />
+              </button>
+              <button onClick={handleMicClick}>
+                <Image
+                  src={
+                    isRecording ? "/chatroom/pause.png" : "/chatroom/mic.png"
+                  }
+                  alt="Mic"
+                  width={82}
+                  height={82}
+                />
+              </button>
+              <button
+                className="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:bg-gray-100"
+                onClick={handleKeyboardClick}
+              >
+                <Image
+                  src="/chatroom/keyboard_alt.png"
+                  alt="Keyboard"
+                  width={24}
+                  height={24}
+                />
+              </button>
+            </>
+          )}
+
+          {/* Typing Section */}
+          {isTyping && (
+            <div className="flex items-center w-full max-w-[375px] border border-blue-300 rounded-full bg-white mx-4">
+              <button onClick={handleKeyboardClick} className="p-2">
+                <Image
+                  src="/chatroom/mic.png"
+                  alt="Mic"
+                  width={44}
+                  height={44}
+                />
+              </button>
+              <input
+                type="text"
+                placeholder="Reply here"
+                className="flex-grow p-2 text-gray-500 placeholder-gray-400 border-none outline-none"
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+              />
+              <Image
+                src="/chatroom/up.png"
+                alt="Send"
+                width={28}
+                height={28}
+                className="mr-3"
+                onClick={sendMessage}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* End Modal */}
+      {endModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setEndModalOpen(false)}
+          />
+          <div className="relative bg-white rounded-2xl p-6 w-[320px] shadow-lg z-10 flex flex-col items-center text-center">
+            <Image
+              src="/etc/exitchar.svg"
+              alt="exit"
+              width={118}
+              height={94}
+              className="my-5"
+            />
+
+            <p className="text-lg font-semibold mb-2">
+              Would you like to end the conversation
+            </p>
+            <p className="text-sm text-gray-600 mb-6">and receive feedback?</p>
+
+            <button
+              className="w-full bg-blue-500 text-white py-3 rounded-xl font-semibold hover:bg-blue-600 transition-colors cursor-pointer"
+              onClick={handleEnd}
+            >
+              Get Feedback
+            </button>
+
+            <button
+              className="w-full mt-2 bg-gray-100 text-gray-600 py-3 rounded-xl font-semibold cursor-pointer"
+              onClick={() => setEndModalOpen(false)}
+            >
+              Keep Conversation
             </button>
           </div>
         </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto pb-24 bg-white p-6 border-t">
-        <div className="space-y-4">
-          {loading ? (
-            <div className="flex items-center justify-center h-full py-30">
-              <p>Loading...</p>
-            </div>
-          ) : (
-            <>
-              {error && <p className="text-red-500">{error}</p>}
-
-              {history.length === 0 && (
-                <div className="flex flex-col items-center justify-center mt-20">
-                  <Image
-                    src="/circle/circle4.png"
-                    alt="loading"
-                    width={81}
-                    height={81}
-                  />
-                  <p className="text-gray-400 text-center mt-10">
-                    No chat history.
-                  </p>
-                  <Link
-                    href="/main/custom"
-                    className="flex items-center text-blue-500 hover:underline text-sm"
-                  >
-                    Start a conversation with a custom chatbot
-                    <ChevronRightIcon className="size-4 pt-1" />
-                  </Link>
-                </div>
-              )}
-
-              {history.length > 0 && filtered.length === 0 && (
-                <div className="flex flex-col items-center justify-center mt-10">
-                  <p className="text-gray-400">No search results.</p>
-                </div>
-              )}
-
-              {filtered.map((chat) => {
-                const name = getName(chat?.aiPersona?.name);
-                const desc = chat?.aiPersona?.description ?? "";
-                const img = getImg(chat?.aiPersona?.profileImageUrl);
-                const situationLabel = getSituationLabel(
-                  (chat as any)?.situation
-                );
-                const isOpen = expanded[chat.conversationId];
-
-                return (
-                  <div key={chat.conversationId} className="border-b">
-                    <div
-                      className="flex items-center justify-between p-3 hover:bg-gray-50 transition-colors cursor-pointer"
-                      onClick={() => toggleExpand(chat.conversationId)}
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="relative">
-                          {img ? (
-                            <Image
-                              src={img}
-                              width={48}
-                              height={48}
-                              alt={name}
-                              className="w-12 h-12 rounded-full bg-gray-200 object-cover"
-                              unoptimized
-                            />
-                          ) : (
-                            <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center shadow-sm">
-                              <span className="text-gray-600 font-semibold text-sm">
-                                {name?.[0] ?? "?"}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex flex-col min-w-0">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-bold text-black text-base truncate">
-                              {name}
-                            </h3>
-                            <span
-                              className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                                chat.status === "ACTIVE"
-                                  ? "bg-blue-100 text-blue-600"
-                                  : "bg-green-100 text-green-500"
-                              }`}
-                            >
-                              {chat.status === "ACTIVE"
-                                ? "In progress"
-                                : "Done"}
-                            </span>
-                          </div>
-                          <p className="text-[13px] text-gray-600 truncate">
-                            {situationLabel || desc}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 text-gray-500 flex-col">
-                        <span className="flex text-xs gap-1">
-                          <span>
-                            {new Date(chat.createdAt).toLocaleDateString(
-                              "en-US",
-                              {
-                                month: "short",
-                              }
-                            )}
-                          </span>{" "}
-                          <span>
-                            {new Date(chat.createdAt).toLocaleDateString(
-                              "en-US",
-                              {
-                                day: "numeric",
-                              }
-                            )}
-                          </span>
-                        </span>
-                        <span className="text-xs">{isOpen ? "▲" : "▼"}</span>
-                      </div>
-                    </div>
-                    {isOpen && chat.status === "ACTIVE" && (
-                      <div className="p-3 flex gap-2 items-center justify-center">
-                        <button
-                          onClick={() => handleOpenChat(chat.conversationId)}
-                          className="w-25 h-9 py-2 bg-blue-600 text-white rounded-xl cursor-pointer"
-                        >
-                          <p className="text-xs">Open Chat</p>
-                        </button>
-                        <button
-                          onClick={() => handleDeleteChat(chat.conversationId)}
-                          className="w-25 h-9 py-2 bg-gray-300 text-gray-700 rounded-xl cursor-pointer"
-                        >
-                          <p className="text-xs">Delete</p>
-                        </button>
-                      </div>
-                    )}
-                    {isOpen && chat.status === "ENDED" && (
-                      <FeedbackSection id={chat.conversationId} />
-                    )}
-                  </div>
-                );
-              })}
-            </>
-          )}
-        </div>
-      </div>
-    </div>
+      )}
+      {loadingModalOpen && <LoadingModal open={loadingModalOpen} />}
+    </>
   );
 }
