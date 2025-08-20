@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// components/bothistory/PersonaSlider.tsx
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
@@ -23,6 +22,7 @@ type Props = {
   visibleCount?: number;
   viewportWidth?: number;
   className?: string;
+  refreshKey?: number;
 };
 
 const normalizeSrc = (src?: string) =>
@@ -35,41 +35,35 @@ export default function PersonaSlider({
   gap = 12,
   visibleCount = 5,
   viewportWidth,
-  className,
+  refreshKey,
 }: Props) {
   const [items, setItems] = useState<PersonaSlide[]>([]);
 
-  // ✅ API 호출
+  const fetchPersonas = async () => {
+    try {
+      const res = await fetch("/api/personas/my?page=1&size=10", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken") ?? ""}`,
+        },
+      });
+      const data = await res.json();
+      const personas = Array.isArray(data) ? data : data?.content || [];
+
+      const mapped: PersonaSlide[] = personas.map((p: any) => ({
+        personaId: p.personaId || p.id,
+        name: p.name,
+        profileImageUrl: p.profileImageUrl || p.imageUrl,
+      }));
+
+      setItems([{ isAdd: true }, ...mapped]);
+    } catch (err) {
+      console.error("Persona fetch error", err);
+    }
+  };
+
   useEffect(() => {
-    const fetchPersonas = async () => {
-      try {
-        const res = await fetch("/api/personas/my?page=1&size=10", {
-          headers: {
-            Authorization: `Bearer ${
-              localStorage.getItem("accessToken") ?? ""
-            }`,
-          },
-        });
-        const data = await res.json();
-
-        // data가 배열이면 직접 사용, 아니면 data.content 사용
-        const personas = Array.isArray(data) ? data : data?.content || [];
-
-        const mapped: PersonaSlide[] = personas.map((p: any) => ({
-          personaId: p.personaId || p.id,
-          name: p.name,
-          profileImageUrl: p.profileImageUrl || p.imageUrl,
-        }));
-
-        // 마지막에 '+' 버튼 추가
-        setItems([{ isAdd: true }, ...mapped]);
-      } catch (err) {
-        console.error("Persona fetch error", err);
-      }
-    };
-
     fetchPersonas();
-  }, []);
+  }, [refreshKey]);
 
   const viewW =
     viewportWidth ?? visibleCount * itemSize + (visibleCount - 1) * gap;

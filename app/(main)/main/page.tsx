@@ -50,7 +50,7 @@ export default function Main() {
   }, [accessToken]);
 
   return (
-    <div className="min-h-screen bg-blue-50 flex flex-col max-w-[375px] mx-auto">
+    <div className="min-h-screen bg-blue-50 flex flex-col max-w-[375px] mx-auto overflow-auto">
       {/* 메인 콘텐츠 */}
       <div className="flex-1 flex flex-col">
         {/* 환영 섹션 */}

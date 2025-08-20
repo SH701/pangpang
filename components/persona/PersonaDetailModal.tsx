@@ -14,7 +14,7 @@ type PersonaDetail = {
   age?: number;
   role?: string; // Boss 등
   description?: string; // Situation 등
-  profileImageUrl?: string;
+  profileImageUrl?: string
 };
 
 const normalizeSrc = (src?: string) =>
