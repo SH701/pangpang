@@ -176,8 +176,15 @@ export async function proxyJSON(
 
     if (resCT.includes("application/json")) {
       const raw = await upstream.text();
-      const parsed = raw ? JSON.parse(raw) : {};
-      return NextResponse.json(parsed, { status });
+      try {
+        const parsed = raw ? JSON.parse(raw) : {};
+        return NextResponse.json(parsed, { status });
+      } catch {
+        return new Response(raw, {
+          status,
+          headers: { "content-type": "text/plain" },
+        });
+      }
     }
 
     const passHeaders = new Headers();
