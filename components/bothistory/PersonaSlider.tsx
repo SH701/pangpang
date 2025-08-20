@@ -1,27 +1,32 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // components/bothistory/PersonaSlider.tsx
-'use client';
+"use client";
 
-import { useEffect, useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import Image from 'next/image';
+import { useEffect, useState, useMemo } from "react";
+import { motion } from "framer-motion";
+import Image from "next/image";
 
 export type PersonaSlide =
   | { isAdd: true }
-  | { isAdd?: false; personaId: number | string; name: string; profileImageUrl?: string };
+  | {
+      isAdd?: false;
+      personaId: number | string;
+      name: string;
+      profileImageUrl?: string;
+    };
 
 type Props = {
-  onAdd?: () => void;                            // '+' 클릭
+  onAdd?: () => void; // '+' 클릭
   onItemClick?: (idx: number, it: PersonaSlide) => void; // 아이템 클릭(모달 오픈용)
   itemSize?: number;
   gap?: number;
   visibleCount?: number;
   viewportWidth?: number;
-  className:string
+  className?: string;
 };
 
 const normalizeSrc = (src?: string) =>
-  !src ? '' : src.startsWith('http') || src.startsWith('/') ? src : `/${src}`;
+  !src ? "" : src.startsWith("http") || src.startsWith("/") ? src : `/${src}`;
 
 export default function PersonaSlider({
   onAdd,
@@ -30,7 +35,7 @@ export default function PersonaSlider({
   gap = 12,
   visibleCount = 5,
   viewportWidth,
-  className
+  className,
 }: Props) {
   const [items, setItems] = useState<PersonaSlide[]>([]);
 
@@ -38,16 +43,18 @@ export default function PersonaSlider({
   useEffect(() => {
     const fetchPersonas = async () => {
       try {
-        const res = await fetch('/api/personas/my?page=1&size=10', {
+        const res = await fetch("/api/personas/my?page=1&size=10", {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('accessToken') ?? ''}`,
+            Authorization: `Bearer ${
+              localStorage.getItem("accessToken") ?? ""
+            }`,
           },
         });
         const data = await res.json();
 
         // data가 배열이면 직접 사용, 아니면 data.content 사용
-        const personas = Array.isArray(data) ? data : (data?.content || []);
-        
+        const personas = Array.isArray(data) ? data : data?.content || [];
+
         const mapped: PersonaSlide[] = personas.map((p: any) => ({
           personaId: p.personaId || p.id,
           name: p.name,
@@ -55,21 +62,26 @@ export default function PersonaSlider({
         }));
 
         // 마지막에 '+' 버튼 추가
-        setItems([ { isAdd: true },...mapped]);
+        setItems([{ isAdd: true }, ...mapped]);
       } catch (err) {
-        console.error('Persona fetch error', err);
+        console.error("Persona fetch error", err);
       }
     };
 
     fetchPersonas();
   }, []);
 
-  const viewW = viewportWidth ?? visibleCount * itemSize + (visibleCount - 1) * gap;
+  const viewW =
+    viewportWidth ?? visibleCount * itemSize + (visibleCount - 1) * gap;
   const trackWidth = useMemo(
-    () => (items?.length ? items.length * itemSize + (items.length - 1) * gap : 0),
+    () =>
+      items?.length ? items.length * itemSize + (items.length - 1) * gap : 0,
     [items, itemSize, gap]
   );
-  const leftLimit = useMemo(() => Math.min(0, viewW - trackWidth), [viewW, trackWidth]);
+  const leftLimit = useMemo(
+    () => Math.min(0, viewW - trackWidth),
+    [viewW, trackWidth]
+  );
 
   if (!items || items.length === 0) {
     // 로딩 또는 데이터 없음 → '+'만
@@ -77,7 +89,7 @@ export default function PersonaSlider({
       <div className="overflow-hidden" style={{ width: viewW }}>
         <button
           onClick={onAdd}
-          className="rounded-full bg-blue-500 text-white flex items-center justify-center text-2xl"
+          className="rounded-full bg-blue-500 text-white flex items-center justify-center text-2xl cursor-pointer"
           style={{ width: itemSize, height: itemSize }}
           aria-label="Add persona"
         >
@@ -94,10 +106,10 @@ export default function PersonaSlider({
         style={{ columnGap: gap, width: trackWidth }}
         drag="x"
         dragConstraints={{ left: leftLimit, right: 0 }}
-        transition={{ type: 'spring', bounce: 0.2 }}
+        transition={{ type: "spring", bounce: 0.2 }}
       >
         {items.map((it, i) =>
-          'isAdd' in it && it.isAdd ? (
+          "isAdd" in it && it.isAdd ? (
             <button
               key={`add-${i}`}
               onClick={onAdd}
@@ -111,7 +123,7 @@ export default function PersonaSlider({
             <div
               key={`${it.personaId}-${i}`}
               className="flex flex-col items-center shrink-0"
-              style={{ width: itemSize,height: itemSize}}
+              style={{ width: itemSize, height: itemSize }}
             >
               {it.profileImageUrl ? (
                 <Image
@@ -119,7 +131,7 @@ export default function PersonaSlider({
                   alt={it.name}
                   width={itemSize}
                   height={itemSize}
-                   className="w-[72px] h-[72px] rounded-full object-cover object-top bg-gray-200 cursor-pointer"
+                  className="w-[72px] h-[72px] rounded-full object-cover object-top bg-gray-200 cursor-pointer"
                   unoptimized
                   onClick={() => onItemClick?.(i, it)}
                 />
@@ -128,10 +140,15 @@ export default function PersonaSlider({
                   className="rounded-full bg-gray-300 flex items-center justify-center"
                   style={{ width: itemSize, height: itemSize }}
                 >
-                  <span className="text-sm text-gray-600">{it.name?.charAt(0) ?? '?'}</span>
+                  <span className="text-sm text-gray-600">
+                    {it.name?.charAt(0) ?? "?"}
+                  </span>
                 </div>
               )}
-              <span className="text-xs text-center truncate" style={{ maxWidth: itemSize }}>
+              <span
+                className="text-xs text-center truncate"
+                style={{ maxWidth: itemSize }}
+              >
                 {it.name}
               </span>
             </div>

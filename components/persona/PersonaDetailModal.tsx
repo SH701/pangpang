@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Image from 'next/image';
-import Modal from '@/components/persona/modal';
-import { useAuth } from '@/lib/UserContext';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import Modal from "@/components/persona/modal";
+import { useAuth } from "@/lib/UserContext";
+import { useRouter } from "next/navigation";
 
 type PersonaDetail = {
   id: number | string;
@@ -18,7 +18,7 @@ type PersonaDetail = {
 };
 
 const normalizeSrc = (src?: string) =>
-  !src ? '' : src.startsWith('http') || src.startsWith('/') ? src : `/${src}`;
+  !src ? "" : src.startsWith("http") || src.startsWith("/") ? src : `/${src}`;
 
 export default function PersonaDetailModal({
   open,
@@ -37,47 +37,16 @@ export default function PersonaDetailModal({
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-
-  // 상세 조회 API: GET /api/personas/{personaId}
-  useEffect(() => {
-    if (!open || !personaId || !accessToken) return;
-    const run = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/personas/${personaId}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-          cache: 'no-store',
-        });
-        const json = await res.json();
-        console.log("persona json:", json);
-        setData({
-          id: json.id ?? personaId,
-          name: json.name ?? 'Unknown',
-          gender: json.gender,
-          age: json.age,
-          role: json.role ?? json.aiRole,
-          description: json.description,
-          profileImageUrl: json.profileImageUrl,
-        });
-      } catch {
-        setData(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    run();
-  }, [open, personaId, accessToken]);
-
   // 삭제 핸들러
   const handleDelete = async () => {
     if (!personaId || !accessToken) return;
-    if (!confirm('Delete This AI?.')) return;
+    if (!confirm("Delete This AI?.")) return;
     setDeleting(true);
     try {
       const res = await fetch(`/api/personas/${personaId}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: { Authorization: `Bearer ${accessToken}` },
-        cache: 'no-store',
+        cache: "no-store",
       });
       if (!res.ok) {
         return;
@@ -94,7 +63,35 @@ export default function PersonaDetailModal({
     }
   };
 
-
+  // 상세 조회 API: GET /api/personas/{personaId}
+  useEffect(() => {
+    if (!open || !personaId || !accessToken) return;
+    const run = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/personas/${personaId}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+          cache: "no-store",
+        });
+        const json = await res.json();
+        console.log("persona json:", json);
+        setData({
+          id: json.id ?? personaId,
+          name: json.name ?? "Unknown",
+          gender: json.gender,
+          age: json.age,
+          role: json.role ?? json.aiRole,
+          description: json.description,
+          profileImageUrl: json.profileImageUrl,
+        });
+      } catch {
+        setData(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    run();
+  }, [open, personaId, accessToken]);
 
   // 새로운 채팅
   const handleStartChat = async () => {
@@ -133,7 +130,7 @@ export default function PersonaDetailModal({
         {data?.profileImageUrl ? (
           <Image
             src={normalizeSrc(data.profileImageUrl)}
-            alt={data?.name ?? 'AI'}
+            alt={data?.name ?? "AI"}
             width={56}
             height={56}
             className="rounded-full object-cover bg-gray-200"
@@ -143,8 +140,12 @@ export default function PersonaDetailModal({
           <div className="w-14 h-14 rounded-full bg-gray-200" />
         )}
         <div className="min-w-0">
-          <div className="font-semibold text-lg truncate">{data?.name ?? '...'}</div>
-          <div className="font-semibold text-gray-500 text-sm truncate">{data?.role ?? '...'}</div>
+          <div className="font-semibold text-lg truncate">
+            {data?.name ?? "..."}
+          </div>
+          <div className="font-semibold text-gray-500 text-sm truncate">
+            {data?.role ?? "..."}
+          </div>
         </div>
         <button
           className="ml-auto text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200"
@@ -162,16 +163,16 @@ export default function PersonaDetailModal({
           <>
             <div className="grid grid-cols-2 gap-y-2 text-sm">
               <span className="text-gray-500">Name</span>
-              <span className="font-medium">{data?.name ?? '-'}</span>
+              <span className="font-medium">{data?.name ?? "-"}</span>
 
               <span className="text-gray-500">Gender</span>
-              <span className="font-medium">{data?.gender ?? '-'}</span>
+              <span className="font-medium">{data?.gender ?? "-"}</span>
 
               <span className="text-gray-500">Age</span>
-              <span className="font-medium">{data?.age ?? '-'}</span>
+              <span className="font-medium">{data?.age ?? "-"}</span>
 
               <span className="text-gray-500">AI’s role</span>
-              <span className="font-medium">{data?.role ?? '-'}</span>
+              <span className="font-medium">{data?.role ?? "-"}</span>
             </div>
           </>
         )}
@@ -179,10 +180,16 @@ export default function PersonaDetailModal({
 
       {/* 푸터 */}
       <div className="p-5 border-t flex items-center gap-3">
-        <button onClick={handleStartChat} className="flex-1 h-11 rounded-xl bg-blue-600 text-white font-medium">
+        <button
+          onClick={handleStartChat}
+          className="flex-1 h-11 rounded-xl bg-blue-600 text-white font-medium"
+        >
           Start New chatting
         </button>
-        <button onClick={handleDelete} className="h-11 px-4 rounded-xl bg-gray-100 text-gray-700">
+        <button
+          onClick={handleDelete}
+          className="h-11 px-4 rounded-xl bg-gray-100 text-gray-700"
+        >
           Delete
         </button>
       </div>

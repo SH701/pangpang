@@ -22,7 +22,9 @@ export default function HonorificHelper() {
   >("mediumFormality");
 
   const [intimacy, setIntimacy] = useState<
-    "lowIntimacyExpressions" | "mediumIntimacyExpressions" | "highIntimacyExpressions"
+    | "lowIntimacyExpressions"
+    | "mediumIntimacyExpressions"
+    | "highIntimacyExpressions"
   >("mediumIntimacyExpressions");
 
   const handleTranslate = async () => {
@@ -30,7 +32,9 @@ export default function HonorificHelper() {
       setLoading(true);
       setExplain("");
       const res = await fetch(
-        `/api/language/honorific-variations?sourceContent=${encodeURIComponent(source)}`,
+        `/api/language/honorific-variations?sourceContent=${encodeURIComponent(
+          source
+        )}`,
         {
           headers: { Authorization: `Bearer ${accessToken}` },
         }
@@ -67,12 +71,12 @@ export default function HonorificHelper() {
 
       {/* 메인 컨텐츠 */}
       <div className="flex-1 px-6 pt-6 ">
-        <div className="w-[335px] flex-shrink-0 rounded-2xl border border-gray-200 bg-white mx-auto mb-6 px-6">
+        <div className="w-[335px] flex-shrink-0 rounded-2xl border border-gray-200 bg-white mx-auto mb-6 px-6 placeholder:text-gray-400 ">
           {/* 입력 영역 */}
           <div className="mb-3 pt-6">
             <textarea
-              className="resize-none w-full h-22 border-none focus:ring-0 font-pretendard focus:outline-none"
-              placeholder="Type in English..."
+              className="resize-none w-full h-22 border-none focus:ring-0 font-pretendard focus:outline-none placeholder:text-lg"
+              placeholder="Plaese enter the polite sentence in English of Korean"
               value={source}
               onChange={(e) => setSource(e.target.value)}
               onKeyDown={(e) => {
@@ -82,22 +86,22 @@ export default function HonorificHelper() {
                 }
               }}
               style={{
-                color: 'var(--Natural-cool-gray-400, #374151)',
-                fontFamily: 'Pretendard',
-                fontSize: '16px',
-                fontStyle: 'normal',
-                fontWeight: '400',
-                lineHeight: 'normal'
+                color: "var(--Natural-cool-gray-400, #374151)",
+                fontFamily: "Pretendard",
+                fontSize: "16px",
+                fontStyle: "normal",
+                fontWeight: "400",
+                lineHeight: "normal",
               }}
             />
             <div className="flex justify-end">
-    <button
-      onClick={handleTranslate}
-      className="mt-2 bg-blue-500 text-white text-sm px-3 py-1 rounded-md hover:bg-blue-600"
-    >
-      Submit
-    </button>
-  </div>
+              <button
+                onClick={handleTranslate}
+                className="mt-2 bg-blue-500 text-white text-sm px-3 py-1 rounded-md hover:bg-blue-600"
+              >
+                Submit
+              </button>
+            </div>
           </div>
 
           {/* 구분선 */}
@@ -105,47 +109,57 @@ export default function HonorificHelper() {
 
           {/* 출력 영역 */}
           <div className="mb-3">
-           {loading ? (
-    <div className="flex items-center gap-2 text-gray-500 h-32 justify-center">
-      <svg
-        className="animate-spin h-5 w-5 text-blue-600"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-      >
-        <circle
-          className="opacity-25"
-          cx="12"
-          cy="12"
-          r="10"
-          stroke="currentColor"
-          strokeWidth="4"
-        ></circle>
-        <path
-          className="opacity-75"
-          fill="currentColor"
-          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-        ></path>
-      </svg>
-      <span>Loading...</span>
-    </div>
-  ) : (
-    <textarea
-      className="resize-none w-full h-24 border-none focus:ring-0 font-pretendard"
-      placeholder="Korean translation..."
-      value={result}
-      readOnly
-      style={{
-        color: 'var(--Natural-cool-gray-700, #374151)',
-        fontFamily: 'Pretendard',
-        fontSize: '16px',
-        fontStyle: 'normal',
-        fontWeight: '400',
-        lineHeight: 'normal'
-      }}
-    />
-  )}
-</div>
+            {loading ? (
+              <div className="flex items-center gap-2 text-gray-500 h-32 justify-center">
+                <svg
+                  className="animate-spin h-5 w-5 text-blue-600"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  ></path>
+                </svg>
+                <span>Loading...</span>
+              </div>
+            ) : (
+              <textarea
+                className="resize-none w-full h-24 border-none focus:ring-0 font-pretendard"
+                placeholder=""
+                value={result}
+                readOnly
+                style={{
+                  color: "var(--Natural-cool-gray-700, #374151)",
+                  fontFamily: "Pretendard",
+                  fontSize: "16px",
+                  fontStyle: "normal",
+                  fontWeight: "400",
+                  lineHeight: "normal",
+                }}
+              />
+            )}
+            <div className="flex justify-end">
+              <button onClick={handleTranslate} className="cursor-pointer">
+                <Image
+                  src="/etc/volume_up.svg"
+                  alt="sound"
+                  width={19}
+                  height={19}
+                />
+              </button>
+            </div>
+          </div>
           {/* Helper Slider */}
           <HelperSlider
             onChange={(i, f) => {
