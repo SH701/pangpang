@@ -73,16 +73,46 @@ export default function MessageItem({
       const res = await fetch(`/api/messages/${messageId}/translate`, {
         method: "PUT",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
       });
+
       if (!res.ok) throw new Error(`Translation API failed: ${res.status}`);
+
       const data = await res.text();
       setTranslated(data);
     } catch (err) {
       console.error("Translation error:", err);
     } finally {
       setLoading((prev) => ({ ...prev, [messageId]: false }));
+    }
+  };
+  
+  const handleTTS = async (messageId: string) => {
+    try {
+      if (!messageId) return; // ✅ messageId 없으면 실행 안 함
+
+      const res = await fetch(`/api/messages/${messageId}/tts`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken") ?? ""}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error(`TTS 요청 실패: ${res.status}`);
+      }
+
+       const audioUrl = await res.text();
+      
+
+      const audio = new Audio(audioUrl);
+      audio.play();
+
+      return audioUrl;
+    } catch (err) {
+      console.error("handleTTS error:", err);
     }
   };
 
@@ -176,6 +206,7 @@ export default function MessageItem({
             {!isMine && (
               <div className="flex items-center gap-2">
                 <button
+                  onClick={() => handleTTS(m.messageId)}
                   disabled={loadingFeedbacks[m.messageId]}
                   className="cursor-pointer"
                 >

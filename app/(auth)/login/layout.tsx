@@ -1,7 +1,5 @@
 import { AuthProvider } from "@/lib/UserContext";
 
-export const metadata = { title: "Setting" };
-
 export default function SignupLayout({
   children,
 }: {
@@ -9,7 +7,7 @@ export default function SignupLayout({
 }) {
   return (
     <AuthProvider>
-      <div className="h-[812px] w-[375px] mx-auto bg-white overflow-hidden">
+      <div className="h-[812px] w-[375px] mx-auto bg-white overflow-y-hidden">
         {children}
       </div>
     </AuthProvider>
