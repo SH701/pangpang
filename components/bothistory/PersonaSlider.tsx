@@ -50,7 +50,7 @@ export default function PersonaSlider({
       const personas = Array.isArray(data) ? data : data?.content || [];
 
       const mapped: PersonaSlide[] = personas.map((p: any) => ({
-        personaId: p.personaId || p.id,
+        personaId: p.personaId,
         name: p.name,
         profileImageUrl: p.profileImageUrl || p.imageUrl,
       }));
