@@ -54,7 +54,15 @@ export default function ChatroomPage() {
   const [hidden, setHidden] = useState(false);
   const [endModalOpen, setEndModalOpen] = useState(false);
   const [loadingModalOpen, setLoadingModalOpen] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
+  const handleMicClick = () => {
+    setIsRecording((prev) => !prev);
+  };
+  const handleKeyboardClick = () => {
+    setIsTyping((prev) => !prev);
+  };
   // 대화 정보 로드
   useEffect(() => {
     if (!canCall || !id) return;
@@ -410,7 +418,9 @@ export default function ChatroomPage() {
         )}
 
         {/* Messages */}
-        <div className="flex-1 bg-white px-4 py-4 overflow-y-auto">
+        <div className="flex-1 bg-white px-4 py-4 overflow-y-auto mb-[139px]">
+          {" "}
+          {/* 여기서 입력란의 높이 만큼 마진을 주어 겹치지 않도록 */}
           <MessageList
             messages={messages}
             myAI={myAI}
@@ -424,23 +434,70 @@ export default function ChatroomPage() {
           <div ref={bottomRef} />
         </div>
 
-        {/* Input */}
-        <div className="bg-blue-50 px-4 py-4 border-t border-gray-200 w-[375px]">
-          <div className="flex items-center bg-white rounded-full px-3 flex-1">
-            <input
-              className="flex-1 outline-none px-2 py-2 text-sm"
-              placeholder="Enter your message"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-            />
-            <button
-              onClick={sendMessage}
-              className="text-blue-500 font-semibold"
-            >
-              Send
-            </button>
-          </div>
+        {/* Input - Fixed at bottom */}
+        <div className="bg-blue-50 py-4 h-[139px] border-t border-gray-200 w-[375px] flex justify-center items-center gap-4 fixed bottom-0 z-50">
+          {!isTyping && (
+            <>
+              <button className="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:bg-gray-100">
+                <Image
+                  src="/chatroom/refresh.png"
+                  alt="Refresh"
+                  width={24}
+                  height={24}
+                />
+              </button>
+              <button onClick={handleMicClick}>
+                <Image
+                  src={
+                    isRecording ? "/chatroom/pause.png" : "/chatroom/mic.png"
+                  }
+                  alt="Mic"
+                  width={82}
+                  height={82}
+                />
+              </button>
+              <button
+                className="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:bg-gray-100"
+                onClick={handleKeyboardClick}
+              >
+                <Image
+                  src="/chatroom/keyboard_alt.png"
+                  alt="Keyboard"
+                  width={24}
+                  height={24}
+                />
+              </button>
+            </>
+          )}
+
+          {/* Typing Section */}
+          {isTyping && (
+            <div className="flex items-center w-full max-w-[375px] border border-blue-300 rounded-full bg-white mx-4">
+              <button onClick={handleKeyboardClick} className="p-2">
+                <Image
+                  src="/chatroom/mic.png"
+                  alt="Mic"
+                  width={44}
+                  height={44}
+                />
+              </button>
+              <input
+                type="text"
+                placeholder="Reply here"
+                className="flex-grow p-2 text-gray-500 placeholder-gray-400 border-none outline-none"
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+              />
+              <Image
+                src="/chatroom/up.png"
+                alt="Send"
+                width={28}
+                height={28}
+                className="mr-3"
+                onClick={sendMessage}
+              />
+            </div>
+          )}
         </div>
       </div>
 
