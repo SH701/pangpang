@@ -52,6 +52,28 @@ export default function HonorificHelper() {
       setLoading(false);
     }
   };
+  const handleTTS = async () => {
+    try {
+      if (!result) return;
+      // 백엔드 프록시 API 호출
+      const res = await fetch("/api/language/tts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ text: result }),
+      });
+
+      if (!res.ok) throw new Error("TTS 요청 실패");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.play();
+    } catch (e) {
+      console.error("TTS 에러:", e);
+    }
+  };
 
   return (
     <div className="h-screen bg-gray-50 flex flex-col max-w-[375px] mx-auto overflow-y-auto">
@@ -76,7 +98,7 @@ export default function HonorificHelper() {
           <div className="mb-3 pt-6">
             <textarea
               className="resize-none w-full h-22 border-none focus:ring-0 font-pretendard focus:outline-none placeholder:text-lg"
-              placeholder="Plaese enter the polite sentence in English of Korean"
+              placeholder="Enter a sentence you're curious about (Korean/English)"
               value={source}
               onChange={(e) => setSource(e.target.value)}
               onKeyDown={(e) => {
@@ -150,7 +172,7 @@ export default function HonorificHelper() {
               />
             )}
             <div className="flex justify-end">
-              <button onClick={handleTranslate} className="cursor-pointer">
+              <button onClick={handleTTS} className="cursor-pointer">
                 <Image
                   src="/etc/volume_up.svg"
                   alt="sound"
