@@ -73,7 +73,6 @@ export default function MessageItem({
       const res = await fetch(`/api/messages/${messageId}/translate`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
       });
