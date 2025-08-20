@@ -61,6 +61,7 @@ export default function ChatBothistoryPage() {
   const [sliderItems, setSliderItems] = useState<PersonaSlide[]>([
     { isAdd: true },
   ]);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [openDetail, setOpenDetail] = useState(false);
   const [selectedPersonaId, setSelectedPersonaId] = useState<
     number | string | null
@@ -207,6 +208,7 @@ export default function ChatBothistoryPage() {
       <div className="mb-4 p-6">
         <PersonaSlider
           onAdd={() => router.push("/main/custom")}
+          refreshKey={refreshKey}
           visibleCount={4}
           itemSize={72}
           className="object-cover"
@@ -222,10 +224,8 @@ export default function ChatBothistoryPage() {
         open={openDetail}
         onClose={() => setOpenDetail(false)}
         personaId={selectedPersonaId}
-        onDeleted={(deletedId) => {
-          setSliderItems((prev) =>
-            prev.filter((it) => !("isAdd" in it) && it.personaId !== deletedId)
-          );
+        onDeleted={() => {
+          setRefreshKey((v) => v + 1); // ✅ 삭제 → PersonaSlider 다시 fetch
           setOpenDetail(false);
         }}
       />
