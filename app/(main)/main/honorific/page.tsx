@@ -22,9 +22,9 @@ export default function HonorificHelper() {
   >("mediumFormality");
 
   const [intimacy, setIntimacy] = useState<
-    | "lowIntimacyExpressions"
+    | "closeIntimacyExpressions"
     | "mediumIntimacyExpressions"
-    | "highIntimacyExpressions"
+    | "distantIntimacyExpressions"
   >("mediumIntimacyExpressions");
 
   const handleTranslate = async () => {
