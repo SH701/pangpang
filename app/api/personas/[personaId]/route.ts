@@ -3,9 +3,9 @@ import { proxyJSON } from "@/app/api/_lib/proxy";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { personaId: string } }
-) {
-  const { personaId } = params;
+  context: { params: Promise<{ personaId: string }> }
+): Promise<Response> {
+  const { personaId } = await context.params;
 
   return proxyJSON(req, `/api/personas/${personaId}`, {
     method: "GET",
@@ -15,9 +15,9 @@ export async function GET(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { personaId: string } }
-) {
-  const { personaId } = params;
+  context: { params: Promise<{ personaId: string }> }
+): Promise<Response> {
+  const { personaId } = await context.params;
 
   return proxyJSON(req, `/api/personas/${personaId}`, {
     method: "DELETE",
