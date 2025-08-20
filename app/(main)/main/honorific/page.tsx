@@ -55,7 +55,7 @@ export default function HonorificHelper() {
   const handleTTS = async () => {
     try {
       if (!result) return;
-      // 백엔드 프록시 API 호출
+
       const res = await fetch("/api/language/tts", {
         method: "POST",
         headers: {
@@ -66,10 +66,13 @@ export default function HonorificHelper() {
       });
 
       if (!res.ok) throw new Error("TTS 요청 실패");
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
+
+      const audioUrl = await res.text();
+
+      const audio = new Audio(audioUrl);
       audio.play();
+
+      return audioUrl;
     } catch (e) {
       console.error("TTS 에러:", e);
     }
