@@ -7,9 +7,9 @@ import Image from "next/image";
 type Props = {
   onChange: (
     intimacy:
-      | "lowIntimacyExpressions"
+      | "closeIntimacyExpressions"
       | "mediumIntimacyExpressions"
-      | "highIntimacyExpressions",
+      | "distantIntimacyExpressions",
     formality: "lowFormality" | "mediumFormality" | "highFormality"
   ) => void;
 };
@@ -72,9 +72,9 @@ export default function HelperSlider({ onChange }: Props) {
   const fPercent = (fam / fMax) * 100;
   const handleUpdate = (newLevel: number, newFam: number) => {
     const intimacyMap = [
-      "lowIntimacyExpressions",
+      "closeIntimacyExpressions",
       "mediumIntimacyExpressions",
-      "highIntimacyExpressions",
+      "distantIntimacyExpressions",
     ] as const;
     const formalityMap = [
       "lowFormality",

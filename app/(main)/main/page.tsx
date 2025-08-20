@@ -1,103 +1,266 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import ChatInputWrapper from "@/components/chat/chatinputwrapper";
-import Logo from "@/components/etc/logo";
+import { useState } from "react";
+import HelperSlider from "@/components/etc/helperslider";
+import { ChevronLeftIcon } from "@heroicons/react/24/solid";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Slider from "@/components/main/slider";
 import { useAuth } from "@/lib/UserContext";
-import { ChevronRightIcon } from "@heroicons/react/24/solid";
-import Link from "next/link";
-import { useEffect, useState } from "react";
 
-type Profile = {
-  id: number;
-  email: string;
-  nickname: string;
-  gender: string;
-  birthDate: string;
-  role: string;
-  provider: string;
-  koreanLevel: string;
-  profileImageUrl: string;
-  interests: string[];
+const intimacyMap = {
+  0: "lowIntimacy",
+  1: "mediumIntimacy",
+  2: "highIntimacy",
 };
-export default function Main() {
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [error, setError] = useState<string | null>(null);
+
+// formality 변환
+const formalityMap = {
+  0: "lowFormality",
+  1: "mediumFormality",
+  2: "highFormality",
+};
+
+export default function HonorificHelper() {
   const { accessToken } = useAuth();
-  useEffect(() => {
-    if (!accessToken) {
-      setError("로그인이 필요합니다");
-      return;
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [source, setSource] = useState("");
+  const [result, setResult] = useState("");
+  const [explain, setExplain] = useState("");
+  const [allResults, setAllResults] = useState<any>(null);
+
+  const [formality, setFormality] = useState<
+    "lowFormality" | "mediumFormality" | "highFormality"
+  >("mediumFormality");
+
+  const [intimacy, setIntimacy] = useState<
+    | "closeIntimacyExpressions"
+    | "mediumIntimacyExpressions"
+    | "distantIntimacyExpressions"
+  >("mediumIntimacyExpressions");
+
+  const handleTranslate = async () => {
+    try {
+      setLoading(true);
+      setExplain("");
+      const res = await fetch(
+        `/api/language/honorific-variations?sourceContent=${encodeURIComponent(
+          source
+        )}`,
+        {
+          method: "GET",
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+      if (!res.ok) throw new Error("Request failed");
+      const data = await res.json();
+
+      setAllResults(data);
+      setExplain(data.explain);
+
+      const selected = data?.[intimacy]?.[formality] ?? "변환 결과 없음";
+      setResult(selected);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
     }
-    fetch("/api/users/me", {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
-      .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || `Error ${res.status}`);
-        setProfile(data);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError(err.message);
+  };
+  const handleTTS = async () => {
+    try {
+      if (!result) return;
+
+      const res = await fetch("/api/language/tts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ text: result }),
       });
-  }, [accessToken]);
+
+      if (!res.ok) throw new Error("TTS 요청 실패");
+
+      const audioUrl = await res.text();
+
+      const audio = new Audio(audioUrl);
+      audio.play();
+
+      return audioUrl;
+    } catch (e) {
+      console.error("TTS 에러:", e);
+    }
+  };
 
   return (
-    <div
-      className="min-h-screen bg-blue-50 flex flex-col w-full overflow-x-hidden overflow-y-auto"
-      style={{ paddingBottom: "calc(153px + env(safe-area-inset-bottom))" }}
-    >
-      {/* 메인 콘텐츠 */}
-      <div className="flex-1 flex flex-col">
-        {/* 환영 섹션 */}
-        <div className="w-full px-4 py-8 text-white bg-[#3B6BF0]">
-          <Logo />
-          <div className="flex justify-between items-start pt-4">
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-16">
-                <div className="flex flex-col gap-4">
-                  <h1 className="font-bold text-white text-2xl leading-[130%]">
-                    Hi, {profile?.nickname || "Noonchi"}!
-                  </h1>
-                  <p className="text-white text-base leading-[130%]">
-                    Start a conversation <br />
-                    with your partner
-                  </p>
-                </div>
-                <Image
-                  src="/characters/main.svg"
-                  alt="main char"
-                  width={120}
-                  height={100}
-                />
-              </div>
-              <Link href="/main/custom">
-                <button
-                  className="
-                  mt-2 h-10 px-5 w-[334px] cursor-pointer
-                  flex items-center justify-center gap-2 
-                  bg-white text-blue-500 text-sm font-semibold 
-                  rounded-lg shadow-md hover:bg-gray-50 transition-colors duration-200
-                "
-                >
-                  <span>Start Conversation</span>
-                  <ChevronRightIcon className="w-4 h-4" />
-                </button>
-              </Link>
+    <div className="h-screen bg-gray-50 flex flex-col w-full overflow-y-auto">
+      {/* 헤더 */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white">
+        <button
+          onClick={() => router.push("/main")}
+          className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
+        >
+          <ChevronLeftIcon className="w-6 h-6 text-gray-600" />
+        </button>
+        <h1 className="text-xl font-semibold font-pretendard text-gray-800">
+          Honorific helper
+        </h1>
+        <div className="w-10" />
+      </div>
+
+      {/* 메인 컨텐츠 */}
+      <div className="flex-1 px-6 pt-6 ">
+        <div className="w-[335px] flex-shrink-0 rounded-2xl border border-gray-200 bg-white mx-auto mb-6 px-6 placeholder:text-gray-400 ">
+          {/* 입력 영역 */}
+          <div className="mb-3 pt-6">
+            <textarea
+              className="resize-none w-full h-22 border-none focus:ring-0 font-pretendard focus:outline-none placeholder:text-lg"
+              placeholder="Plaese enter the polite sentence in English of Korean"
+              value={source}
+              onChange={(e) => setSource(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleTranslate();
+                }
+              }}
+              style={{
+                color: "var(--Natural-cool-gray-400, #374151)",
+                fontFamily: "Pretendard",
+                fontSize: "16px",
+                fontStyle: "normal",
+                fontWeight: "400",
+                lineHeight: "normal",
+              }}
+            />
+            <div className="flex justify-end">
+              <button
+                onClick={handleTranslate}
+                className="mt-2 bg-blue-500 text-white text-sm px-3 py-1 rounded-md hover:bg-blue-600"
+              >
+                Submit
+              </button>
             </div>
           </div>
+
+          {/* 구분선 */}
+          <div className="border-t border-gray-200 mb-6"></div>
+
+          {/* 출력 영역 */}
+          <div className="mb-3">
+            {loading ? (
+              <div className="flex items-center gap-2 text-gray-500 h-32 justify-center">
+                <svg
+                  className="animate-spin h-5 w-5 text-blue-600"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  ></path>
+                </svg>
+                <span>Loading...</span>
+              </div>
+            ) : (
+              <textarea
+                className="resize-none w-full h-24 border-none focus:ring-0 font-pretendard"
+                placeholder=""
+                value={result}
+                readOnly
+                style={{
+                  color: "var(--Natural-cool-gray-700, #374151)",
+                  fontFamily: "Pretendard",
+                  fontSize: "16px",
+                  fontStyle: "normal",
+                  fontWeight: "400",
+                  lineHeight: "normal",
+                }}
+              />
+            )}
+            <div className="flex justify-end">
+              <button onClick={handleTTS} className="cursor-pointer">
+                <Image
+                  src="/etc/volume_up.svg"
+                  alt="sound"
+                  width={19}
+                  height={19}
+                />
+              </button>
+            </div>
+          </div>
+          {/* Helper Slider */}
+          <HelperSlider
+            onChange={(i, f) => {
+              setIntimacy(i);
+              setFormality(f);
+              if (allResults) {
+                const selected = allResults[i]?.[f] ?? "결과 없음";
+                setResult(selected);
+              }
+            }}
+          />
         </div>
 
-        {/* 슬라이더 섹션 */}
-        <div className="px-4 py-2">
-          <Slider />
+        {/* Noonchi Coach */}
+        <div className="w-[335px] flex-shrink-0 rounded-2xl border border-gray-200 bg-white mx-auto">
+          <div className="flex items-center gap-3 p-6">
+            <Image
+              src="/circle/circle4.png"
+              alt="Noonchi Coach"
+              width={20}
+              height={20}
+              className="rounded-full"
+            />
+            <h3 className="text-[#111827] font-pretendard text-base font-semibold leading-[130%]">
+              Noonchi Coach
+            </h3>
+          </div>
+          <div className="border-t border-gray-200 mx-6 mb-6"></div>
+          <div className="space-y-3 px-6 pb-6">
+            {loading ? (
+              <div className="flex items-center gap-2 text-gray-500">
+                <svg
+                  className="animate-spin h-5 w-5 text-blue-600"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  ></path>
+                </svg>
+                <span>Loading...</span>
+              </div>
+            ) : explain ? (
+              <p className="text-sm text-gray-700">{explain}</p>
+            ) : (
+              <p className="text-sm text-gray-400">
+                The conversion has not been run yet.
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </div>
