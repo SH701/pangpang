@@ -360,7 +360,7 @@ export default function ChatroomPage() {
     <>
       <div className="min-h-screen bg-white flex flex-col max-w-[375px]">
         {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
+        <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-50">
           <div className="flex items-center justify-between w-full">
             <Link
               href="/main"
@@ -508,7 +508,7 @@ export default function ChatroomPage() {
             className="absolute inset-0 bg-black/40"
             onClick={() => setEndModalOpen(false)}
           />
-          <div className="relative bg-white rounded-2xl p-6 w-[320px] shadow-lg z-10 flex flex-col items-center text-center">
+          <div className="relative bg-white rounded-2xl p-6 w-[320px] shadow-lg z-50 flex flex-col items-center text-center">
             <Image
               src="/etc/exitchar.svg"
               alt="exit"
