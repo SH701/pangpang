@@ -57,9 +57,6 @@ export default function ChatroomPage() {
   const [isRecording, setIsRecording] = useState(false);
   const [isTyping, setIsTyping] = useState(true);
 
-  const handleMicClick = () => {
-    setIsRecording((prev) => !prev);
-  };
   const handleKeyboardClick = () => {
     setIsTyping((prev) => !prev);
   };
@@ -261,6 +258,7 @@ export default function ChatroomPage() {
       });
       if (!res.ok) {
         setError("대화를 종료할 수 없습니다");
+        setLoadingModalOpen(false);
         return;
       }
       router.push(`/main/custom/chatroom/${id}/result`);
@@ -446,7 +444,9 @@ export default function ChatroomPage() {
                   height={24}
                 />
               </button>
-              <button onClick={handleMicClick}>
+              <button
+              // onClick={handleMicClick}
+              >
                 <Image
                   src={
                     isRecording ? "/chatroom/pause.png" : "/chatroom/mic.png"
@@ -473,18 +473,23 @@ export default function ChatroomPage() {
           {/* Typing Section */}
           {isTyping && (
             <div className="flex items-center w-full max-w-[375px] border border-blue-300 rounded-full bg-white mx-4">
-              <button onClick={handleKeyboardClick} className="p-2">
+              <button
+                // onClick={handleKeyboardClick}
+                className="p-2"
+              >
                 <Image
                   src="/chatroom/mic.png"
                   alt="Mic"
                   width={44}
                   height={44}
+                  className="flex-shirink-0"
                 />
               </button>
               <input
                 type="text"
                 placeholder="Reply here"
                 className="flex-grow p-2 text-gray-500 placeholder-gray-400 border-none outline-none"
+                value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && sendMessage()}
               />
