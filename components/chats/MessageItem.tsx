@@ -288,7 +288,7 @@ export default function MessageItem({
         )}
 
         {/* 존댓말 로딩 */}
-        {isMine && loading[m.messageId] && (
+        {loading[m.messageId] && (
           <div className="-mt-6 p-3 rounded-2xl bg-gray-600 text-white text-sm flex items-center gap-2 w-full">
             <div className="pt-6 flex gap-3">
               <svg
@@ -317,7 +317,7 @@ export default function MessageItem({
         )}
 
         {/* 존댓말 결과 */}
-        {isMine && honorificResults[m.messageId] && !loading[m.messageId] && (
+        {honorificResults[m.messageId] && !loading[m.messageId] && (
           <HonorificSlider
             results={honorificResults[m.messageId] as HonorificResults}
             value={sliderValues[m.messageId] ?? 1}
