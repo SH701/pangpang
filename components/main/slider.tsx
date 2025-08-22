@@ -296,22 +296,22 @@ export default function Slider() {
 
   return (
     <div className="w-[335px] flex flex-col justify-center items-center rounded-xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] mx-auto bg-white mt-5">
-      <span className="font-semibold text-lg py-2 px-4 mt-3">
-        Today`s honorific expression
+      <span className=" text-lg py-2 px-4 mt-3">
+        Today&apos;s honorific expression
       </span>
 
       {/* 오늘의 문장 */}
       <div className="w-[296px] bg-gray-100 border border-gray-200 py-3 my-2 mb-3 rounded-xl">
-        <div className=" text-base relative text-center px-8 py-1">
-          <span>{currentSentence.phrase}</span>
+        <div className=" text-base relative text-center px-8">
+          <span className="font-semibold">{currentSentence.phrase}</span>
           <button
             onClick={() => setShowex((prev) => !prev)}
             className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800 cursor-pointer"
           >
             {showex ? (
-              <ChevronUpIcon className="size-5" />
+              <ChevronUpIcon className="size-4" />
             ) : (
-              <ChevronDownIcon className="size-5" />
+              <ChevronDownIcon className="size-4" />
             )}
           </button>
         </div>
@@ -323,10 +323,7 @@ export default function Slider() {
       )}
       {showInfo && (
         <div className="flex justify-center mb-4">
-          <span className="inline-flex items-center bg-white px-3 py-1 text-xs text-gray-600 rounded-full shadow border">
-            <InformationCircleIcon className="w-4 h-4 mr-1 text-blue-600" />
-            Move the slider to match your situation
-          </span>
+          <Image src="/etc/Frame.png" alt="Slider" width={266} height={33} />
         </div>
       )}
       {/* 슬라이더 박스 */}
@@ -351,7 +348,7 @@ export default function Slider() {
           style={{ height: "16px", width: "100%" }}
         >
           <div
-            className="absolute inset-0 bg-gray-200 rounded-full"
+            className="absolute inset-0 bg-[#DBEAFE] rounded-full"
             style={{ height: "16px", width: "100%" }}
           />
           {steps.map((_, i) => (
@@ -447,7 +444,7 @@ export default function Slider() {
           style={{ height: "16px", width: "100%" }}
         >
           <div
-            className="absolute inset-0 bg-gray-200 rounded-full"
+            className="absolute inset-0 bg-[#DBEAFE]rounded-full"
             style={{ height: "16px", width: "100%" }}
           />
 

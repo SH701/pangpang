@@ -126,7 +126,7 @@ export default function HelperSlider({ onChange }: Props) {
               style={{ height: "16px", width: "100%" }}
             >
               <div
-                className="absolute inset-0 bg-gray-200 rounded-full"
+                className="absolute inset-0 bg-[#DBEAFE] rounded-full"
                 style={{ height: "16px", width: "100%" }}
               />
               {steps.map((_, i) => (
@@ -225,7 +225,7 @@ export default function HelperSlider({ onChange }: Props) {
               style={{ height: "16px", width: "100%" }}
             >
               <div
-                className="absolute inset-0 bg-gray-200 rounded-full"
+                className="absolute inset-0 bg-[#DBEAFE] rounded-full"
                 style={{ height: "16px", width: "100%" }}
               />
               {famSteps.map((_, i) => (

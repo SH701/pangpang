@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/UserContext";
 import Image from "next/image";
 import type { Persona } from "@/lib/types";
 import Loading from "./chatroom/[id]/loading";
+import Face0 from "@/components/character/face0";
 
 // ✅ 상황 옵션(역할별)
 const situationOptions = {
@@ -48,7 +49,7 @@ export default function PersonaAndRoom() {
   const { accessToken } = useAuth();
   const router = useRouter();
 
-  const [name, setName] = useState("");
+  const [name, setName] = useState("Noonchi");
   const [gender, setGender] = useState<"MALE" | "FEMALE" | "NONE">("NONE");
   const [age, setAge] = useState<number | "">("");
 
@@ -62,7 +63,9 @@ export default function PersonaAndRoom() {
     setDescription(first); // 역할 변경 시 항상 해당 역할의 첫 상황으로 동기화
   }, [relationship]);
 
-  const [profileImageUrl, setProfileImageUrl] = useState("");
+  const [profileImageUrl, setProfileImageUrl] = useState<React.ReactNode>(
+    <Face0 />
+  );
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -178,7 +181,7 @@ export default function PersonaAndRoom() {
             className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 cursor-pointer"
             onClick={() => setAvatarModalOpen(true)}
           >
-            {profileImageUrl ? (
+            {typeof profileImageUrl === "string" ? (
               <Image
                 src={profileImageUrl}
                 width={96}
@@ -187,9 +190,7 @@ export default function PersonaAndRoom() {
                 className="object-cover w-full h-full"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-4xl text-gray-400">
-                +
-              </div>
+              profileImageUrl || <Face0 />
             )}
           </button>
         </div>
