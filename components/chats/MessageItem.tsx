@@ -43,6 +43,10 @@ export default function MessageItem({
     Record<string, boolean>
   >({});
   const [translated, setTranslated] = useState<string | null>(null);
+  const [loadingTranslate, setLoadingTranslate] = useState<
+    Record<string, boolean>
+  >({});
+  const [loadingTTs, setLoadingTTS] = useState<Record<string, boolean>>({});
   const { accessToken } = useAuth();
   const showFeedbackButton =
     isMine &&
@@ -50,7 +54,6 @@ export default function MessageItem({
     (m.naturalnessScore ?? -1) >= 0 &&
     (m.politenessScore + m.naturalnessScore) / 2 <= 80;
 
-  // 버튼 클릭 → 로딩 → API 호출 → 로딩 해제
   const handleClick = async () => {
     setLoading((prev) => ({ ...prev, [m.messageId]: true }));
     await handleHonorific(m.messageId, m.content, myAI?.aiRole);
@@ -61,7 +64,7 @@ export default function MessageItem({
     await handleFeedbacks(m.messageId);
     setLoadingFeedbacks((prev) => ({ ...prev, [m.messageId]: false }));
   };
-  // 번역 버튼 처리
+
   const handleTranslate = async (messageId: string) => {
     try {
       if (translated) {
@@ -88,6 +91,14 @@ export default function MessageItem({
       setLoading((prev) => ({ ...prev, [messageId]: false }));
     }
   };
+  const handleTranslateClick = async (messageId: string) => {
+    setLoadingTranslate((prev) => ({ ...prev, [messageId]: true }));
+    try {
+      await handleTranslate(messageId);
+    } finally {
+      setLoadingTranslate((prev) => ({ ...prev, [messageId]: false }));
+    }
+  };
 
   const handleTTS = async (messageId: string) => {
     try {
@@ -112,6 +123,14 @@ export default function MessageItem({
       return audioUrl;
     } catch (err) {
       console.error("handleTTS error:", err);
+    }
+  };
+  const handleTTsClick = async (messageId: string) => {
+    setLoadingTTS((prev) => ({ ...prev, [messageId]: true }));
+    try {
+      await handleTTS(messageId);
+    } finally {
+      setLoadingTTS((prev) => ({ ...prev, [messageId]: false }));
     }
   };
   const isLastMessage = m.messageId === m[m.length]?.messageId;
@@ -207,28 +226,77 @@ export default function MessageItem({
               <div className="flex justify-between gap-1">
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => handleTTS(m.messageId)}
-                    disabled={loadingFeedbacks[m.messageId]}
-                    className="cursor-pointer"
+                    onClick={() => handleTTsClick(m.messageId)}
+                    disabled={loadingTTs[m.messageId]}
+                    className="cursor-pointer flex items-center justify-center w-6 h-6"
                   >
-                    <Image
-                      src="/etc/volume_up.svg"
-                      alt="tts"
-                      width={20}
-                      height={20}
-                    />
+                    {loadingTTs[m.messageId] ? (
+                      <svg
+                        className="animate-spin h-4 w-4 text-gray-600"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                        />
+                      </svg>
+                    ) : (
+                      <Image
+                        src="/etc/volume_up.svg"
+                        alt="tts"
+                        width={20}
+                        height={20}
+                      />
+                    )}
                   </button>
                   <button
-                    onClick={() => handleTranslate(m.messageId)}
-                    disabled={loadingFeedbacks[m.messageId]}
-                    className="cursor-pointer"
+                    onClick={() => handleTranslateClick(m.messageId)}
+                    disabled={loadingTranslate[m.messageId]}
+                    className="cursor-pointer flex items-center justify-center w-[100px] h-[32px] rounded-2xl"
                   >
-                    <Image
-                      src="/etc/language.svg"
-                      alt="translate"
-                      width={20}
-                      height={20}
-                    />
+                    {loadingTranslate[m.messageId] ? (
+                      <div className="p-2 rounded-2xl bg-gray-600 text-white text-sm flex items-center gap-2 w-full justify-center">
+                        <svg
+                          className="animate-spin h-4 w-4 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                          />
+                        </svg>
+                        <p className="text-sm">Loading...</p>
+                      </div>
+                    ) : (
+                      <Image
+                        src="/etc/language.svg"
+                        alt="translate"
+                        width={20}
+                        height={20}
+                      />
+                    )}
                   </button>
                 </div>
                 <button
