@@ -263,40 +263,14 @@ export default function MessageItem({
                   <button
                     onClick={() => handleTranslateClick(m.messageId)}
                     disabled={loadingTranslate[m.messageId]}
-                    className="cursor-pointer flex items-center justify-center w-[100px] h-[32px] rounded-2xl"
+                    className="cursor-pointer flex items-center justify-cente h-[32px] rounded-2xl"
                   >
-                    {loadingTranslate[m.messageId] ? (
-                      <div className="p-2 rounded-2xl bg-gray-600 text-white text-sm flex items-center gap-2 w-full justify-center">
-                        <svg
-                          className="animate-spin h-4 w-4 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          />
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                          />
-                        </svg>
-                        <p className="text-sm">Loading...</p>
-                      </div>
-                    ) : (
-                      <Image
-                        src="/etc/language.svg"
-                        alt="translate"
-                        width={20}
-                        height={20}
-                      />
-                    )}
+                    <Image
+                      src="/etc/language.svg"
+                      alt="translate"
+                      width={20}
+                      height={20}
+                    />
                   </button>
                 </div>
                 <button
@@ -336,7 +310,7 @@ export default function MessageItem({
 
         {/* 번역 결과 */}
         {translated && (
-          <div className="p-4 bg-gray-600 rounded-xl shadow-sm -mt-4 -z-10 w-full">
+          <div className="px-3 pb-3  pt-7 bg-gray-600 rounded-xl shadow-sm -mt-6 -z-10 w-full">
             <p className="text-gray-200 font-pretendard text-sm">
               {translated}
             </p>
