@@ -304,7 +304,10 @@ export default function ChatBothistoryPage() {
                 const isOpen = expanded[chat.conversationId];
 
                 return (
-                  <div key={chat.conversationId} className="border-b">
+                  <div
+                    key={chat.conversationId}
+                    className="border-b border-[#D1D5DB]"
+                  >
                     <div
                       className="flex items-center justify-between p-3 hover:bg-gray-50 transition-colors cursor-pointer"
                       onClick={() => toggleExpand(chat.conversationId)}

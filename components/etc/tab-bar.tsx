@@ -8,15 +8,30 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ChatInputWrapper from "../chat/chatinputwrapper";
+import Image from "next/image";
+import { useState } from "react";
 
 export default function TabBar() {
   const pathname = usePathname();
-
+  const [open, setOpen] = useState(true);
+  const onClick = () => {
+    setOpen((prev) => !prev);
+  };
   return (
-    <div className="fixed bottom-0 inset-x-0 flex justify-center bg-transparent">
+    <div className="fixed bottom-0 inset-x-0 flex justify-center bg-transparent ">
       <div className="w-[381px] bg-white rounded-t-2xl shadow-[0_-4px_10px_0_rgba(0,0,0,0.08)] border border-gray-100">
         {pathname === "/main" && (
-          <div className=" px-4 mb-4">
+          <div className=" px-4 mb-4 relative">
+            {open && (
+              <Image
+                src="/etc/honorific.png"
+                alt="honorific"
+                width={124}
+                height={33}
+                className="absolute -top-3.5 left-6.5"
+                onClick={onClick}
+              />
+            )}
             <ChatInputWrapper />
           </div>
         )}

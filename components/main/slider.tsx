@@ -444,7 +444,7 @@ export default function Slider() {
           style={{ height: "16px", width: "100%" }}
         >
           <div
-            className="absolute inset-0 bg-[#DBEAFE]rounded-full"
+            className="absolute inset-0 bg-[#DBEAFE] rounded-full"
             style={{ height: "16px", width: "100%" }}
           />
 
