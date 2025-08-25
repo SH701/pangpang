@@ -94,11 +94,8 @@ export default function HelperSlider({ onChange }: Props) {
   return (
     <>
       {showInfo && (
-        <div className="flex justify-center mb-4">
-          <span className="inline-flex items-center bg-white px-3 py-1 text-xs text-gray-600 rounded-full shadow border">
-            <InformationCircleIcon className="w-4 h-4 mr-1 text-blue-600" />
-            Move the slider to match your situation
-          </span>
+        <div className="flex justify-center mb-1">
+          <Image src="/etc/tip.png" alt="tip" width={266} height={33} />
         </div>
       )}
 

@@ -28,7 +28,7 @@ export default function HonorificHelper() {
     | "mediumIntimacyExpressions"
     | "distantIntimacyExpressions"
   >("mediumIntimacyExpressions");
-
+  const [recording, setRecording] = useState(false);
   const handleTranslate = async () => {
     try {
       setLoading(true);
@@ -99,6 +99,7 @@ export default function HonorificHelper() {
   const handleMicClick = async () => {
     if (isRecording) {
       const file = await stopRecording();
+      setRecording(false);
 
       // 1. presigned URL 요청
       const res = await fetch("/api/files/presigned-url", {
@@ -130,6 +131,7 @@ export default function HonorificHelper() {
       await handleSTT(audioUrl);
     } else {
       startRecording();
+      setRecording(true);
     }
   };
   return (
@@ -178,9 +180,18 @@ export default function HonorificHelper() {
             <button
               type="button"
               onClick={handleMicClick}
-              className="absolute top-5 right-0 text-blue-500 rounded-full bg-blue-200 p-2 cursor-pointer"
+              className="absolute top-5 right-0 text-blue-500 rounded-full bg-blue-200 p-2 cursor-pointer size-9 flex justify-center items-center"
             >
-              <Image src="/etc/mic.png" alt="mic" width={20} height={20} />
+              {recording ? (
+                <Image
+                  src="/etc/pause.png"
+                  alt="pause"
+                  width={16}
+                  height={16}
+                />
+              ) : (
+                <Image src="/etc/mic.png" alt="mic" width={20} height={20} />
+              )}
             </button>
 
             {/* Submit 버튼 */}

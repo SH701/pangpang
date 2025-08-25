@@ -47,7 +47,7 @@ export default function PersonaAndRoom() {
   const { accessToken } = useAuth();
   const router = useRouter();
 
-  const [name, setName] = useState("");
+  const [name, setName] = useState("Noonchi");
   const [gender, setGender] = useState<"MALE" | "FEMALE" | "NONE">("NONE");
   const [age] = useState<number | "">("");
   const DEFAULT_AVATAR = "/characters/character2.png";
@@ -61,7 +61,7 @@ export default function PersonaAndRoom() {
     setDescription(first); // 역할 변경 시 항상 해당 역할의 첫 상황으로 동기화
   }, [relationship]);
 
-  const [profileImageUrl, setProfileImageUrl] = useState("");
+  const [profileImageUrl, setProfileImageUrl] = useState(DEFAULT_AVATAR);
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {

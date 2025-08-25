@@ -273,12 +273,6 @@ export default function MessageItem({
                     />
                   </button>
                 </div>
-                <button
-                  className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs hover:bg-blue-700 flex-shrink-0 font-pretendard transition-colors"
-                  onClick={handleClick}
-                >
-                  Honorific Slider
-                </button>
               </div>
             )}
 

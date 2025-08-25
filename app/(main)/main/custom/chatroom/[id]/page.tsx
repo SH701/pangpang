@@ -43,7 +43,6 @@ export default function ChatroomPage() {
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [myAI, setMyAI] = useState<MyAI | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const canCall = Boolean(accessToken);
   const bottomRef = useRef<HTMLDivElement>(null);
   const [feedbackOpenId, setFeedbackOpenId] = useState<string | null>(null);
@@ -79,16 +78,13 @@ export default function ChatroomPage() {
         if (!res.ok) {
           const errorText = await res.text();
           console.error("대화 정보 조회 실패:", res.status, errorText);
-          setError(`대화 정보를 불러올 수 없습니다: ${res.status}`);
           return;
         }
         const data: ConversationDetail = await res.json();
         setMyAI(data.aiPersona);
         setConversationId(data.conversationId);
-        setError(null);
       } catch (err) {
         console.error("대화 정보 조회 오류:", err);
-        setError("네트워크 오류가 발생했습니다");
       }
     })();
   }, [accessToken, id, canCall]);
@@ -97,7 +93,6 @@ export default function ChatroomPage() {
   const fetchMessages = async () => {
     if (!canCall) return;
     try {
-      setError(null);
       const res = await fetch(
         `/api/messages?conversationId=${id}&page=1&size=20`,
         {
@@ -108,7 +103,6 @@ export default function ChatroomPage() {
       if (!res.ok) {
         const errorText = await res.text();
         console.error("메시지 조회 실패:", res.status, errorText);
-        setError(`메시지를 불러올 수 없습니다: ${res.status}`);
         return;
       }
       const data = await res.json();
@@ -128,7 +122,6 @@ export default function ChatroomPage() {
       }
     } catch (err) {
       console.error("메시지 조회 오류:", err);
-      setError("메시지를 불러오는 중 오류가 발생했습니다");
     }
   };
 
@@ -152,17 +145,19 @@ export default function ChatroomPage() {
   const sendMessage = async (content?: string, audioUrl?: string) => {
     if (!canCall || loading) return;
     if (!conversationId) {
-      setError("대화방 ID를 불러올 수 없습니다");
       return;
     }
 
     if ((!content || !content.trim()) && !audioUrl) return;
-
+    const displayContent =
+      audioUrl && (!content || !content.trim())
+        ? "[음성메시지]"
+        : content ?? "";
     const optimistic: ChatMsg = {
       messageId: `user_${Date.now()}`,
       conversationId,
       role: "USER",
-      content: content ?? "[음성메시지]",
+      content: displayContent,
       createdAt: new Date().toISOString(),
       politenessScore: -1, // 아직 없음
       naturalnessScore: -1,
@@ -195,8 +190,6 @@ export default function ChatroomPage() {
       }
 
       if (!userRes.ok) {
-        const errorText = await userRes.text();
-        setError(`메시지 전송 실패: ${userRes.status} ${errorText}`);
         setMessages((prev) =>
           prev.filter((msg) => msg.messageId !== optimistic.messageId)
         );
@@ -211,6 +204,11 @@ export default function ChatroomPage() {
               ? {
                   ...msg,
                   messageId: String(userMsgData.messageId),
+                  content:
+                    !userMsgData.content ||
+                    (!userMsgData.content.trim() && audioUrl)
+                      ? "[Voice message]"
+                      : userMsgData.content || displayContent,
                   politenessScore: userMsgData.politenessScore ?? -1,
                   naturalnessScore: userMsgData.naturalnessScore ?? -1,
                 }
@@ -253,7 +251,6 @@ export default function ChatroomPage() {
         );
       }
     } catch (e) {
-      setError("네트워크 오류로 메시지를 전송할 수 없습니다");
       setMessages((prev) =>
         prev.filter((msg) => msg.messageId !== optimistic.messageId)
       );
@@ -272,21 +269,17 @@ export default function ChatroomPage() {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       if (!res.ok) {
-        setError("대화를 종료할 수 없습니다");
         setLoadingModalOpen(false);
         return;
       }
       router.push(`/main/custom/chatroom/${id}/result`);
-    } catch (error) {
-      setError("대화 종료 중 오류가 발생했습니다");
-    } finally {
+    } catch (e) {
       setLoadingModalOpen(false);
     }
   };
 
   const handleFeedbacks = async (messageId: string) => {
     if (!accessToken) {
-      setError("인증 토큰이 없습니다.");
       return;
     }
     if (feedbackOpenId === messageId) {
@@ -300,8 +293,6 @@ export default function ChatroomPage() {
       });
 
       if (!res.ok) {
-        const errText = await res.text();
-        setError(`피드백 요청 실패: ${res.status} ${errText}`);
         return;
       }
 
@@ -313,9 +304,7 @@ export default function ChatroomPage() {
       );
 
       setFeedbackOpenId(messageId);
-    } catch (err) {
-      setError("네트워크 오류로 피드백 요청 실패");
-    }
+    } catch (err) {}
   };
 
   const handleHonorific = async (messageId: string) => {
@@ -458,14 +447,6 @@ export default function ChatroomPage() {
         </div>
 
         {/* Error */}
-        {error && (
-          <div className="bg-red-50 border-l-4 border-red-400 p-4 mx-4 mt-4">
-            <div className="flex justify-between">
-              <p className="text-sm text-red-700">{error}</p>
-              <button onClick={() => setError(null)}>X</button>
-            </div>
-          </div>
-        )}
 
         {/* Messages */}
         <div className="flex-1 bg-white px-4 py-4 overflow-y-auto mb-[139px]">
@@ -506,7 +487,7 @@ export default function ChatroomPage() {
         </AnimatePresence>
 
         {/* Input - Fixed at bottom */}
-        <div className="bg-blue-50 py-4 h-[139px] border-t border-gray-200 max-w-[500px] w-full flex justify-center items-center gap-4 fixed bottom-0 z-50">
+        <div className="bg-blue-50 py-4 h-[139px] border-t border-gray-200 max-w-[500px] w-full flex justify-center items-center gap-8 fixed bottom-0 z-50">
           {!isTyping && (
             <>
               {/* 새로고침 버튼 */}
@@ -573,32 +554,39 @@ export default function ChatroomPage() {
           )}
           {/* Typing Section */}
           {isTyping && (
-            <div className="flex items-center w-full max-w-[375px] border border-blue-300 rounded-full bg-white mx-4">
-              <button onClick={handleKeyboardClick} className="p-2">
+            <div className="flex items-center w-full max-w-[334px] min-w-0 border border-blue-300 rounded-full bg-white mx-4">
+              <button
+                onClick={handleKeyboardClick}
+                className="p-2 flex-shrink-0"
+              >
                 <Image
                   src="/chatroom/mic.png"
                   alt="Mic"
                   width={44}
                   height={44}
-                  className="flex-shirink-0"
+                  className=""
                 />
               </button>
               <input
                 type="text"
                 placeholder="Reply here"
-                className="flex-grow p-2 text-gray-500 placeholder-gray-400 border-none outline-none"
+                className="flex-grow min-w-0 p-2 text-gray-500 placeholder-gray-400 border-none outline-none"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                onKeyDown={(e) => e.key === "Enter" && sendMessage(message)}
               />
-              <Image
-                src="/chatroom/up.png"
-                alt="Send"
-                width={28}
-                height={28}
-                className="mr-3"
+              <button
                 onClick={() => sendMessage(message)}
-              />
+                className="flex-shrink-0 p-3 hover:bg-gray-50 rounded-full transition-colors"
+              >
+                <Image
+                  src="/chatroom/up.png"
+                  alt="Send"
+                  width={28}
+                  height={28}
+                  className=""
+                />
+              </button>
             </div>
           )}
         </div>

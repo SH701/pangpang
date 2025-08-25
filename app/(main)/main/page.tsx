@@ -65,7 +65,7 @@ export default function Main() {
                   <h1 className="font-bold text-white text-2xl leading-[130%] pt-3">
                     Hi, {profile?.nickname || "Noonchi"}!
                   </h1>
-                  <p className="text-white  leading-[130%]">
+                  <p className="text-white  leading-[130%] ">
                     Start a conversation <br />
                     with your partner
                   </p>
@@ -86,7 +86,7 @@ export default function Main() {
                   rounded-lg shadow-md hover:bg-gray-50 transition-colors duration-200
                 "
                 >
-                  <span className="font-semibold">Start Conversation</span>
+                  <span className="font-semibold ">Start Conversation</span>
                   <ChevronRightIcon className="w-4 h-4 font-semibold" />
                 </button>
               </Link>

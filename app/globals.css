@@ -1,34 +1,41 @@
-
 @import "tailwindcss";
 @import "slick-carousel/slick/slick.css";
 @import "slick-carousel/slick/slick-theme.css";
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
 
 @layer base {
   .font-pretendard {
-    font-family: 'Pretendard', ui-sans-serif, system-ui, sans-serif;
+    font-family: "Pretendard", ui-sans-serif, system-ui, sans-serif;
   }
 }
 
 :root {
-  --background: #FFFFFF;
+  --background: #ffffff;
   --foreground: #0a0a0a;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #FFFFFF;
+    --background: #ffffff;
     --foreground: #0a0a0a;
   }
 }
+* {
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui,
+    Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR",
+    "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    sans-serif;
+}
 html {
   font-family: Pretendard, sans-serif;
-   overflow-x: hidden;
+  overflow-x: hidden;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 .slick-slider,
 .slick-list,
@@ -44,7 +51,7 @@ body {
   min-height: 60vh;
 }
 .btn {
-  @apply  text-black px-4 py-2 rounded-md text-sm font-medium   cursor-pointer bg-white border border-gray-300;
+  @apply text-black px-4 py-2 rounded-md text-sm font-medium   cursor-pointer bg-white border border-gray-300;
 }
 
 .btn:hover {
@@ -52,9 +59,8 @@ body {
 }
 
 .btn:focus {
-  @apply  bg-blue-600 text-white ;
+  @apply bg-blue-600 text-white;
 }
-
 
 .btn:disabled {
   @apply bg-gray-300 text-gray-400 cursor-not-allowed;
@@ -67,7 +73,7 @@ body {
   height: 20px;
   border-radius: 50%;
   background: white;
-  border: 2px solid #3B82F6;
+  border: 2px solid #3b82f6;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -77,7 +83,7 @@ body {
   height: 20px;
   border-radius: 50%;
   background: white;
-  border: 2px solid #3B82F6;
+  border: 2px solid #3b82f6;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
