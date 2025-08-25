@@ -8,7 +8,6 @@ import { useAuth } from "@/lib/UserContext";
 import Image from "next/image";
 import type { Persona } from "@/lib/types";
 import Loading from "./chatroom/[id]/loading";
-import Face0 from "@/components/character/face0";
 
 // ✅ 상황 옵션(역할별)
 const situationOptions = {
@@ -50,7 +49,7 @@ export default function PersonaAndRoom() {
 
   const [name, setName] = useState("");
   const [gender, setGender] = useState<"MALE" | "FEMALE" | "NONE">("NONE");
-  const [age, setAge] = useState<number | "">("");
+  const [age] = useState<number | "">("");
   const DEFAULT_AVATAR = "/characters/character2.png";
   // ✅ 역할과 상황(역할 바뀌면 첫 상황으로 리셋)
   const [relationship, setRelationship] = useState<Role>("BOSS");
@@ -168,13 +167,11 @@ export default function PersonaAndRoom() {
         </h1>
         <div className="w-6" />
       </div>
-
-      <h2 className="text-xl font-bold mb-6 px-4 text-center">
+      <h2 className="text-xl font-bold mb-4 px-4 text-center">
         Set up your conversation partner
       </h2>
-
       {/* Profile Picture Section */}
-      <div className="flex flex-col items-center mb-8">
+      <div className="flex flex-col items-center mb-6">
         <div className="relative">
           <button
             className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 cursor-pointer"
@@ -204,7 +201,7 @@ export default function PersonaAndRoom() {
             onClick={() => setAvatarModalOpen(false)}
           />
           <div className="relative bg-white rounded-2xl p-6 z-10 shadow-xl flex flex-col items-center gap-4 min-w-[320px]">
-            <h2 className="text-lg font-semibold mb-3">아바타를 선택하세요</h2>
+            <h2 className="text-lg font-semibold mb-2">Select Avatar</h2>
 
             <div className="grid grid-cols-3 gap-4">
               {images.map((img, i) => (
@@ -257,7 +254,7 @@ export default function PersonaAndRoom() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="flex-1 px-4 space-y-6">
+      <form onSubmit={handleSubmit} className="flex-1 px-4 space-y-4">
         {/* Name */}
         <div>
           <label className="block text-sm font-medium text-black mb-2">
@@ -362,7 +359,7 @@ export default function PersonaAndRoom() {
         {/* Submit */}
         <button
           type="submit"
-          className="w-full py-3 bg-blue-500 text-white text-sm font-semibold rounded-lg mt-8 hover:bg-blue-600 transition-colors disabled:opacity-50 mb-3 cursor-pointer"
+          className="w-full py-3 bg-blue-500 text-white text-sm font-semibold rounded-lg mt-2 hover:bg-blue-600 transition-colors disabled:opacity-50 mb-3 cursor-pointer"
         >
           Start Chatting
         </button>

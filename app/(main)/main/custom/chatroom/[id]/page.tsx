@@ -11,6 +11,7 @@ import { HonorificResults } from "@/components/chats/HonorificSlider";
 import Image from "next/image";
 import LoadingModal from "@/components/chats/LoadingModal";
 import { useRecorder } from "@/hooks/useRecorder";
+import { AnimatePresence, motion } from "framer-motion";
 
 type ConversationDetail = {
   conversationId: number;
@@ -34,7 +35,7 @@ type ChatMsg = {
   politenessScore?: number;
   naturalnessScore?: number;
 };
-
+type MicState = "idle" | "recording" | "recorded";
 export default function ChatroomPage() {
   const { id } = useParams<{ id: string }>();
   const { accessToken } = useAuth();
@@ -57,9 +58,10 @@ export default function ChatroomPage() {
   const [loadingModalOpen, setLoadingModalOpen] = useState(false);
   const { isRecording, startRecording, stopRecording } = useRecorder();
   const [isTyping, setIsTyping] = useState(false);
-
-  // 🎯 음성 에러 상태 추가
+  const [pendingAudioFile, setPendingAudioFile] = useState<Blob | null>(null);
+  const [pendingAudioUrl, setPendingAudioUrl] = useState<string | null>(null);
   const [showVoiceError, setShowVoiceError] = useState(false);
+  const [micState, setMicState] = useState<MicState>("idle");
 
   const handleKeyboardClick = () => {
     setIsTyping((prev) => !prev);
@@ -120,10 +122,7 @@ export default function ChatroomPage() {
         politenessScore: m.politenessScore ?? -1,
         naturalnessScore: m.naturalnessScore ?? -1,
       }));
-
       setMessages(mapped);
-
-      // 첫 메시지에서 conversationId 확보
       if (!conversationId && list.length > 0 && list[0].conversationId) {
         setConversationId(list[0].conversationId);
       }
@@ -142,12 +141,11 @@ export default function ChatroomPage() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // 🎯 음성 에러 표시 함수
   const showVoiceErrorMessage = () => {
     setShowVoiceError(true);
     setTimeout(() => {
       setShowVoiceError(false);
-    }, 3000); // 3초 후 자동으로 사라짐
+    }, 3000);
   };
 
   // 메시지 전송
@@ -173,7 +171,6 @@ export default function ChatroomPage() {
     setMessage("");
 
     try {
-      // 유저 메시지 POST
       const userRes = await fetch("/api/messages", {
         method: "POST",
         headers: {
@@ -187,13 +184,10 @@ export default function ChatroomPage() {
         }),
       });
 
-      // 🎯 409 에러 처리 및 음성 에러 표시
       if (userRes.status === 409) {
-        // 음성 메시지인 경우 voice_error.svg 표시
         if (audioUrl) {
           showVoiceErrorMessage();
         }
-        // optimistic message 제거
         setMessages((prev) =>
           prev.filter((msg) => msg.messageId !== optimistic.messageId)
         );
@@ -224,19 +218,15 @@ export default function ChatroomPage() {
           )
         );
       }
-
-      // 여기서 AI 로딩용 메시지를 미리 넣음
       const aiLoadingMsg: ChatMsg = {
         messageId: `ai_loading_${Date.now()}`,
         conversationId,
         role: "AI",
-        content: "...", // placeholder
+        content: "...",
         createdAt: new Date().toISOString(),
-        isLoading: true, // 👈 플래그
+        isLoading: true,
       };
       setMessages((prev) => [...prev, aiLoadingMsg]);
-
-      // AI reply 요청
       const aiRes = await fetch(
         `/api/messages/ai-reply?conversationId=${conversationId}`,
         {
@@ -245,7 +235,6 @@ export default function ChatroomPage() {
         }
       );
       if (!aiRes.ok) return;
-
       const aiData = await aiRes.json();
       if (aiData?.content?.trim()) {
         setMessages((prev) =>
@@ -319,9 +308,7 @@ export default function ChatroomPage() {
       const feedbackData = await res.json();
       setMessages((prev) =>
         prev.map((msg) =>
-          msg.messageId === messageId
-            ? { ...msg, feedback: feedbackData } // ✅ 그대로 객체 저장
-            : msg
+          msg.messageId === messageId ? { ...msg, feedback: feedbackData } : msg
         )
       );
 
@@ -332,7 +319,6 @@ export default function ChatroomPage() {
   };
 
   const handleHonorific = async (messageId: string) => {
-    // 토글: 이미 있으면 제거
     if (honorificResults[messageId]) {
       setHonorificResults((prev) => {
         const copy = { ...prev };
@@ -348,7 +334,6 @@ export default function ChatroomPage() {
     }
 
     try {
-      // ✅ messageId만 path에 넣음, 쿼리 파라미터 제거
       const res = await fetch(
         `/api/messages/${messageId}/honorific-variations`,
         {
@@ -356,21 +341,16 @@ export default function ChatroomPage() {
           headers: { Authorization: `Bearer ${accessToken}` },
         }
       );
-
       if (!res.ok) {
         console.error("존댓말 변환 실패");
         return;
       }
-
       const data = await res.json();
 
-      // 결과 저장
       setHonorificResults((prev) => ({
         ...prev,
         [messageId]: data,
       }));
-
-      // 기본 슬라이더 값 1로 설정
       setSliderValues((prev) => ({
         ...prev,
         [messageId]: 1,
@@ -381,40 +361,49 @@ export default function ChatroomPage() {
   };
 
   const handleMicClick = async () => {
-    if (isRecording) {
-      const file = await stopRecording();
-
-      // 1. presigned URL 요청
-      const res = await fetch("/api/files/presigned-url", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          fileType: "audio.wav",
-          fileExtension: "wav",
-        }),
-      });
-
-      if (!res.ok) throw new Error("presigned-url 요청 실패");
-      const { url: presignedUrl } = await res.json();
-
-      // 2. S3 업로드
-      await fetch(presignedUrl, {
-        method: "PUT",
-        headers: { "Content-Type": "audio/wav" },
-        body: file,
-      });
-
-      // 3. 최종 URL
-      const audioUrl = presignedUrl.split("?")[0];
-
-      // 4. 메시지 전송 (텍스트 없이 오디오만)
-      await sendMessage("", audioUrl);
-    } else {
+    if (micState === "idle") {
       startRecording();
+      setMicState("recording");
+    } else if (micState === "recording") {
+      const file = await stopRecording();
+      setPendingAudioFile(file);
+      setPendingAudioUrl(URL.createObjectURL(file));
+      setMicState("recorded");
     }
+  };
+  const handleResetAudio = () => {
+    setPendingAudioFile(null);
+    setPendingAudioUrl(null);
+    setMicState("idle");
+  };
+
+  const handleSendAudio = async () => {
+    if (!pendingAudioFile) return;
+
+    const res = await fetch("/api/files/presigned-url", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        fileType: "audio.wav",
+        fileExtension: "wav",
+      }),
+    });
+    if (!res.ok) throw new Error("presigned-url 요청 실패");
+    const { url: presignedUrl } = await res.json();
+
+    await fetch(presignedUrl, {
+      method: "PUT",
+      headers: { "Content-Type": "audio/wav" },
+      body: pendingAudioFile,
+    });
+
+    const audioUrl = presignedUrl.split("?")[0];
+    await sendMessage("", audioUrl);
+
+    handleResetAudio();
   };
 
   return (
@@ -496,40 +485,79 @@ export default function ChatroomPage() {
         </div>
 
         {/* 🎯 Voice Error Message - Input 바로 위에 배치 */}
-        {showVoiceError && (
-          <div className="fixed bottom-[139px] left-1/2 transform -translate-x-1/2 z-40 flex flex-col items-center animate-fade-in">
-            <Image
-              src="/etc/voice_error.png"
-              alt="Voice Error"
-              width={150}
-              height={60}
-              className="animate-pulse"
-            />
-          </div>
-        )}
+        <AnimatePresence>
+          {showVoiceError && (
+            <motion.div
+              key="voice-error"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.6, ease: "easeInOut" }}
+              className="fixed bottom-[139px] left-1/2 -translate-x-1/2  -translate-y-3 z-40 flex flex-col items-center"
+            >
+              <Image
+                src="/etc/voice_error.png"
+                alt="Voice Error"
+                width={150}
+                height={60}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Input - Fixed at bottom */}
         <div className="bg-blue-50 py-4 h-[139px] border-t border-gray-200 max-w-[500px] w-full flex justify-center items-center gap-4 fixed bottom-0 z-50">
           {!isTyping && (
             <>
-              <button className="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:bg-gray-100">
-                <Image
-                  src="/chatroom/refresh.png"
-                  alt="Refresh"
-                  width={24}
-                  height={24}
-                />
-              </button>
-              <button onClick={handleMicClick}>
-                <Image
-                  src={
-                    isRecording ? "/chatroom/pause.png" : "/chatroom/mic.png"
-                  }
-                  alt="Mic"
-                  width={82}
-                  height={82}
-                />
-              </button>
+              {/* 새로고침 버튼 */}
+              {micState === "recording" || micState === "recorded" ? (
+                <button
+                  className="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:bg-gray-100"
+                  onClick={handleResetAudio}
+                >
+                  <Image
+                    src="/chatroom/refresh.png"
+                    alt="Refresh"
+                    width={24}
+                    height={24}
+                  />
+                </button>
+              ) : (
+                <div className="w-12 h-12" />
+              )}
+              {/* 중앙 버튼 */}
+              {micState === "idle" && (
+                <button onClick={handleMicClick}>
+                  <Image
+                    src="/chatroom/mic.png"
+                    alt="Mic"
+                    width={82}
+                    height={82}
+                  />
+                </button>
+              )}
+              {micState === "recording" && (
+                <button onClick={handleMicClick}>
+                  <Image
+                    src="/chatroom/pause.png"
+                    alt="Pause"
+                    width={82}
+                    height={82}
+                  />
+                </button>
+              )}
+              {micState === "recorded" && (
+                <button onClick={handleSendAudio}>
+                  <Image
+                    src="/chatroom/up.png"
+                    alt="Send"
+                    width={82}
+                    height={82}
+                  />
+                </button>
+              )}
+
+              {/* 키보드 버튼 */}
               <button
                 className="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:bg-gray-100"
                 onClick={handleKeyboardClick}
@@ -543,7 +571,6 @@ export default function ChatroomPage() {
               </button>
             </>
           )}
-
           {/* Typing Section */}
           {isTyping && (
             <div className="flex items-center w-full max-w-[375px] border border-blue-300 rounded-full bg-white mx-4">
@@ -615,24 +642,6 @@ export default function ChatroomPage() {
         </div>
       )}
       {loadingModalOpen && <LoadingModal open={loadingModalOpen} />}
-
-      {/* 🎯 애니메이션을 위한 CSS 추가 */}
-      <style jsx>{`
-        .animate-fade-in {
-          animation: fadeIn 0.3s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translate(-50%, 20px);
-          }
-          to {
-            opacity: 1;
-            transform: translate(-50%, 0);
-          }
-        }
-      `}</style>
     </>
   );
 }

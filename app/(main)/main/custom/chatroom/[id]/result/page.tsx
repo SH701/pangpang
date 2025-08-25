@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -61,6 +62,8 @@ export default function Result() {
           role: normalizeRole(m.type),
           content: m.content,
           createdAt: m.createdAt,
+          politenessScore: m.politenessScore,
+          naturalnessScore: m.naturalnessScore,
         }));
         setMessages(mapped);
       } catch (err) {

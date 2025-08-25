@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 "use client";
 
 type HonorificBoxProps = {
@@ -7,7 +6,7 @@ type HonorificBoxProps = {
   honorificResults: Record<string, any>;
   sliderValue: Record<string, number>;
   setSliderValue: React.Dispatch<React.SetStateAction<Record<string, number>>>;
-  className?: string;
+  className?: string; // ✅ 선택적
 };
 
 const formalityMap = ["lowFormality", "mediumFormality", "highFormality"];
@@ -19,22 +18,26 @@ export default function HonorificBox({
   setSliderValue,
   className = "",
 }: HonorificBoxProps) {
+  const value = sliderValue[messageId] ?? 1;
+  const resultText = honorificResults[messageId]
+    ? honorificResults[messageId][formalityMap[value]]
+    : "Loading...";
+
   return (
     <div
-      className={`bg-gray-600 rounded-b-xl shadow-sm -mt-7 px-3 pt-5 pb-3 max-w-[240px] ${className}`}
+      className={`bg-gray-600 rounded-b-xl shadow-sm -mt-4 px-3 pt-5 pb-3 max-w-[240px] ${className}`}
     >
+      {/* 결과 문장 */}
       <h3 className="text-sm font-semibold text-white mb-3 font-pretendard">
-        {honorificResults[messageId]
-          ? honorificResults[messageId][
-              formalityMap[sliderValue[messageId] ?? 1]
-            ]
-          : "Loading..."}
+        {resultText}
       </h3>
+
+      {/* 슬라이더 */}
       <input
         type="range"
         min={0}
         max={2}
-        value={sliderValue[messageId] ?? 1}
+        value={value}
         onChange={(e) =>
           setSliderValue((prev) => ({
             ...prev,
@@ -42,7 +45,14 @@ export default function HonorificBox({
           }))
         }
         className="w-full h-2 bg-gray-500 rounded-lg appearance-none cursor-pointer"
+        style={{
+          background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${
+            value * 50
+          }%, #6B7280 ${value * 50}%, #6B7280 100%)`,
+        }}
       />
+
+      {/* 라벨 */}
       <div className="flex justify-between items-center mt-2">
         <div className="flex items-center gap-1">
           <div className="w-4 h-4 bg-gray-400 rounded-full flex items-center justify-center">
