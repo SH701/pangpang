@@ -55,13 +55,13 @@ export default function Main() {
       style={{ paddingBottom: "calc(153px + env(safe-area-inset-bottom))" }}
     >
       {/* 메인 콘텐츠 */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col ">
         {/* 환영 섹션 */}
-        <div className="w-full px-7 py-8 text-white bg-[#3B6BF0]">
-          <Logo />
+        <div className="w-full px-6 py-8 text-white bg-[#3B6BF0] ">
+          <Logo className="w-28 h-6" />
           <div className="flex justify-between items-start pt-4">
             <div className="flex flex-col gap-2">
-              <div className="flex gap-16">
+              <div className="flex gap-10">
                 <div className="flex flex-col gap-4">
                   <h1 className="font-bold text-white text-2xl leading-[130%]">
                     Hi, {profile?.nickname || "Noonchi"}!
@@ -74,20 +74,20 @@ export default function Main() {
                 <Image
                   src="/characters/main.svg"
                   alt="main char"
-                  width={120}
-                  height={100}
+                  width={135}
+                  height={109}
                 />
               </div>
               <Link href="/main/custom">
                 <button
                   className="
-                  mt-2 h-10 px-5 w-[334px] cursor-pointer
+                  mt-2 h-13 px-5 w-[334px]
                   flex items-center justify-center gap-2 
                   bg-white text-blue-500 text-sm font-semibold 
                   rounded-lg shadow-md hover:bg-gray-50 transition-colors duration-200
                 "
                 >
-                  <span>Start Conversation</span>
+                  <span className="font-semibold">Start Conversation</span>
                   <ChevronRightIcon className="w-4 h-4" />
                 </button>
               </Link>

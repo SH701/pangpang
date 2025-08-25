@@ -7,8 +7,7 @@ import { ChevronLeftIcon } from "@heroicons/react/24/solid";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "@/lib/UserContext";
-import { useRecorder } from "@/hooks/userRecorder";
-
+import { useRecorder } from "@/hooks/useRecorder";
 
 export default function HonorificHelper() {
   const { accessToken } = useAuth();
@@ -95,7 +94,7 @@ export default function HonorificHelper() {
     if (!res.ok) throw new Error("STT 요청 실패");
 
     const text = await res.text();
-     setSource(text); 
+    setSource(text);
   };
   const handleMicClick = async () => {
     if (isRecording) {

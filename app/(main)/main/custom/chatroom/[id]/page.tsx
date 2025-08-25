@@ -10,7 +10,7 @@ import MessageList from "@/components/chats/MessageList";
 import { HonorificResults } from "@/components/chats/HonorificSlider";
 import Image from "next/image";
 import LoadingModal from "@/components/chats/LoadingModal";
-import { useRecorder } from "@/hooks/userRecorder";
+import { useRecorder } from "@/hooks/useRecorder";
 
 type ConversationDetail = {
   conversationId: number;
@@ -58,9 +58,13 @@ export default function ChatroomPage() {
   const { isRecording, startRecording, stopRecording } = useRecorder();
   const [isTyping, setIsTyping] = useState(false);
 
+  // 🎯 음성 에러 상태 추가
+  const [showVoiceError, setShowVoiceError] = useState(false);
+
   const handleKeyboardClick = () => {
     setIsTyping((prev) => !prev);
   };
+
   // 대화 정보 로드
   useEffect(() => {
     if (!canCall || !id) return;
@@ -138,6 +142,14 @@ export default function ChatroomPage() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // 🎯 음성 에러 표시 함수
+  const showVoiceErrorMessage = () => {
+    setShowVoiceError(true);
+    setTimeout(() => {
+      setShowVoiceError(false);
+    }, 3000); // 3초 후 자동으로 사라짐
+  };
+
   // 메시지 전송
   const sendMessage = async (content?: string, audioUrl?: string) => {
     if (!canCall || loading) return;
@@ -175,12 +187,19 @@ export default function ChatroomPage() {
         }),
       });
 
-      console.log(userRes);
+      // 🎯 409 에러 처리 및 음성 에러 표시
       if (userRes.status === 409) {
-        const errData = await userRes.json();
-        setError(errData.error || "STT 변환실패");
+        // 음성 메시지인 경우 voice_error.svg 표시
+        if (audioUrl) {
+          showVoiceErrorMessage();
+        }
+        // optimistic message 제거
+        setMessages((prev) =>
+          prev.filter((msg) => msg.messageId !== optimistic.messageId)
+        );
         return;
       }
+
       if (!userRes.ok) {
         const errorText = await userRes.text();
         setError(`메시지 전송 실패: ${userRes.status} ${errorText}`);
@@ -476,6 +495,19 @@ export default function ChatroomPage() {
           <div ref={bottomRef} />
         </div>
 
+        {/* 🎯 Voice Error Message - Input 바로 위에 배치 */}
+        {showVoiceError && (
+          <div className="fixed bottom-[139px] left-1/2 transform -translate-x-1/2 z-40 flex flex-col items-center animate-fade-in">
+            <Image
+              src="/etc/voice_error.png"
+              alt="Voice Error"
+              width={150}
+              height={60}
+              className="animate-pulse"
+            />
+          </div>
+        )}
+
         {/* Input - Fixed at bottom */}
         <div className="bg-blue-50 py-4 h-[139px] border-t border-gray-200 max-w-[500px] w-full flex justify-center items-center gap-4 fixed bottom-0 z-50">
           {!isTyping && (
@@ -583,6 +615,24 @@ export default function ChatroomPage() {
         </div>
       )}
       {loadingModalOpen && <LoadingModal open={loadingModalOpen} />}
+
+      {/* 🎯 애니메이션을 위한 CSS 추가 */}
+      <style jsx>{`
+        .animate-fade-in {
+          animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translate(-50%, 20px);
+          }
+          to {
+            opacity: 1;
+            transform: translate(-50%, 0);
+          }
+        }
+      `}</style>
     </>
   );
 }

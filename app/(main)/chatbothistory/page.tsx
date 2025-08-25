@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/UserContext";
@@ -12,11 +12,16 @@ import PersonaDetailModal from "@/components/persona/PersonaDetailModal";
 import type { Conversation } from "@/lib/types";
 import Link from "next/link";
 import {
+  ChevronDownIcon,
   ChevronRightIcon,
+  ChevronUpIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/solid";
 import { AnimatePresence, motion } from "framer-motion";
+import InProgressIcon from "@/components/bothistory/Inprogress";
+import DoneIcon from "@/components/bothistory/Done";
 import FeedbackSection from "@/components/bothistory/Feedbacksections";
+
 
 type Filter = "done" | "in-progress";
 const situationOptions = {
@@ -58,10 +63,11 @@ export default function ChatBothistoryPage() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [history, setHistory] = useState<Conversation[]>([]);
   const [filtered, setFiltered] = useState<Conversation[]>([]);
+  const [sort, setSort] = useState<"asc" | "desc">("desc");
+  const [open, setOpen] = useState(false);
   const [sliderItems, setSliderItems] = useState<PersonaSlide[]>([
     { isAdd: true },
   ]);
-  const [refreshKey, setRefreshKey] = useState(0);
   const [openDetail, setOpenDetail] = useState(false);
   const [selectedPersonaId, setSelectedPersonaId] = useState<
     number | string | null
@@ -169,6 +175,13 @@ export default function ChatBothistoryPage() {
       console.error("Delete chat error:", err);
     }
   };
+  const sortedHistory = useMemo(() => {
+    return [...history].sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return sort === "asc" ? dateA - dateB : dateB - dateA;
+    });
+  }, [history, sort]);
 
   return (
     <div className="bg-gray-100 w-full flex flex-col pt-10">
@@ -208,7 +221,6 @@ export default function ChatBothistoryPage() {
       <div className="mb-4 p-6">
         <PersonaSlider
           onAdd={() => router.push("/main/custom")}
-          refreshKey={refreshKey}
           visibleCount={4}
           itemSize={72}
           className="object-cover"
@@ -224,20 +236,22 @@ export default function ChatBothistoryPage() {
         open={openDetail}
         onClose={() => setOpenDetail(false)}
         personaId={selectedPersonaId}
-        onDeleted={() => {
-          setRefreshKey((v) => v + 1); // ✅ 삭제 → PersonaSlider 다시 fetch
+        onDeleted={(deletedId) => {
+          setSliderItems((prev) =>
+            prev.filter((it) => !("isAdd" in it) && it.personaId !== deletedId)
+          );
           setOpenDetail(false);
         }}
       />
 
-      <div className="mb-6 px-6">
+      <div className="mb-6 pl-6 pr-0">
         <div className="flex items-center justify-between">
           <div className="flex space-x-2">
             <button
               onClick={() => handleFilterClick("done")}
-              className={`px-3 py-1 rounded-full border text-xs font-medium transition-colors cursor-pointer ${
+              className={`px-3 pt-1 pb-1.5 rounded-full border text-xs font-medium transition-colors cursor-pointer ${
                 selectedFilter === "done"
-                  ? "border-blue-500 text-blue-500 bg-white"
+                  ? " text-white bg-[#374151]"
                   : "border-gray-300 text-gray-500 bg-white"
               }`}
             >
@@ -245,20 +259,64 @@ export default function ChatBothistoryPage() {
             </button>
             <button
               onClick={() => handleFilterClick("in-progress")}
-              className={`px-4 py-1 rounded-full border text-xs font-medium transition-colors cursor-pointer ${
+              className={`px-4 pt-1 pb-1.5 rounded-full border text-xs font-medium transition-colors cursor-pointer ${
                 selectedFilter === "in-progress"
-                  ? "border-blue-500 text-blue-500 bg-white"
+                  ? "text-white bg-[#374151]"
                   : "border-gray-300 text-gray-500 bg-white"
               }`}
             >
               In progress
             </button>
           </div>
+          <div className="relative flex items-end justify-end px-4 mb-2">
+            {/* 드롭다운 토글 버튼 */}
+            <button
+              onClick={() => setOpen(!open)}
+              className="flex items-center gap-1 text-xs cursor-pointer  rounded"
+            >
+              {sort === "asc" ? "Oldest activity" : "Latest activity"}
+              <ChevronDownIcon
+                className={`w-4 h-4 transform transition-transform pt-0.5 ${
+                  open ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {/* 드롭다운 옵션 목록 */}
+            {open && (
+              <div className="absolute right-6 top-full mt-0.5 w-25   z-10">
+                <button
+                  onClick={() => {
+                    setSort("desc");
+                    setOpen(false);
+                  }}
+                  className={`w-full text-center px-1 py-2 text-xs hover:bg-gray-100 ${
+                    sort === "desc"
+                      ? "bg-gray-50 font-medium text-blue-600"
+                      : ""
+                  }`}
+                >
+                  Latest activity
+                </button>
+                <button
+                  onClick={() => {
+                    setSort("asc");
+                    setOpen(false);
+                  }}
+                  className={`w-full text-center px-1 py-2 text-xs hover:bg-gray-100 ${
+                    sort === "asc" ? "bg-gray-50 font-medium text-blue-600" : ""
+                  }`}
+                >
+                  Oldest activity
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-24 bg-white p-6 border-t">
-        <div className="space-y-4">
+      <div className="flex-1  pb-24 bg-white pt-2 border-t border-gray-400">
+        <div className="space-y-2">
           {loading ? (
             <div className="flex items-center justify-center h-full py-30">
               <p>Loading...</p>
@@ -294,7 +352,7 @@ export default function ChatBothistoryPage() {
                 </div>
               )}
 
-              {filtered.map((chat) => {
+              {sortedHistory.map((chat) => {
                 const name = getName(chat?.aiPersona?.name);
                 const desc = chat?.aiPersona?.description ?? "";
                 const img = getImg(chat?.aiPersona?.profileImageUrl);
@@ -306,7 +364,7 @@ export default function ChatBothistoryPage() {
                 return (
                   <div
                     key={chat.conversationId}
-                    className="border-b border-[#D1D5DB]"
+                    className="border-b border-gray-400"
                   >
                     <div
                       className="flex items-center justify-between p-3 hover:bg-gray-50 transition-colors cursor-pointer"
@@ -338,15 +396,23 @@ export default function ChatBothistoryPage() {
                               {name}
                             </h3>
                             <span
-                              className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                              className={`flex items-center gap-0.5 text-xs px-1 py-0.5 rounded-full ${
                                 chat.status === "ACTIVE"
                                   ? "bg-blue-100 text-blue-600"
                                   : "bg-green-100 text-green-500"
                               }`}
                             >
-                              {chat.status === "ACTIVE"
-                                ? "In progress"
-                                : "Done"}
+                              {chat.status === "ACTIVE" ? (
+                                <>
+                                  <InProgressIcon className="w-4 h-4" />
+                                  <span className="pb-0.5">In progress</span>
+                                </>
+                              ) : (
+                                <>
+                                  <DoneIcon className="w-4 h-4" />
+                                  <span className="pb-0.5">Done</span>
+                                </>
+                              )}
                             </span>
                           </div>
                           <p className="text-[13px] text-gray-600 truncate">
@@ -355,8 +421,8 @@ export default function ChatBothistoryPage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 text-gray-500 flex-col">
-                        <span className="flex text-xs gap-1">
+                      <div className="flex items-center gap-2 text-black flex-col">
+                        <span className="flex text-xs gap-1 text-gray-400">
                           <span>
                             {new Date(chat.createdAt).toLocaleDateString(
                               "en-US",
@@ -374,28 +440,59 @@ export default function ChatBothistoryPage() {
                             )}
                           </span>
                         </span>
-                        <span className="text-xs">{isOpen ? "▲" : "▼"}</span>
+                        <span>
+                          {isOpen ? (
+                            <ChevronUpIcon className="size-4 " />
+                          ) : (
+                            <ChevronDownIcon className="size-4" />
+                          )}
+                        </span>
                       </div>
                     </div>
-                    {isOpen && chat.status === "ACTIVE" && (
-                      <div className="p-3 flex gap-2 items-center justify-center">
-                        <button
-                          onClick={() => handleOpenChat(chat.conversationId)}
-                          className="w-25 h-9 py-2 bg-blue-600 text-white rounded-xl cursor-pointer"
+                    <AnimatePresence initial={false}>
+                      {isOpen && chat.status === "ACTIVE" && (
+                        <motion.div
+                          key="active"
+                          initial={{ opacity: 0, scaleY: 0 }}
+                          animate={{ opacity: 1, scaleY: 1 }}
+                          exit={{ opacity: 0, scaleY: 0 }}
+                          transition={{ duration: 0.25, ease: "easeInOut" }}
+                          className="overflow-hidden origin-top"
                         >
-                          <p className="text-xs">Open Chat</p>
-                        </button>
-                        <button
-                          onClick={() => handleDeleteChat(chat.conversationId)}
-                          className="w-25 h-9 py-2 bg-gray-300 text-gray-700 rounded-xl cursor-pointer"
+                          <div className="px-3 flex gap-2 items-center justify-center bg-[#F3F4F6] h-[83px]">
+                            <button
+                              onClick={() =>
+                                handleOpenChat(chat.conversationId)
+                              }
+                              className="w-25 h-9 py-2 bg-blue-600 text-white rounded-xl cursor-pointer"
+                            >
+                              <p className="text-xs">Open Chat</p>
+                            </button>
+                            <button
+                              onClick={() =>
+                                handleDeleteChat(chat.conversationId)
+                              }
+                              className="w-25 h-9 py-2 bg-gray-300 text-gray-700 rounded-xl cursor-pointer"
+                            >
+                              <p className="text-xs">Delete</p>
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {isOpen && chat.status === "ENDED" && (
+                        <motion.div
+                          key="ended"
+                          initial={{ maxHeight: 0, opacity: 0 }}
+                          animate={{ maxHeight: 400, opacity: 1 }} // 400 같은 넉넉한 값
+                          exit={{ maxHeight: 0, opacity: 0 }}
+                          transition={{ duration: 0.3, ease: "easeInOut" }}
+                          className="overflow-hidden"
                         >
-                          <p className="text-xs">Delete</p>
-                        </button>
-                      </div>
-                    )}
-                    {isOpen && chat.status === "ENDED" && (
-                      <FeedbackSection id={chat.conversationId} />
-                    )}
+                          <FeedbackSection id={chat.conversationId} />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 );
               })}

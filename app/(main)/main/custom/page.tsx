@@ -29,7 +29,6 @@ const situationOptions = {
   ],
 } as const;
 
-// ✅ 파생 타입
 type Role = keyof typeof situationOptions;
 type SituationValue = (typeof situationOptions)[Role][number]["value"];
 
@@ -49,10 +48,10 @@ export default function PersonaAndRoom() {
   const { accessToken } = useAuth();
   const router = useRouter();
 
-  const [name, setName] = useState("Noonchi");
+  const [name, setName] = useState("");
   const [gender, setGender] = useState<"MALE" | "FEMALE" | "NONE">("NONE");
   const [age, setAge] = useState<number | "">("");
-
+  const DEFAULT_AVATAR = "/characters/character2.png";
   // ✅ 역할과 상황(역할 바뀌면 첫 상황으로 리셋)
   const [relationship, setRelationship] = useState<Role>("BOSS");
   const [description, setDescription] = useState<SituationValue>(
@@ -63,9 +62,7 @@ export default function PersonaAndRoom() {
     setDescription(first); // 역할 변경 시 항상 해당 역할의 첫 상황으로 동기화
   }, [relationship]);
 
-  const [profileImageUrl, setProfileImageUrl] = useState<React.ReactNode>(
-    <Face0 />
-  );
+  const [profileImageUrl, setProfileImageUrl] = useState("");
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,7 +106,12 @@ export default function PersonaAndRoom() {
     e.preventDefault();
     setShowLoading(true);
     try {
-      // 1) 페르소나 생성
+      const safeName = name.trim() === "" ? "Noonchi" : name;
+      const safeProfileImage =
+        profileImageUrl && profileImageUrl.trim() !== ""
+          ? profileImageUrl
+          : DEFAULT_AVATAR;
+
       const personaRes = await fetch("/api/personas", {
         method: "POST",
         headers: {
@@ -117,18 +119,16 @@ export default function PersonaAndRoom() {
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          name,
+          name: safeName,
           gender,
           age: age === "" ? 20 : age,
           relationship,
           description,
-          profileImageUrl,
+          profileImageUrl: safeProfileImage,
         }),
       });
       if (!personaRes.ok) throw new Error("Persona 생성 실패");
       const persona: Persona = await personaRes.json();
-
-      // 2) 대화방 생성
       const convoRes = await fetch("/api/conversations", {
         method: "POST",
         headers: {
@@ -137,7 +137,7 @@ export default function PersonaAndRoom() {
         },
         body: JSON.stringify({
           personaId: persona.personaId,
-          situation: description, // 현재 선택된 상황
+          situation: description,
         }),
       });
       if (!convoRes.ok) throw new Error("방 생성 실패");
@@ -148,11 +148,10 @@ export default function PersonaAndRoom() {
     } catch (e: any) {
       alert("생성 실패: " + (e?.message ?? e));
       setShowLoading(false);
-    } finally {
     }
   };
   if (showLoading) {
-    return <Loading />; // 여기서 loading.tsx 보여줌
+    return <Loading />;
   }
   return (
     <div className="w-full max-w-md mx-auto flex flex-col relative overflow-y-auto bg-white">
@@ -181,7 +180,7 @@ export default function PersonaAndRoom() {
             className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 cursor-pointer"
             onClick={() => setAvatarModalOpen(true)}
           >
-            {typeof profileImageUrl === "string" ? (
+            {profileImageUrl ? (
               <Image
                 src={profileImageUrl}
                 width={96}
@@ -190,7 +189,9 @@ export default function PersonaAndRoom() {
                 className="object-cover w-full h-full"
               />
             ) : (
-              profileImageUrl || <Face0 />
+              <div className="w-full h-full flex items-center justify-center text-4xl text-gray-400">
+                +
+              </div>
             )}
           </button>
         </div>

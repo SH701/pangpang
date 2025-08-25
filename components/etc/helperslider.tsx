@@ -126,7 +126,7 @@ export default function HelperSlider({ onChange }: Props) {
               style={{ height: "16px", width: "100%" }}
             >
               <div
-                className="absolute inset-0 bg-[#DBEAFE] rounded-full"
+                className="absolute inset-0 bg-gray-200 rounded-full"
                 style={{ height: "16px", width: "100%" }}
               />
               {steps.map((_, i) => (
@@ -141,7 +141,7 @@ export default function HelperSlider({ onChange }: Props) {
                     aspectRatio: "1/1",
                     backgroundColor: "var(--Color-Blue-200, #BFDBFE)",
                     borderRadius: "50%",
-                    marginLeft: i === 0 ? "4px" : i === max ? "-4px" : "0px",
+                    marginLeft: i === 0 ? "8px" : i === fMax ? "-8px" : "-4px",
                   }}
                 />
               ))}
@@ -225,7 +225,7 @@ export default function HelperSlider({ onChange }: Props) {
               style={{ height: "16px", width: "100%" }}
             >
               <div
-                className="absolute inset-0 bg-[#DBEAFE] rounded-full"
+                className="absolute inset-0 bg-gray-200 rounded-full"
                 style={{ height: "16px", width: "100%" }}
               />
               {famSteps.map((_, i) => (
@@ -240,7 +240,7 @@ export default function HelperSlider({ onChange }: Props) {
                     aspectRatio: "1/1",
                     backgroundColor: "var(--Color-Blue-200, #BFDBFE)",
                     borderRadius: "50%",
-                    marginLeft: i === 0 ? "4px" : i === fMax ? "-4px" : "0px",
+                    marginLeft: i === 0 ? "8px" : i === fMax ? "-8px" : "-4px",
                   }}
                 />
               ))}

@@ -296,38 +296,41 @@ export default function Slider() {
 
   return (
     <div className="w-[335px] flex flex-col justify-center items-center rounded-xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] mx-auto bg-white mt-5">
-      <span className=" text-lg py-2 px-4 mt-3">
-        Today&apos;s honorific expression
+      <span className="font-semibold text-lg py-2 px-4 mt-3">
+        Today`s honorific expression
       </span>
 
       {/* 오늘의 문장 */}
       <div className="w-[296px] bg-gray-100 border border-gray-200 py-3 my-2 mb-3 rounded-xl">
-        <div className=" text-base relative text-center px-8">
-          <span className="font-semibold">{currentSentence.phrase}</span>
+        <div className=" text-base relative text-center px-8 py-1">
+          <span>{currentSentence.phrase}</span>
           <button
             onClick={() => setShowex((prev) => !prev)}
             className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800 cursor-pointer"
           >
             {showex ? (
-              <ChevronUpIcon className="size-4" />
+              <ChevronUpIcon className="size-5" />
             ) : (
-              <ChevronDownIcon className="size-4" />
+              <ChevronDownIcon className="size-5" />
             )}
           </button>
         </div>
       </div>
       {showex && (
-        <div className="text-[13px] w-[296px] px-2 py-3 rounded-lg mb-6 border-gray-200 border bg-gray-100 text-center   text-gray-700">
+        <div className="text-[13px] w-[296px] px-2 py-3 rounded-lg mb-3 border-gray-200 border bg-gray-100 text-center   text-gray-700">
           {currentSentence.explanation}
         </div>
       )}
       {showInfo && (
-        <div className="flex justify-center mb-4">
-          <Image src="/etc/Frame.png" alt="Slider" width={266} height={33} />
+        <div className="flex justify-center mb-2">
+          <span className="inline-flex items-center bg-white px-3 py-1 text-xs text-gray-600 rounded-full shadow border">
+            <InformationCircleIcon className="w-4 h-4 mr-1 text-blue-600" />
+            Move the slider to match your situation
+          </span>
         </div>
       )}
       {/* 슬라이더 박스 */}
-      <div className="w-[335px] px-6 max-w-md mx-auto border rounded-xl border-blue-400 bg-[#EFF6FF] pb-6">
+      <div className="w-[335px] px-6 max-w-md mx-auto  rounded-xl   pb-6">
         <div className="pt-2">
           <span
             className="font-pretendard"
@@ -348,7 +351,7 @@ export default function Slider() {
           style={{ height: "16px", width: "100%" }}
         >
           <div
-            className="absolute inset-0 bg-[#DBEAFE] rounded-full"
+            className="absolute inset-0 bg-gray-200 rounded-full"
             style={{ height: "16px", width: "100%" }}
           />
           {steps.map((_, i) => (
@@ -361,14 +364,14 @@ export default function Slider() {
                 height: "8px",
                 flexShrink: 0,
                 aspectRatio: "1/1",
-                backgroundColor: "var(--Color-Blue-200, #BFDBFE)",
+                backgroundColor: "var(--Color-Blue-200, #DEEBFF)",
                 borderRadius: "50%",
-                marginLeft: i === 0 ? "4px" : i === max ? "-4px" : "0px",
+                marginLeft: i === 0 ? "8px" : i === fMax ? "-8px" : "-4px",
               }}
             />
           ))}
           <div
-            className="absolute inset-y-0 left-0 bg-blue-600 rounded-full transition-all duration-300 ease-out"
+            className="absolute inset-y-0 left-0 bg-[#7188AB] rounded-full transition-all duration-300 ease-out"
             style={{
               width: `${percent}%`,
               height: "16px",
@@ -385,7 +388,7 @@ export default function Slider() {
                 height: "28px",
                 flexShrink: 0,
                 backgroundColor: "#FFF",
-                border: "1px solid var(--Color-Blue-700, #1D4ED8)",
+                border: "1px solid black",
                 filter: "drop-shadow(0 4px 4px rgba(59, 107, 240, 0.10))",
                 transform: "translateX(-50%)",
               }}
@@ -444,7 +447,7 @@ export default function Slider() {
           style={{ height: "16px", width: "100%" }}
         >
           <div
-            className="absolute inset-0 bg-[#DBEAFE] rounded-full"
+            className="absolute inset-0 bg-gray-200 rounded-full"
             style={{ height: "16px", width: "100%" }}
           />
 
@@ -458,14 +461,14 @@ export default function Slider() {
                 height: "8px",
                 flexShrink: 0,
                 aspectRatio: "1/1",
-                backgroundColor: "var(--Color-Blue-200, #BFDBFE)",
+                backgroundColor: "var(--Color-Blue-200, #DEEBFF)",
                 borderRadius: "50%",
-                marginLeft: i === 0 ? "4px" : i === fMax ? "-4px" : "0px",
+                marginLeft: i === 0 ? "8px" : i === fMax ? "-8px" : "-4px",
               }}
             />
           ))}
           <div
-            className="absolute inset-y-0  not-[]:left-0 bg-blue-600 rounded-full transition-all duration-300 ease-out"
+            className="absolute inset-y-0  not-[]:left-0 bg-[#7188AB] rounded-full transition-all duration-300 ease-out"
             style={{
               width: `${fPercent}%`,
               height: "16px",
@@ -482,7 +485,7 @@ export default function Slider() {
                 height: "28px",
                 flexShrink: 0,
                 backgroundColor: "#FFF",
-                border: "1px solid var(--Color-Blue-700, #1D4ED8)",
+                border: "1px solid black",
                 filter: "drop-shadow(0 4px 4px rgba(59, 107, 240, 0.10))",
                 transform: "translateX(-50%)",
               }}
