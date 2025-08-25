@@ -149,10 +149,7 @@ export default function ChatroomPage() {
     }
 
     if ((!content || !content.trim()) && !audioUrl) return;
-    const displayContent =
-      audioUrl && (!content || !content.trim())
-        ? "[음성메시지]"
-        : content ?? "";
+    const displayContent = content ?? "";
     const optimistic: ChatMsg = {
       messageId: `user_${Date.now()}`,
       conversationId,
@@ -190,9 +187,6 @@ export default function ChatroomPage() {
       }
 
       if (!userRes.ok) {
-        setMessages((prev) =>
-          prev.filter((msg) => msg.messageId !== optimistic.messageId)
-        );
         return;
       }
 
@@ -530,7 +524,7 @@ export default function ChatroomPage() {
               {micState === "recorded" && (
                 <button onClick={handleSendAudio}>
                   <Image
-                    src="/chatroom/up.png"
+                    src="/chatroom/send.png"
                     alt="Send"
                     width={82}
                     height={82}
