@@ -120,15 +120,18 @@ export default function PersonaSlider({
               style={{ width: itemSize, height: itemSize }}
             >
               {it.profileImageUrl ? (
-                <Image
-                  src={normalizeSrc(it.profileImageUrl)}
-                  alt={it.name}
-                  width={itemSize}
-                  height={itemSize}
-                  className="w-[72px] h-[72px] rounded-full object-cover object-top bg-gray-200 cursor-pointer"
-                  unoptimized
-                  onClick={() => onItemClick?.(i, it)}
-                />
+                <>
+                  <Image
+                    src={normalizeSrc(it.profileImageUrl)}
+                    alt={it.name}
+                    width={itemSize}
+                    height={itemSize}
+                    className="w-[68px] h-[68px] rounded-full object-cover object-top bg-gray-200 cursor-pointer"
+                    unoptimized
+                    onClick={() => onItemClick?.(i, it)}
+                  />
+                  <span className="text-xs">{it.name}</span>
+                </>
               ) : (
                 <div
                   className="rounded-full bg-gray-300 flex items-center justify-center"
