@@ -35,7 +35,7 @@ export default function PersonaDetailModal({
   const router = useRouter();
   const [data, setData] = useState<PersonaDetail | null>(null);
   const [loading, setLoading] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  const [, setDeleting] = useState(false);
 
   // 삭제 핸들러
   const handleDelete = async () => {
