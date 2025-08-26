@@ -20,10 +20,12 @@ type Profile = {
   profileImageUrl: string;
   interests: string[];
 };
+
 export default function Main() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { accessToken } = useAuth();
+
   useEffect(() => {
     if (!accessToken) {
       setError("로그인이 필요합니다");
@@ -54,18 +56,18 @@ export default function Main() {
       style={{ paddingBottom: "calc(153px + env(safe-area-inset-bottom))" }}
     >
       {/* 메인 콘텐츠 */}
-      <div className="flex flex-col ">
-        {/* 환영 섹션 */}
-        <div className="w-full px-7 py-6 text-white bg-[#3B6BF0] ">
+      <div className="flex flex-col w-full">
+        {/* 환영 섹션 - 전체 너비 */}
+        <div className="w-full px-7 py-6 text-white bg-[#3B6BF0]">
           <Logo className="w-28 h-6" />
           <div className="flex justify-between items-start pt-2">
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-8">
+            <div className="flex flex-col gap-2 w-full">
+              <div className="flex gap-8 justify-between items-center">
                 <div className="flex flex-col gap-4">
                   <h1 className="font-bold text-white text-2xl leading-[130%] pt-3">
                     Hi, {profile?.nickname || "Noonchi"}!
                   </h1>
-                  <p className="text-white  leading-[130%] ">
+                  <p className="text-white leading-[130%]">
                     Start a conversation <br />
                     with your partner
                   </p>
@@ -78,15 +80,8 @@ export default function Main() {
                 />
               </div>
               <Link href="/main/custom">
-                <button
-                  className="
-                  mt-1 h-13 px-5 w-full
-                  flex items-center justify-center gap-2 
-                  bg-white text-blue-500 text-sm font-semibold 
-                  rounded-lg shadow-md hover:bg-gray-50 transition-colors duration-200
-                "
-                >
-                  <span className="font-semibold ">Start Conversation</span>
+                <button className="mt-1 h-13 px-5 w-full flex items-center justify-center gap-2 bg-white text-blue-500 text-sm font-semibold rounded-lg shadow-md hover:bg-gray-50 transition-colors duration-200">
+                  <span className="font-semibold">Start Conversation</span>
                   <ChevronRightIcon className="w-4 h-4 font-semibold" />
                 </button>
               </Link>
