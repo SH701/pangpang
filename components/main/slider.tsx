@@ -361,7 +361,7 @@ export default function Slider() {
                 height: "8px",
                 flexShrink: 0,
                 aspectRatio: "1/1",
-                backgroundColor: "var(--Color-Blue-200, #DEEBFF)",
+                backgroundColor: "#D0DCEE",
                 borderRadius: "50%",
                 marginLeft: i === 0 ? "8px" : i === fMax ? "-8px" : "-4px",
               }}
@@ -458,7 +458,7 @@ export default function Slider() {
                 height: "8px",
                 flexShrink: 0,
                 aspectRatio: "1/1",
-                backgroundColor: "var(--Color-Blue-200, #DEEBFF)",
+                backgroundColor: "#D0DCEE",
                 borderRadius: "50%",
                 marginLeft: i === 0 ? "8px" : i === fMax ? "-8px" : "-4px",
               }}
