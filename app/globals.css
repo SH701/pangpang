@@ -67,6 +67,22 @@ body {
 }
 
 /* Custom Slider Styles */
+.slick-dots {
+  margin-bottom: 40px !important; /* mb-10과 동일 (2.5rem = 40px) */
+}
+
+.slick-dots li button:before {
+  color: #d1d5db !important; /* 기본 dot 색상 (gray-300) */
+  font-size: 8px !important;
+  opacity: 1 !important;
+}
+
+.slick-dots li.slick-active button:before {
+  color: #3b82f6 !important; /* active dot 하늘색 (blue-500) */
+  opacity: 1 !important;
+}
+
+/* Custom Slider Styles */
 .slider-blue::-webkit-slider-thumb {
   appearance: none;
   width: 20px;

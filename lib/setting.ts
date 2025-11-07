@@ -10,7 +10,7 @@ type Slide = {
   title: string;
   desc: string;
   icon: ComponentType; // ✅ React 컴포넌트 타입
-  img?: string;        // ✅ 선택적 속성
+  img?: string; // ✅ 선택적 속성
 };
 
 export const slides: Slide[] = [
@@ -34,7 +34,7 @@ export const slides: Slide[] = [
   },
   {
     id: 4,
-    title: "Powerd by K-AI trained for Korean culture",
+    title: "",
     desc: "Noonchi is built with K-culture AI, fine-tuned on thousands of real Korean conversations.",
     icon: Fourth,
   },
