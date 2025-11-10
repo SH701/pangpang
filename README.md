@@ -1,36 +1,18 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Noonchi
 
-## Getting Started
+**Noonchi**는 한국어 대화에서의 상황·관계·말투를 학습하도록 돕는  
+AI 대화형 코칭 서비스입니다.  
+OpenAI API, TTS, 번역 및 음성인식 기능을 결합하여  
+실제처럼 자연스러운 대화 경험을 제공합니다.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 주요 기능
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **페르소나 기반 대화**: 상사, 친구, 면접관 등 다양한 캐릭터와 대화 가능  
+- **존댓말/반말 슬라이더**: 상황에 맞는 말투 조정  
+- **실시간 음성 입출력**: 마이크 입력 + TTS 음성 응답  
+- **문장 교정 및 번역**: 잘못된 표현 수정, 다국어 변환 지원  
+- **대화 로그 및 피드백**: 이전 대화 저장 및 학습 피드백 제공  
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
