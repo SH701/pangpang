@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  ChevronDownIcon,
-  InformationCircleIcon,
-  ChevronUpIcon,
-} from "@heroicons/react/24/solid";
+import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 

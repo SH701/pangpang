@@ -16,10 +16,15 @@ export const settings: Settings = {
   slidesToShow: 1,
   slidesToScroll: 1,
   arrows: false,
-  adaptiveHeight: false,
   draggable: false,
   swipe: false,
   dotsClass: "slick-dots custom-dots",
+  responsive: [
+    {
+      breakpoint: 640,
+      settings: { dots: false },
+    },
+  ],
 };
 
 export default function Onboard() {
